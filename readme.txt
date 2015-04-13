@@ -66,7 +66,7 @@ You can add up to 20 subscribers in ONE mailing group using the free plugin.
 Yes, you can: go to Mailing Group Manager > General Settings, and select the Custom Messages tab. There you can input your custom message (using the listed variables, if you are technical!). 
 You can also go to Mailing Group Manager > Subscription Requests, and click the message icon next to a subscription request. This opens up a popup window where you can type in a custom message, and check the box at the bottom that allows you to save it for repeated use.
 
-= I don’t have access to cron scripts on my shared server. Can I still use the plugin? =
+= I donï¿½t have access to cron scripts on my shared server. Can I still use the plugin? =
 
 If you do not have cron access, then you can only use the plugin to collect a list of subscribers. You would not be able to use it as a mailing group manager. The crons are responsible for checking mail that arrives in the designated email box for your group, and for sending out messages to group members. Without the cron scripts in place, none of that would happen.
 
@@ -80,6 +80,9 @@ If you do not have cron access, then you can only use the plugin to collect a li
 
 
 == Changelog ==
+
+=1.0.1=
+* Added support for Selecting POP3 SSL as optional.
 
 = 1.0 =
 * First version of the plugin released.
