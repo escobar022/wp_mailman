@@ -1,0 +1,1409 @@
+<?php /**
+* @package Mailing_group_module
+* @version 1.0
+*/
+/*
+Plugin Name: WP Mailing Group Premium 
+Plugin URI: http://www.wpmailinggroup.com
+Description: PREMIUM Version -- Connect yourselves with a mailing group run from your WordPress website! This is NOT a one-way mailing or announcement list from an administrator to a group, but a Group email list where all subscribers can exchange messages via one central email address. (NB: POP / IMAP email box required - Cron optional but recommended for low traffic websites)
+Author: Marcus Sorensen & NetForce Labs
+Version: 1.0
+Plugin URI: http://www.wpmailinggroup.com
+*/
+if (preg_match('#' . basename(__FILE__) . '#', $_SERVER['PHP_SELF'])) {
+    die('You are not allowed to call this page directly.');
+}
+/**
+
+* Indicates that a clean exit occured. Handled by set_exception_handler
+
+*/
+if (!class_exists('E_Clean_Exit')) {
+    class E_Clean_Exit extends RuntimeException
+    {
+    }
+}
+define("WPMG_PLUGIN_URL", plugin_dir_url(__FILE__));
+define("WPMG_PRODUCT_ITEM_NAME", "WP MailingGroup Premium" );
+define("WPMG_STORE_URL", "http://www.wordpressmailinggroup.com" );
+/* Class to be used in complete plugin for all db requests */
+
+require_once("lib/mailinggroupclass.php");
+$objMem = new mailinggroupClass();
+global $objMem;
+
+require_once("lib/receivemail.class.php");
+$obj = new receiveMail('','','',$mailserver='',$servertype='',$port='',$ssl='');
+global $obj;
+
+
+/*Define global variable to be used in plugin*/
+global $wpdb, $table_name_group, $table_name_message, $table_name_requestmanager, $table_name_requestmanager_taxonomy, $table_name_user_taxonomy, $table_name_parsed_emails, $table_name_sent_emails, $table_name_users, $table_name_usermeta;
+$visibilityArray  = array(
+    "Public" => '1',
+    "Invitation" => '2',
+    "Private" => '3'
+);
+
+$WPMG_SETTINGS = get_option("WPMG_SETTINGS");
+global $WPMG_SETTINGS;
+
+$table_name_group                   = $wpdb->prefix . "mailing_group";
+$table_name_message                 = $wpdb->prefix . "mailing_group_messages";
+$table_name_requestmanager          = $wpdb->prefix . "mailing_group_requestmanager";
+$table_name_requestmanager_taxonomy = $wpdb->prefix . "mailing_group_taxonomy";
+$table_name_user_taxonomy           = $wpdb->prefix . "mailing_group_user_taxonomy";
+$table_name_parsed_emails           = $wpdb->prefix . "mailing_group_parsed_emails";
+$table_name_sent_emails             = $wpdb->prefix . "mailing_group_sent_emails";
+$table_name_users                   = $wpdb->prefix . "users";
+$table_name_usermeta                = $wpdb->prefix . "usermeta";
+
+add_filter( 'cron_schedules', 'cron_add_weekly' );
+function cron_add_weekly( $schedules ) {
+ 	// Adds once weekly to the existing schedules.
+ 	$schedules['wpmg_two_minute'] = array(
+ 		'interval' => 120,
+ 		'display' => __( 'Every Two Minutes', 'mailing-group-module' )
+ 	);
+ 	$schedules['wpmg_five_minute'] = array(
+ 		'interval' => 300,
+ 		'display' => __( 'Every Five Minutes', 'mailing-group-module' )
+ 	);
+ 	$schedules['wpmg_fifteen_minute'] = array(
+ 		'interval' => 900,
+ 		'display' => __( 'Every Fifteen Minutes', 'mailing-group-module' )
+ 	);	
+ 	return $schedules;
+}
+
+function wpmg_add_mailing_group_plugin()
+{
+
+    global $wpdb, $table_name_group, $table_name_message, $table_name_requestmanager, $table_name_requestmanager_taxonomy, $table_name_user_taxonomy, $table_name_parsed_emails, $table_name_sent_emails, $table_name_users, $table_name_usermeta;
+    /* ADD CONFIG OPTION TO OPTION TABLE*/
+
+	if ( ! wp_next_scheduled('wpmg_cron_task_send_email')) {
+	    wp_schedule_event( time(), 'wpmg_two_minute', 'wpmg_cron_task_send_email' );
+	}
+	if ( ! wp_next_scheduled('wpmg_cron_task_parse_email')) {
+	    wp_schedule_event( time(), 'wpmg_five_minute', 'wpmg_cron_task_parse_email' );
+	}
+	if ( ! wp_next_scheduled('wpmg_cron_task_bounced_email')) {
+	    wp_schedule_event( time(), 'wpmg_fifteen_minute', 'wpmg_cron_task_bounced_email' );
+	}	
+
+	$wpmg_setting = array(
+		"MG_WEBSITE_URL" => "http://www.wpmailinggroup.com",
+		"MG_VERSION_NO"  => "1.0",
+		"MG_PLUGIN_TYPE" => "PAID",
+		"MG_SUBSCRIPTION_REQUEST_CHECK" => "1",
+		"MG_SUBSCRIPTION_REQUEST_ALERT_EMAIL" => "e.g. your-mail@example.com",
+		"MG_BOUNCE_CHECK" => "0",
+		"MG_BOUNCE_CHECK_ALERT_TIMES" => "2",
+		"MG_BOUNCE_CHECK_ALERT_EMAIL" => "e.g. your-mail@example.com",
+		"MG_CUSTOM_STYLESHEET" => "",
+		"MG_CONTACT_ADDRESS"   => "Test1, first drive<br>Highway 1st<br>NSD 201345",
+		"MG_SUPPORT_EMAIL"     => "marcus@wpmailinggroup.com",
+		"MG_SUPPORT_PHONE"     => "1800-123-1234"
+	);
+
+    update_option("WPMG_SETTINGS", $wpmg_setting);	
+	
+    $MSQL = "show tables like '$table_name_group'";
+    if ($wpdb->get_var($MSQL) != $table_name_group) {
+        $sql = "CREATE TABLE IF NOT EXISTS `$table_name_group` (
+			  `id` mediumint(9) NOT NULL AUTO_INCREMENT,
+
+			  `title` varchar(200) NOT NULL,
+			  
+			  `use_in_subject` int(2) NOT NULL DEFAULT '0',
+
+			  `email` varchar(255) NOT NULL,
+
+			  `password` varchar(100) NOT NULL,
+			  
+			  `pop_server_type` varchar(50) NOT NULL,
+			  
+			  `smtp_server` varchar(100) NOT NULL,
+
+			  `pop_server` varchar(100) NOT NULL,
+
+			  `smtp_port` varchar(20) NOT NULL,
+
+			  `pop_port` varchar(20) NOT NULL,
+
+			  `smtp_username` varchar(100) NOT NULL,
+
+			  `smtp_password` varchar(100) NOT NULL,
+
+			  `pop_username` varchar(100) NOT NULL,
+
+			  `pop_password` varchar(100) NOT NULL,
+
+			  `archive_message` tinyint(2) NOT NULL DEFAULT '0',
+
+			  `auto_delete` tinyint(2) NOT NULL DEFAULT '0',
+
+			  `auto_delete_limit` tinyint(2) NOT NULL DEFAULT '0',
+
+			  `footer_text` text NOT NULL,
+
+			  `sender_name` varchar(50) NOT NULL,
+
+			  `sender_email` varchar(50) NOT NULL,
+			  
+			  `status` tinyint(2) NOT NULL DEFAULT '0',
+			  
+			  `visibility` enum('1','2','3') NOT NULL DEFAULT '1',
+
+              `mail_type` varchar(50) NOT NULL,			  
+
+			  PRIMARY KEY (`id`)
+
+			) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;";
+        require_once(ABSPATH . "wp-admin/includes/upgrade.php");
+        dbDelta($sql);
+    }
+    $MSQL = "show tables like '$table_name_message'";
+    if ($wpdb->get_var($MSQL) != $table_name_message) {
+        $sql      = "CREATE TABLE IF NOT EXISTS `$table_name_message` (
+
+			  `id` mediumint(9) NOT NULL AUTO_INCREMENT,
+
+			  `title` varchar(255) DEFAULT NULL,
+
+			  `message_type` varchar(255) NOT NULL,
+
+			  `message_subject` varchar(255) NOT NULL,
+
+			  `description` text,
+
+			  `status` enum('0','1') DEFAULT '0',
+
+			  PRIMARY KEY (`id`)
+
+			) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;";
+        $sql2     = "INSERT INTO `$table_name_message` (id,title,description,status) VALUES ('','Credentials Check','Hello {%name%},
+
+
+
+Thank you for your subscription request to {%group_name%} at {%site_title%} ({%site_url%}).
+
+
+
+Could you please send supporting documents to confirm your credentials for joining this list?
+
+
+
+Thank you in advance.
+
+
+
+The List Admin.
+
+{%site_email%}','1')";
+        $data1    = mysql_real_escape_string("Dear Admin,\r\n\r\nA new subscription request was submitted on {%site_title%}.\r\n\r\nGroup Subscribed :  {%group_name%}\r\nUser Name : {%name%}\r\nUser Email : {%email%}\r\n\r\nPlease visit the <a href='{%group_url%}'>Mailing Group Manager</a> to respond to this request.");
+        $subject1 = mysql_real_escape_string("New subscription request for {%group_name%}");
+        $data2    = mysql_real_escape_string("Hi there,\r\n\r\nWelcome to {%site_title%}! Here's how to log in:\r\n\r\nUsername: {%name%}\r\nPassword: {%password%}\r\n\r\nIf you have any problems, please contact me at {%site_email%}.");
+        $subject2 = mysql_real_escape_string("{%site_title%} account confirmation");
+        $data3    = mysql_real_escape_string("New user registration on {%site_title%}:\r\n\r\nUsername: {%name%}\r\nE-mail: {%email%}.");
+        $subject3 = mysql_real_escape_string("New user on {%site_title%}");
+        $data4    = mysql_real_escape_string("Hi {%displayname%},\r\n\r\n{%group_list%} at <a href='{%site_url%}'>{%site_title%}</a> has received a subscription request for your email address: {%email%}. If you would like to confirm your subscription, please click the activation link below, or copy and paste it into your web browser:\r\n\r\n<a href='{%activation_url%}'>{%activation_url%}</a>\r\n\r\nIf you did not request membership of this mailing group, please disregard this message and accept our apologies for any inconvenience caused.");
+        $subject4 = mysql_real_escape_string("Email opt-in confirmation: {%group_name%}");
+        $data5    = mysql_real_escape_string("Hi {%displayname%},\r\n\r\nWelcome to {%group_list%} at <a href='{%site_url%}'>{%site_title%} - ({%site_url%})</a>!\r\n\r\nYour group subscription was successful, and here are a few hints on how to update it in future.\r\n\r\nTo Unsubscribe, or to change your email format preference (Plain Text / HTML), please visit your <a href='{%login_url%}'>User Profile</a> and log in with the account information sent to you in a separate email.\r\n\r\nShould you mislay that account information, you can request a new password by inputting your email address at <a href='{%login_url%}'>{%login_url%}</a>.");
+        $subject5 = mysql_real_escape_string("Welcome to {%group_name%}!");
+        $sql3     = "INSERT INTO `" . $table_name_message . "` (`message_type`, `message_subject`, `title`, `description`) VALUES ('wpmg_sendmessagetoAdmin','" . $subject1 . "','For admin: New subscription request alert', '" . $data1 . "'),('RegistrationNotificationMailToMember','" . $subject2 . "','For subscribers: WP site membership confirmation with login details', '" . $data2 . "'),('RegistrationNotificationMailToAdmin','" . $subject3 . "','For admin: New WP site member with login details', '" . $data3 . "'),('Confirmationemailforsubscribertoverifyaccount','" . $subject4 . "','For subscribers: Opt-in confirmation for new subscribers', '" . $data4 . "'),('Emailuseronsuccessfullregisterationofagroup','" . $subject5 . "','For subscribers: Confirmation of successful group subscription', '" . $data5 . "')";
+        require_once(ABSPATH . "wp-admin/includes/upgrade.php");
+        dbDelta($sql);
+        dbDelta($sql2);
+        dbDelta($sql3);
+    }
+    $MSQL = "show tables like '$table_name_requestmanager'";
+    if ($wpdb->get_var($MSQL) != $table_name_requestmanager) {
+        $sql = "CREATE TABLE IF NOT EXISTS `$table_name_requestmanager` (
+
+			  `id` int(9) NOT NULL AUTO_INCREMENT,
+
+			  `name` varchar(200) NOT NULL,
+
+			  `username` varchar(150) NOT NULL,
+
+			  `email` varchar(255) NOT NULL,
+
+			  `message_sent` int(2) NOT NULL DEFAULT '0',
+
+			  `status` tinyint(2) NOT NULL,
+
+			  PRIMARY KEY (`id`)
+
+			) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1";
+        require_once(ABSPATH . "wp-admin/includes/upgrade.php");
+        dbDelta($sql);
+    }
+    $MSQL = "show tables like '$table_name_requestmanager_taxonomy'";
+    if ($wpdb->get_var($MSQL) != $table_name_requestmanager_taxonomy) {
+        $sql = "CREATE TABLE IF NOT EXISTS `$table_name_requestmanager_taxonomy` (
+
+			  `id` int(50) NOT NULL AUTO_INCREMENT,
+
+			  `user_id` int(50) NOT NULL,
+
+			  `group_id` int(50) NOT NULL,
+
+			  `group_email_format` tinyint(2) NOT NULL DEFAULT '0',
+
+			  PRIMARY KEY (`id`)
+
+			) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1";
+        require_once(ABSPATH . "wp-admin/includes/upgrade.php");
+        dbDelta($sql);
+    }
+    $MSQL = "show tables like '$table_name_user_taxonomy'";
+    if ($wpdb->get_var($MSQL) != $table_name_user_taxonomy) {
+        $sql = "CREATE TABLE IF NOT EXISTS `$table_name_user_taxonomy` (
+
+			  `id` int(50) NOT NULL AUTO_INCREMENT,
+
+			  `user_id` int(50) NOT NULL,
+
+			  `group_id` int(50) NOT NULL,
+
+			  `group_email_format` tinyint(2) NOT NULL,
+
+			  PRIMARY KEY (`id`)
+
+			) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1";
+        require_once(ABSPATH . "wp-admin/includes/upgrade.php");
+        dbDelta($sql);
+    }
+    $MSQL = "show tables like '$table_name_parsed_emails'";
+    if ($wpdb->get_var($MSQL) != $table_name_parsed_emails) {
+        $sql = "CREATE TABLE IF NOT EXISTS `$table_name_parsed_emails` (
+
+			  `id` bigint(100) NOT NULL AUTO_INCREMENT,
+
+              `type` varchar(50) NOT NULL DEFAULT 'email',
+
+			  `email_bounced` varchar(100) NOT NULL,
+
+			  `email_from` varchar(255) NOT NULL,
+
+			  `email_from_name` varchar(255) NOT NULL,
+
+			  `email_to` varchar(255) NOT NULL,
+
+			  `email_to_name` varchar(255) NOT NULL,
+
+			  `email_subject` varchar(255) NOT NULL,
+
+			  `email_content` longblob NOT NULL,
+
+			  `email_group_id` int(20) NOT NULL,
+
+			  `status` tinyint(2) NOT NULL DEFAULT '0',
+
+			  PRIMARY KEY (`id`)
+
+			) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1";
+        require_once(ABSPATH . "wp-admin/includes/upgrade.php");
+        dbDelta($sql);
+    }
+    $MSQL = "show tables like '$table_name_sent_emails'";
+    if ($wpdb->get_var($MSQL) != $table_name_sent_emails) {
+        $sql = "CREATE TABLE IF NOT EXISTS `$table_name_sent_emails` (
+
+			  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+
+			  `user_id` int(10) NOT NULL,
+
+			  `email_id` int(10) NOT NULL,
+
+			  `group_id` int(20) NOT NULL,
+
+			  `sent_date` datetime NOT NULL,
+
+			  `status` int(2) NOT NULL DEFAULT '0',
+
+			  `error_msg` text NOT NULL,
+
+			  PRIMARY KEY (`id`)
+
+			) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1";
+        require_once(ABSPATH . "wp-admin/includes/upgrade.php");
+        dbDelta($sql);
+    }
+}
+function wpmg_myStartSession()
+{
+    if (!session_id() && !is_admin()) {
+        session_start();
+    }
+}
+function wpmg_myEndSession()
+{
+    session_destroy();
+}
+/* Hooks used in Plugin */
+register_activation_hook(__FILE__, 'wpmg_add_mailing_group_plugin');
+register_uninstall_hook(__FILE__, "wpmg_mailing_group_uninstall");
+register_deactivation_hook(__FILE__, "wpmg_mailing_group_deactivate");
+add_action('init', 'wpmg_myStartSession', 1);
+add_action('wp_logout', 'wpmg_myEndSession');
+add_action('wp_login', 'wpmg_myEndSession');
+/* Creating Menus */
+function wpmg_mailinggroup_Menu()
+{
+    $admin_level = 10;
+    $user_level  = 0;
+    $status 	 = get_option( 'wpmg_mailing_license_status' );
+
+    if ($status =='valid') {
+        /* Adding menus */
+	    if (current_user_can('manage_options')) {	
+        add_menu_page(__('Mailing Group Manager','mailing-group-module'), __('Mailing Group Manager', 'mailing-group-module'), $admin_level, 'wpmg_mailinggroup_intro', 'wpmg_mailinggroup_intro');
+        add_submenu_page('wpmg_mailinggroup_intro', __('General Settings', 'mailing-group-module'), __('General Settings', 'mailing-group-module'), $admin_level, 'wpmg_mailinggroup_intro', 'wpmg_mailinggroup_intro');
+        add_submenu_page('wpmg_mailinggroup_intro', __('Mailing Groups', 'mailing-group-module'), __('Mailing Groups', 'mailing-group-module'), $admin_level, 'wpmg_mailinggroup_list', 'wpmg_mailinggroup_list');
+        add_submenu_page('null', __('Add Mailing Group', 'mailing-group-module'), __('Add Mailing Group', 'mailing-group-module'), $admin_level, 'wpmg_mailinggroup_add', 'wpmg_mailinggroup_add');
+        add_submenu_page('null', __('Member Manager', 'mailing-group-module'), __('Member Manager', 'mailing-group-module'), $admin_level, 'wpmg_mailinggroup_memberlist', 'wpmg_mailinggroup_memberlist');
+        add_submenu_page('null', __('Add Member', 'mailing-group-module'), __('Add Member', 'mailing-group-module'), $admin_level, 'wpmg_mailinggroup_memberadd', 'wpmg_mailinggroup_memberadd');
+        add_submenu_page('wpmg_mailinggroup_intro', __('Add Subscribers', 'mailing-group-module'), __('Add Subscribers', 'mailing-group-module'), $admin_level, 'wpmg_mailinggroup_requestmanageradd', 'wpmg_mailinggroup_requestmanageradd');
+        add_submenu_page('wpmg_mailinggroup_intro', __('Import Users', 'mailing-group-module'), __('Import Users', 'mailing-group-module'), $admin_level, 'wpmg_mailinggroup_importuser', 'wpmg_mailinggroup_importuser');
+        add_submenu_page('wpmg_mailinggroup_intro', __('Subscription Requests', 'mailing-group-module'), __('Subscription Requests', 'mailing-group-module'), $admin_level, 'wpmg_mailinggroup_requestmanagerlist', 'wpmg_mailinggroup_requestmanagerlist');
+        add_submenu_page('null', __('Add Subscription Request', 'mailing-group-module'), __('Add Subscription Request', 'mailing-group-module'), $admin_level, 'wpmg_mailinggroup_requestmanageradd', 'wpmg_mailinggroup_requestmanageradd');
+        add_submenu_page('null', __('Send Message', 'mailing-group-module'), __('Send Message', 'mailing-group-module'), $admin_level, 'wpmg_mailinggroup_sendmessage', 'wpmg_mailinggroup_sendmessage');
+        add_submenu_page('null', __('Messages Manager', 'mailing-group-module'), __('Messages Manager', 'mailing-group-module'), $admin_level, 'wpmg_mailinggroup_messagelist', 'wpmg_mailinggroup_messagelist');
+        add_submenu_page('null', __('Messages Editor', 'mailing-group-module'), __('Messages Editor', 'mailing-group-module'), $admin_level, 'wpmg_mailinggroup_adminmessagelist', 'wpmg_mailinggroup_adminmessagelist');
+        add_submenu_page('null', __('Add Message', 'mailing-group-module'), __('Add Message', 'mailing-group-module'), $admin_level, 'wpmg_mailinggroup_messageadd', 'wpmg_mailinggroup_messageadd');
+        add_submenu_page('null', __('Add Admin Message', 'mailing-group-module'), __('Add Admin Message', 'mailing-group-module'), $admin_level, 'wpmg_mailinggroup_adminmessageadd', 'wpmg_mailinggroup_adminmessageadd');
+        add_submenu_page('null', __('Archived Messages','mailing-group-module'), __('Archived Messages','mailing-group-module'), $admin_level, 'wpmg_mailinggroup_adminarchive', 'wpmg_mailinggroup_adminarchive');		
+        add_submenu_page('null', __('Import User', 'mailing-group-module'), __('Import User', 'mailing-group-module'), $admin_level, 'wpmg_mailinggroup_importuser', 'wpmg_mailinggroup_importuser');
+        add_submenu_page('null', __('View Message', 'mailing-group-module'), __('View Message', 'mailing-group-module'), $admin_level, 'wpmg_mailinggroup_viewmessage', 'wpmg_mailinggroup_viewmessage');
+        add_submenu_page('null', __('Style Manager', 'mailing-group-module'), __('Style Manager', 'mailing-group-module'), $admin_level, 'wpmg_mailinggroup_style', 'wpmg_mailinggroup_style');
+        add_submenu_page('null', __('Contact Info', 'mailing-group-module'), __('Contact Info', 'mailing-group-module'), $admin_level, 'wpmg_mailinggroup_contact', 'wpmg_mailinggroup_contact');
+        add_submenu_page('null', __('Help', 'mailing-group-module'), __('Help', 'mailing-group-module'), $admin_level, 'wpmg_mailinggroup_help', 'wpmg_mailinggroup_help');
+        add_submenu_page('null', __('Add Message','mailing-group-module'), __('Add Message','mailing-group-module'), $admin_level, 'wpmg_mailinggroup_membergroups', 'wpmg_mailinggroup_membergroups');			
+    	add_submenu_page('wpmg_mailinggroup_intro',__('License', 'mailing-group-module'), __('License', 'mailing-group-module'), $admin_level, 'wpmg_mailinggroup_license', 'wpmg_activate_license_page' );
+	    }else{
+        add_menu_page(__('Mailing Groups', 'mailing-group-module'), __('Mailing Groups', 'mailing-group-module'), $user_level, 'wpmg_mailinggroup_membergroups', 'wpmg_mailinggroup_membergroups');
+        add_submenu_page('wpmg_mailinggroup_membergroups', __('Archived Messages', 'mailing-group-module'), __('Archived Messages', 'mailing-group-module'), $user_level, 'wpmg_mailinggroup_memberarchive', 'wpmg_mailinggroup_memberarchive');
+        add_submenu_page('null', __('View Message', 'mailing-group-module'), __('View Message', 'mailing-group-module'), $user_level, 'wpmg_mailinggroup_viewmessage', 'wpmg_mailinggroup_viewmessage');
+	    } 
+	}else {
+        add_menu_page(__('Mailing Group Manager', 'mailing-group-module'), __('Mailing Group Manager', 'mailing-group-module'), $user_level, 'wpmg_mailinggroup_license', 'wpmg_activate_license_page');
+    	add_submenu_page('wpmg_activate_license_page',__('License', 'mailing-group-module'), __('License', 'mailing-group-module'), $admin_level, 'wpmg_mailinggroup_license', 'wpmg_activate_license_page' );
+	}
+    wp_register_style('demo_table.css', plugin_dir_url(__FILE__) . 'css/demo_table.css');
+    wp_enqueue_style('demo_table.css');
+    wp_register_script('jquery.dataTables.js', plugin_dir_url(__FILE__) . 'js/jquery.dataTables.js', array(
+        'jquery'
+    ));
+    wp_enqueue_script('jquery.dataTables.js');
+    wp_register_script('jquery.highlight.js', plugin_dir_url(__FILE__) . 'js/jquery.highlight.js', array(
+        'jquery'
+    ));
+    wp_enqueue_script('jquery.highlight.js');
+    wp_register_script('dataTables.searchHighlight.min.js', plugin_dir_url(__FILE__) . 'js/dataTables.searchHighlight.min.js', array(
+        'jquery'
+    ));
+    wp_enqueue_script('dataTables.searchHighlight.min.js');	
+    wp_register_script('custom.js', plugin_dir_url(__FILE__) . 'js/custom.js', array(
+        'jquery'
+    ));
+    wp_enqueue_script('custom.js');
+}
+/* initialize menu */
+add_action('admin_menu', 'wpmg_mailinggroup_Menu');
+/* initialize languae loader */
+function wpmg_mailing_group_language_init()
+{
+    load_plugin_textdomain('mailing-group-module', FALSE, dirname(plugin_basename(__FILE__)) . '/languages/');
+}
+add_action('init', 'wpmg_mailing_group_language_init');
+/* initialize languae loader */
+function wpmg_mailinggroup_generalsettingtab()
+{
+    include "template/mg_settingstab.php";
+}
+/* defining template of all pages used start */
+function wpmg_mailinggroup_intro()
+{
+    global $wpdb;
+    include "template/mg_intro_text.php";
+}
+function wpmg_mailinggroup_help()
+{
+    global $wpdb;
+    include "template/mg_help.php";
+}
+function wpmg_mailinggroup_style()
+{
+    global $wpdb;
+    include "template/mg_formstyle.php";
+}
+function wpmg_mailinggroup_contact()
+{
+    global $wpdb;
+    include "template/mg_contact.php";
+}
+function wpmg_mailinggroup_list()
+{
+    global $wpdb, $objMem, $table_name_group, $table_name_requestmanager, $table_name_requestmanager_taxonomy;
+    include "template/mg_mailinggrouplist.php";
+}
+function wpmg_mailinggroup_add()
+{
+    global $wpdb, $objMem, $table_name_group;
+    include "template/mg_mailinggroupadd.php";
+}
+function wpmg_mailinggroup_messagelist()
+{
+    global $wpdb, $objMem, $table_name_message;
+    include "template/mg_messagelist.php";
+}
+function wpmg_mailinggroup_messageadd()
+{
+    global $wpdb, $objMem, $table_name_message;
+    include "template/mg_messageadd.php";
+}
+function wpmg_mailinggroup_sendmessage()
+{
+    global $wpdb, $objMem, $table_name_group, $table_name_message, $table_name_requestmanager;
+    include "template/mg_sendmessage.php";
+}
+function wpmg_mailinggroup_importuser()
+{
+    global $wpdb, $objMem, $table_name_group, $table_name_user_taxonomy;
+    include "lib/vcard.php";
+    include "template/mg_importuser.php";
+}
+function wpmg_mailinggroup_requestmanagerlist()
+{
+    global $wpdb, $objMem, $table_name_group, $table_name_requestmanager_taxonomy, $table_name_user_taxonomy, $table_name_message, $table_name_requestmanager;
+    add_action('wp_enqueue_script', 'add_thickbox');
+    include "template/mg_mailingrequest.php";
+}
+function wpmg_mailinggroup_requestmanageradd()
+{
+    global $wpdb, $objMem, $table_name_requestmanager_taxonomy, $table_name_user_taxonomy, $table_name_group, $table_name_requestmanager;
+    include "template/mg_mailingrequestadd.php";
+}
+function wpmg_mailinggroup_memberlist()
+{
+    global $wpdb, $objMem, $table_name_requestmanager_taxonomy, $table_name_user_taxonomy, $table_name_sent_emails, $table_name_group;
+    include "template/mg_memberlist.php";
+}
+function wpmg_mailinggroup_memberadd()
+{
+    global $wpdb, $objMem, $table_name_requestmanager_taxonomy, $table_name_user_taxonomy, $table_name_group;
+    include "template/mg_memberadd.php";
+}
+function wpmg_mailinggroup_membergroups()
+{
+    global $wpdb, $objMem, $table_name_requestmanager_taxonomy, $table_name_user_taxonomy, $table_name_group;
+    include "template/mg_membergroups.php";
+}
+function wpmg_mailinggroup_adminarchive()
+{
+    global $wpdb, $objMem, $table_name_sent_emails, $table_name_parsed_emails, $table_name_group;
+    include "template/mg_adminarchived.php";
+}
+function wpmg_mailinggroup_memberarchive()
+{
+    global $wpdb, $objMem, $table_name_group, $table_name_sent_emails, $table_name_parsed_emails, $table_name_user_taxonomy;
+    include "template/mg_memberarchived.php";
+}
+function wpmg_mailinggroup_viewmessage()
+{
+    global $wpdb, $objMem, $table_name_parsed_emails;
+    include "template/mg_viewmessage.php";
+}
+function wpmg_mailinggroup_adminmessagelist()
+{
+    global $wpdb, $objMem, $table_name_message;
+    include "template/mg_adminmessagelist.php";
+}
+function wpmg_mailinggroup_adminmessageadd()
+{
+    global $wpdb, $objMem, $table_name_message;
+    include "template/mg_adminmessageadd.php";
+}
+/* defining template of all page s used end */
+/* general function */
+function wpmg_redirectTo($page, $end = "admin")
+{
+    $url = "admin.php?page=" . $page;
+    if ($end == 'front') {
+        $url = $_SERVER['REQUEST_URI'] . $page;
+    }
+    if ($end == 'abs') {
+        $url = $page;
+    }
+    if (headers_sent()) {
+?>
+
+		<html><head>
+
+			<script language="javascript" type="text/javascript">
+
+				window.self.location='<?php  echo $url; ?>';
+
+			</script>
+
+		</head></html>
+
+	<?php
+        exit;
+    } else {
+        header("Location: " . $url);
+        exit;
+    }
+}
+function wpmg_dbAddslashes($value)
+{
+    return addslashes($value);
+}
+function wpmg_dbStripslashes($value)
+{
+    return stripslashes($value);
+}
+function wpmg_dbHtmlentities($value)
+{
+    return htmlentities($value);
+}
+function wpmg_nl2brformat($value)
+{
+    return nl2br($value);
+}
+function wpmg_checklength($value)
+{
+    return strlen($value);
+}
+function wpmg_stringlength($value, $length = 75)
+{
+    return substr($value, 0, $length) . "...";
+}
+function wpmg_trimVal($value, $by = "")
+{
+    if ($by == "") {
+        return trim($value);
+    } else {
+        return trim($value, $by);
+    }
+}
+function wpmg_showmessages($type, $message)
+{
+    echo "<div class='" . $type . "' id='message'><p><strong>Mailing Group Manager: " . $message . "</strong></p></div>";
+}
+/**
+
+* Parses a set of cards from one or more lines. The cards are sorted by
+
+* the N (name) property value. There is no return value. If two cards
+
+* have the same key, then the last card parsed is stored in the array.
+
+*/
+function wpmg_parse_vcards(&$lines)
+{
+    $cards = array();
+    $card  = new VCard();
+    while ($card->parse($lines)) {
+        $property = $card->getProperty('N');
+        if (!$property) {
+            return "";
+        }
+        $n   = $property->getComponents();
+        $tmp = array();
+        if ($n[3])
+            $tmp[] = $n[3];  /* Mr. */
+        if ($n[1])
+            $tmp[] = $n[1]; /*  John */
+        if ($n[2])
+            $tmp[] = $n[2]; /*  Quinlan */
+        if ($n[4])
+            $tmp[] = $n[4]; /*  Esq. */
+        $ret = array();
+        if ($n[0])
+            $ret[] = $n[0];
+        $tmp = join(" ", $tmp);
+        if ($tmp)
+            $ret[] = $tmp;
+        $key         = join(", ", $ret);
+        $cards[$key] = $card;
+        /*  MDH: Create new VCard to prevent overwriting previous one (PHP5) */
+        $card        = new VCard();
+    }
+    ksort($cards);
+    return $cards;
+}
+/* general function */
+/* ajax requests */
+add_action('wp_ajax_wpmg_addeditmailinggroup', 'wpmg_addeditmailinggroup_callback');
+add_action('wp_ajax_wpmg_addmailgroupsetting', 'wpmg_addmailgroupsetting_callback');
+add_action('wp_ajax_wpmg_mailinggrouplisting', 'wpmg_mailinggrouplisting_callback');
+add_action('wp_ajax_wpmg_sendmessage', 'wpmg_sendmessage_callback');
+add_action('wp_ajax_wpmg_checkusername', 'wpmg_checkusername_callback');
+add_action('wp_ajax_wpmg_viewmessage', 'wpmg_viewmessage_callback');
+/* Short codes for ajax requests */
+/* callback function for above ajax requests */
+function wpmg_viewmessage_callback()
+{
+    global $wpdb, $objMem, $table_name_parsed_emails;
+    include "template/mg_viewmessageajax.php";
+    die();  /* this is required to return a proper result */
+}
+function wpmg_addeditmailinggroup_callback()
+{
+    global $wpdb, $objMem, $table_name_group;
+    include "template/mg_mailinggroupadd.php";
+    die(); /*  this is required to return a proper result */
+}
+function wpmg_mailinggrouplisting_callback()
+{
+    global $wpdb, $objMem, $table_name_group;
+    include "template/mg_mailinggrouplist.php";
+    die(); /*   this is required to return a proper result */
+}
+function wpmg_addmailgroupsetting_callback()
+{
+    global $wpdb, $objMem, $_POST, $table_name_group;    $_POST = stripslashes_deep( $_POST );
+    $addme      = sanitize_text_field($_POST["addme"]);
+    $WPMG_SETTINGS = get_option("WPMG_SETTINGS");
+	$plugintype = $WPMG_SETTINGS["MG_PLUGIN_TYPE"];
+    if ($plugintype == 'FREE') {
+        $result = $objMem->selectRows($table_name_group, "", " order by id desc");
+        if (count($result) > 0 && $addme != 2) {
+            echo "free";
+            exit;
+        }
+    }
+    $myFields = array(
+        "id",
+        "title",
+		"use_in_subject",
+        "email",
+        "password",
+        "pop_server_type",		
+        "smtp_server",
+        "pop_server",
+        "smtp_port",
+        "pop_port",
+        "smtp_username",
+        "smtp_password",
+        "pop_username",
+        "pop_password",
+        "archive_message",
+        "auto_delete",
+        "auto_delete_limit",
+        "footer_text",
+        "sender_name",
+        "sender_email",
+        "status",
+        "visibility",
+		"mail_type"
+    );
+    if ($addme == 1) {
+        if (!$objMem->checkRowExists($table_name_group, "title", $_POST, "")) {
+            $objMem->addNewRow($table_name_group, $_POST, $myFields);
+            echo "added";
+            exit;
+        } else {
+            echo "exists";
+            exit;
+        }
+    } else if ($addme == 2) {
+        if (!$objMem->checkRowExists($table_name_group, "title", $_POST, "idCheck")) {
+            $objMem->updRow($table_name_group, $_POST, $myFields);
+            echo "updated";
+            exit;
+        } else {
+            echo "exists";
+            exit;
+        }
+    }
+}
+function wpmg_sendmessage_callback()
+{
+    global $wpdb, $objMem, $table_name_group, $table_name_message;
+    include "template/mg_sendmessage.php";
+    die();
+}
+function wpmg_checkusername_callback()
+{
+    global $wpdb, $objMem;
+    include "template/mg_memberadd.php";
+}
+/* callback function for above ajax requests */
+/* mail function used in plugin */
+function wpmg_sendmessagetoSubscriber($gid, $id, $info)
+{
+    global $wpdb, $objMem, $table_name_group, $table_name_requestmanager;
+    $get_group   = $objMem->selectRows($table_name_group, "", " where id='" . $gid . "'");
+    $group_name  = $get_group[0]->title;
+    $get_user    = $objMem->selectRows($table_name_requestmanager, "", " where id='" . $id . "'");
+    $sendToname  = $get_user[0]->name;
+    $sendToemail = $get_user[0]->email;
+    $subject     = wpmg_dbStripslashes($info['title']);
+    $message     = wpmg_dbStripslashes($info['description']);
+    $message     = str_replace("{%name%}", $sendToname, $message);
+    $message     = str_replace("{%email%}", $sendToemail, $message);
+    $message     = str_replace("{%site_title%}", get_bloginfo('name'), $message);
+    $message     = str_replace("{%site_email%}", get_bloginfo('admin_email'), $message);
+    $message     = str_replace("{%site_url%}", get_site_url(), $message);
+    $message     = str_replace("{%group_name%}", $group_name, $message);
+    $headers     = 'From: ' . get_bloginfo('name') . ' <' . get_bloginfo('admin_email') . '>' . "\r\n";
+    wp_mail($sendToemail, $subject, $message, $headers);
+}
+/* New subscription arrived message to admin specified email */
+function wpmg_sendmessagetoAdmin($name, $email, $grpsel)
+{
+    add_filter('wp_mail_content_type', 'wpmg_set_content_type');
+    global $wpdb, $objMem, $table_name_group, $table_name_message, $table_name_requestmanager;
+    $subscriptioncheck = $WPMG_SETTINGS["MG_SUBSCRIPTION_REQUEST_CHECK"];
+    if ($subscriptioncheck) {
+        $subscriptionemail = $WPMG_SETTINGS["MG_SUBSCRIPTION_REQUEST_ALERT_EMAIL"];
+        $get_group         = $objMem->selectRows($table_name_group, "", " where id IN ($grpsel)");
+        foreach ($get_group as $grp) {
+            $group_selected .= $grp->title . ",  ";
+        }
+		$siteGroupUrl   = admin_url( 'admin.php?page=wpmg_mailinggroup_intro');
+        $group_selected = wpmg_trimVal($group_selected, ",  ");
+        $subject        = "New Subscription Request: " . $group_selected;
+        $siteTitle      = get_bloginfo('name');
+        $siteUrl        = home_url();
+        $siteEmail      = get_bloginfo('admin_email');
+        $loginURL       = wp_login_url();
+        $headers        = 'From: ' . get_bloginfo('name') . ' <' . get_bloginfo('admin_email') . '>' . "\r\n";
+        $headers .= 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
+        $get_message     = $objMem->selectRows($table_name_message, "", " where message_type = 'wpmg_sendmessagetoAdmin'");
+        $message_subject = wpmg_dbStripslashes($get_message[0]->message_subject);
+        $dataMessage     = wpmg_dbStripslashes($get_message[0]->description);
+        $message         = nl2br(str_replace(array(
+            '{%name%}',
+            '{%email%}',
+            '{%site_title%}',
+            '{%group_name%}',
+            '{%group_url%}',
+            '{%site_url%}',
+            '{%site_email%}',
+            '{%login_url%}'
+        ), array(
+            $name,
+            $email,
+            $siteTitle,
+            $group_selected,
+            $siteGroupUrl,
+            $siteUrl,
+            $siteEmail,
+            $loginURL
+        ), $dataMessage));
+        $subject         = str_replace(array(
+            '{%name%}',
+            '{%email%}',
+            '{%site_title%}',
+            '{%group_name%}',
+            '{%group_url%}',
+            '{%site_url%}',
+            '{%site_email%}',
+            '{%login_url%}'
+        ), array(
+            $name,
+            $email,
+            $siteTitle,
+            $group_selected,
+            $siteGroupUrl,
+            $siteUrl,
+            $siteEmail,
+            $loginURL
+        ), $message_subject);
+        wp_mail($subscriptionemail, $subject, $message, $headers);
+    }
+}
+/*  Redefine user notification function */
+if (!function_exists('wp_new_user_notification')) {
+    function wp_new_user_notification($user_id, $plaintext_pass = '')
+    {
+        global $wpdb, $objMem, $table_name_message;
+        $siteTitle       = get_bloginfo('name');
+        $siteUrl         = home_url();
+        $siteEmail       = get_bloginfo('admin_email');
+        $loginURL        = wp_login_url();
+        $user            = new WP_User($user_id);
+        $user_login      = stripslashes($user->user_login);
+        $user_email      = stripslashes($user->user_email);
+        $get_message     = $objMem->selectRows($table_name_message, "", " where message_type = 'RegistrationNotificationMailToAdmin'");
+        $dataMessage     = wpmg_dbStripslashes($get_message[0]->description);
+        $message_subject = wpmg_dbStripslashes($get_message[0]->message_subject);
+        $message         = nl2br(str_replace(array(
+            '{%name%}',
+            '{%email%}',
+            '{%site_title%}',
+            '{%group_name%}',
+            '{%group_url%}',
+            '{%site_url%}',
+            '{%site_email%}',
+            '{%login_url%}'
+        ), array(
+            $user_login,
+            $user_email,
+            $siteTitle,
+            $group_selected,
+            $siteGroupUrl,
+            $siteUrl,
+            $siteEmail,
+            $loginURL
+        ), $dataMessage));
+        $subject         = str_replace(array(
+            '{%name%}',
+            '{%email%}',
+            '{%site_title%}',
+            '{%group_name%}',
+            '{%group_url%}',
+            '{%site_url%}',
+            '{%site_email%}',
+            '{%login_url%}'
+        ), array(
+            $user_login,
+            $user_email,
+            $siteTitle,
+            $group_selected,
+            $siteGroupUrl,
+            $siteUrl,
+            $siteEmail,
+            $loginURL
+        ), $message_subject);
+        $headers  = 'From: ' . get_bloginfo('name') . ' <' . get_bloginfo('admin_email') . '>' . "\r\n";
+        $headers .= 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
+        @wp_mail(get_option('admin_email'), $subject, $message, $headers);
+        if (empty($plaintext_pass))
+            return;
+        $get_message     = $objMem->selectRows($table_name_message, "", " where message_type = 'RegistrationNotificationMailToMember'");
+        $dataMessage     = wpmg_dbStripslashes($get_message[0]->description);
+        $message_subject = wpmg_dbStripslashes($get_message[0]->message_subject);
+        $message         = nl2br(str_replace(array(
+            '{%name%}',
+            '{%email%}',
+            '{%password%}',
+            '{%site_title%}',
+            '{%group_name%}',
+            '{%group_url%}',
+            '{%site_url%}',
+            '{%site_email%}',
+            '{%login_url%}'
+        ), array(
+            $user_login,
+            $user_email,
+            $plaintext_pass,
+            $siteTitle,
+            $group_selected,
+            $siteGroupUrl,
+            $siteUrl,
+            $siteEmail,
+            $loginURL
+        ), $dataMessage));
+        $subject         = str_replace(array(
+            '{%name%}',
+            '{%email%}',
+            '{%password%}',
+            '{%site_title%}',
+            '{%group_name%}',
+            '{%group_url%}',
+            '{%site_url%}',
+            '{%site_email%}',
+            '{%login_url%}'
+        ), array(
+            $user_login,
+            $user_email,
+            $plaintext_pass,
+            $siteTitle,
+            $group_selected,
+            $siteGroupUrl,
+            $siteUrl,
+            $siteEmail,
+            $loginURL
+        ), $message_subject);
+        wp_mail($user_email, $subject, $message, $headers);
+    }
+}
+/*confirmation email for subscriber to verify account*/
+function wpmg_sendConfirmationtoMember($id, $groupArray)
+{
+    add_filter('wp_mail_content_type', 'wpmg_set_content_type');
+    global $wpdb, $objMem, $table_name_group, $table_name_message;
+    $siteTitle    = get_bloginfo('name');
+    $siteUrl      = home_url();
+    $siteEmail    = get_bloginfo('admin_email');
+    $loginURL     = wp_login_url();
+    $user         = new WP_User($id);
+    $display_name = stripslashes($user->display_name);
+    $user_login   = stripslashes($user->user_login);
+    $user_email   = stripslashes($user->user_email);
+    $user_reg     = stripslashes($user->user_registered);
+    if (count($groupArray) > 0) {
+        foreach ($groupArray as $key => $value) {
+            $get_group  = $objMem->selectRows($table_name_group, "", " where id='" . $key . "'");
+            $group_name = $get_group[0]->title;
+            $grouplist .= $group_name . ", ";
+        }
+        $grouplist = wpmg_trimVal($grouplist, ", ");
+    }
+    $activationURL   = wpmg_activation_url($id, $user_reg);
+    $get_message     = $objMem->selectRows($table_name_message, "", " where message_type = 'Confirmationemailforsubscribertoverifyaccount'");
+    $dataMessage     = wpmg_dbStripslashes($get_message[0]->description);
+    $message_subject = wpmg_dbStripslashes($get_message[0]->message_subject);
+    $message         = nl2br(str_replace(array(
+        '{%displayname%}',
+        '{%name%}',
+        '{%email%}',
+        '{%site_title%}',
+        '{%group_name%}',
+        '{%group_url%}',
+        '{%site_url%}',
+        '{%site_email%}',
+        '{%activation_url%}',
+        '{%login_url%}',
+        '{%group_list%}'
+    ), array(
+        $display_name,
+        $user_login,
+        $user_email,
+        $siteTitle,
+        $group_selected,
+        $siteGroupUrl,
+        $siteUrl,
+        $siteEmail,
+        $activationURL,
+        $loginURL,
+        $grouplist
+    ), $dataMessage));
+    $subject         = str_replace(array(
+        '{%displayname%}',
+        '{%name%}',
+        '{%email%}',
+        '{%site_title%}',
+        '{%group_name%}',
+        '{%group_url%}',
+        '{%site_url%}',
+        '{%site_email%}',
+        '{%activation_url%}',
+        '{%login_url%}',
+        '{%group_list%}'
+    ), array(
+        $display_name,
+        $user_login,
+        $user_email,
+        $siteTitle,
+        $group_selected,
+        $siteGroupUrl,
+        $siteUrl,
+        $siteEmail,
+        $activationURL,
+        $loginURL,
+        $grouplist
+    ), $message_subject);
+    $headers         = 'From: ' . get_bloginfo('name') . ' <' . get_bloginfo('admin_email') . '>' . "\r\n";
+    $headers .= 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
+    wp_mail($user_email, $subject, $message, $headers);
+}
+function wpmg_set_content_type($content_type)
+{
+    return 'text/html';
+}
+/*email user on successful registration of a group*/
+function wpmg_sendGroupConfirmationtoMember($id, $groupArray)
+{
+    add_filter('wp_mail_content_type', 'wpmg_set_content_type');
+    global $objMem, $table_name_group, $table_name_message;
+    $siteTitle    = get_bloginfo('name');
+    $siteUrl      = home_url();
+    $siteEmail    = get_bloginfo('admin_email');
+    $loginURL     = wp_login_url();
+    $user         = new WP_User($id);
+    $display_name = stripslashes($user->display_name);
+    $user_login   = stripslashes($user->user_login);
+    $user_email   = stripslashes($user->user_email);
+    $user_reg     = stripslashes($user->user_registered);
+    $i            = 1;
+    if (count($groupArray) > 0) {
+        foreach ($groupArray as $key => $value) {
+            $get_group  = $objMem->selectRows($table_name_group, "", " where id='" . $key . "'");
+            $group_name = $get_group[0]->title;
+            $grouplist .= $group_name . ", ";
+        }
+        $grouplist = wpmg_trimVal($grouplist, ", ");
+    }
+    $get_message     = $objMem->selectRows($table_name_message, "", " where message_type = 'Emailuseronsuccessfullregisterationofagroup'");
+    $dataMessage     = wpmg_dbStripslashes($get_message[0]->description);
+    $message_subject = wpmg_dbStripslashes($get_message[0]->message_subject);
+    $message         = nl2br(str_replace(array(
+        '{%displayname%}',
+        '{%name%}',
+        '{%email%}',
+        '{%site_title%}',
+        '{%group_name%}',
+        '{%group_url%}',
+        '{%site_url%}',
+        '{%site_email%}',
+        '{%activation_url%}',
+        '{%group_list%}',
+        '{%login_url%}'
+    ), array(
+        $display_name,
+        $user_login,
+        $user_email,
+        $siteTitle,
+        $group_selected,
+        $siteGroupUrl,
+        $siteUrl,
+        $siteEmail,
+        $activationURL,
+        $grouplist,
+        $loginURL
+    ), $dataMessage));
+    $subject         = nl2br(str_replace(array(
+        '{%displayname%}',
+        '{%name%}',
+        '{%email%}',
+        '{%site_title%}',
+        '{%group_name%}',
+        '{%group_url%}',
+        '{%site_url%}',
+        '{%site_email%}',
+        '{%activation_url%}',
+        '{%group_list%}',
+        '{%login_url%}'
+    ), array(
+        $display_name,
+        $user_login,
+        $user_email,
+        $siteTitle,
+        $grouplist,
+        $siteGroupUrl,
+        $siteUrl,
+        $siteEmail,
+        $activationURL,
+        $grouplist,
+        $loginURL
+    ), $message_subject));
+    $headers  = 'From: ' . get_bloginfo('name') . ' <' . get_bloginfo('admin_email') . '>' . "\r\n";
+    $headers .= 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
+    wp_mail($user_email, $subject, $message, $headers);
+}
+/* mail function used in plugin */
+function wpmg_activation_url($user_id, $user_reg = "")
+{
+    $md5Userid       = md5($user_id);
+    $md5UserRegister = md5($user_reg);
+    return get_bloginfo('wpurl') . "?activationkey=$md5Userid&nonce=$md5UserRegister&verify=1";
+}
+/* frontend shortcode call */
+function wpmg_mailing_group_form_func($atts)
+{
+    $a = shortcode_atts(array(
+        'visibility' => $atts['visibility']
+    ), array(
+        'visibility'
+    ));
+    ob_start();
+    global $wpdb, $objMem, $table_name_requestmanager_taxonomy, $table_name_user_taxonomy, $table_name_group, $table_name_requestmanager;
+    global $visibilityArray;
+    if (!is_admin()) {
+        wp_register_style('demo_table.css', plugin_dir_url(__FILE__) . 'css/demo_table.css');
+        wp_enqueue_style('demo_table.css');
+        wp_register_script('custom.js', plugin_dir_url(__FILE__) . 'js/custom.js', array(
+            'jquery'
+        ));
+        wp_enqueue_script('custom.js');
+        include "template/mg_user_form.php";
+    }
+    return ob_get_clean();
+}
+add_shortcode('mailing_group_form', 'wpmg_mailing_group_form_func');
+add_filter('template_include', 'wpmg_check_user_activation_link', 1);
+/* frontend shortcode call */
+/* user activation link check & verify */
+function wpmg_check_user_activation_link($template)
+{
+    global $wpdb, $objMem, $table_name_user_taxonomy;
+    /* wpmg_activation_url(98, "2013-08-29 13:14:31"); */
+    extract($_GET);
+    $error = new WP_Error();
+    if ($verify == '1' && $activationkey != '' && $nonce != '') {
+        $result = $objMem->selectRows($wpdb->users, "", " where MD5(ID) = '" . $activationkey . "' and MD5(user_registered) = '" . $nonce . "' order by id desc");
+        if ($result[0] && is_array($result)) {
+            $user_status = $result[0]->user_status;
+            if ($user_status == '2') {
+                $user_id = $result[0]->ID;
+                $wpdb->query("UPDATE $wpdb->users SET user_status = 0 WHERE ID =" . $user_id);
+                update_user_meta($user_id, "User_status", 1);
+                $random_password = wp_generate_password(12, false);
+                wp_set_password($random_password, $user_id);
+                wp_new_user_notification($user_id, $random_password);
+                $gropArray   = get_user_meta($user_id, "Group_subscribed", true);
+                $arrayString = unserialize($gropArray);
+                wpmg_sendGroupConfirmationtoMember($user_id, $arrayString);
+                $error->add('verified_success', __("<div align='center'>Thank you for your subscription.<br>Please check your email for your account login credentials, so you can update your preferences and profile.</div>", 'mailing-group-module'));
+                echo $error->get_error_message("verified_success");
+               /*  sleep(5);
+                wpmg_redirectTo("wp-login.php","abs"); */
+            } else {
+                $error->add('already_verified', __("<div align='center'><strong>Verified</strong>: Account already verified, Please <a href='wp-login.php'>login here</a>.</div>", 'mailing-group-module'));
+                echo $error->get_error_message("already_verified");
+                wpmg_redirectTo("wp-login.php", "abs");
+            }
+        } else {
+            $error->add('invalid_request', __("<div align='center'><strong>ERROR</strong>: Invalid verification request, Please contact administrator.</div>", 'mailing-group-module'));
+            echo $error->get_error_message("invalid_request");
+        }
+    } else if ($unsubscribe == '1' && $userid != '' && $group != '') {
+        extract($_GET);
+        $group_arr_old = unserialize(get_user_meta($userid, "Group_subscribed", true));
+        unset($group_arr_old[$group]);
+        $grpserial = serialize($group_arr_old);
+        update_user_meta($userid, "Group_subscribed", $grpserial);
+        $objMem->updUserGroupTaxonomy($table_name_user_taxonomy, $userid, $group_arr_old);
+        $error->add('success_unsubscribe', __("<div align='center'><strong>Success</strong>: You are successfully unsubscribed from the selected group.</div>", 'mailing-group-module'));
+        echo $error->get_error_message("success_unsubscribe");
+    } else {
+        return $template;
+    }
+}
+/* user activation link check & verify */
+add_filter('authenticate', 'wpmg_user_signup_disable_inactive', 28);
+/* disable user with status 2 to login */
+function wpmg_user_signup_disable_inactive($user)
+{
+    /*  check to see if the $user has already failed logging in, if so return $user as-is */
+    if (is_wp_error($user) || empty($user))
+        return $user;
+    if (is_a($user, 'WP_User') && 2 == $user->user_status)
+        return new WP_Error('invalid_username', __("<strong>ERROR</strong>: You account has been deactivated.", 'mailing-group-module'));
+    return $user;
+}
+/* disable user with status 2 to login */
+/*uninstall and deactivate code*/
+function wpmg_mailing_group_deactivate()
+{
+    /* REMOVE CONFIG OPTION SET FROM OPTION TABLE*/
+    /*delete_option( "MG_VERSION_NO" );
+    
+    delete_option( "MG_PLUGIN_TYPE" );
+    
+    delete_option( "MG_SUBSCRIPTION_REQUEST_CHECK" );
+    
+    delete_option( "MG_SUBSCRIPTION_REQUEST_ALERT_EMAIL" );
+    
+    delete_option( "MG_BOUNCE_CHECK" );
+    
+    delete_option( "MG_BOUNCE_CHECK_ALERT_TIMES" );
+    
+    delete_option( "MG_BOUNCE_CHECK_ALERT_EMAIL" );
+    
+    delete_option( "MG_CUSTOM_STYLESHEET" );
+    
+    delete_option( "MG_WEBSITE_URL" );
+    
+    delete_option( "MG_CONTACT_ADDRESS" );
+    
+    delete_option( "MG_SUPPORT_EMAIL" );
+    
+    delete_option( "MG_SUPPORT_PHONE" );*/
+}
+function wpmg_mailing_group_uninstall()
+{
+    global $wpdb, $table_name_group, $table_name_message, $table_name_requestmanager, $table_name_requestmanager_taxonomy, $table_name_user_taxonomy, $table_name_parsed_emails, $table_name_sent_emails;
+    $sql = "DROP TABLE `$table_name_group`, `$table_name_message`, `$table_name_requestmanager`, `$table_name_requestmanager_taxonomy`, `$table_name_user_taxonomy`, `$table_name_parsed_emails`, `$table_name_sent_emails`";
+    /* //$wpdb->query($sql); // comment this if you want to keep the database tables after installation */
+}
+/*uninstall and deactivate code*/
+/* hook to delete user taxonomy on deleting from wordpress */
+add_action('delete_user', 'wpmg_delete_user_taxonomy');
+function wpmg_delete_user_taxonomy($user_id)
+{
+    global $wpdb, $objMem, $table_name_user_taxonomy, $table_name_requestmanager, $table_name_requestmanager_taxonomy;
+    $user_obj = get_userdata($user_id);
+    $email    = $user_obj->user_email;
+    $wpdb->query("delete from " . $table_name_user_taxonomy . " where user_id=" . $user_id);
+    $get_subscription_taxonomy = $objMem->selectRows($table_name_requestmanager, "", " where email = '" . $email . "'");
+    $subscriptoinid            = $get_subscription_taxonomy[0]->id;
+    $wpdb->query("delete from " . $table_name_requestmanager_taxonomy . " where user_id = " . $subscriptoinid);
+    $wpdb->query("delete from " . $table_name_requestmanager . " where id = " . $subscriptoinid);
+}
+function wpmg_custom_menu_hack()
+{
+    /* Custom menu hack */
+    $pagename  = sanitize_text_field($_GET['page']);
+    $pageArray = array(
+        "wpmg_mailinggroup_list",
+        "wpmg_mailinggroup_add",
+        "wpmg_mailinggroup_adminmessagelist",
+        "wpmg_mailinggroup_memberlist",
+        "wpmg_mailinggroup_memberadd",
+        "wpmg_mailinggroup_requestmanagerlist",
+        "wpmg_mailinggroup_requestmanageradd",
+        "wpmg_mailinggroup_sendmessage",
+        "wpmg_mailinggroup_intro",
+        "wpmg_mailinggroup_messagelist",
+        "wpmg_mailinggroup_messageadd",
+        "wpmg_mailinggroup_importuser",
+		"wpmg_mailinggroup_adminarchive",
+        "wpmg_mailinggroup_viewmessage",
+        "wpmg_mailinggroup_style",
+        "wpmg_mailinggroup_contact"
+    );
+    if ($pagename != "" && (in_array($pagename, $pageArray))) {
+        wp_register_script('custommenu.js', plugin_dir_url(__FILE__) . 'js/custommenu.js', array(
+            'jquery'
+        ));
+        wp_enqueue_script('custommenu.js');
+    }
+}
+add_action('admin_menu', 'wpmg_custom_menu_hack');
+function wpmg_print_message($message, $is_error = false)
+{
+    if ($is_error)
+        echo '<div id="message" class="error">';
+    else
+        echo '<div id="message" class="updated fade">';
+    echo "<p><strong>Mailing Group Manager: $message</strong></p></div>";
+}
+
+function wpmg_get_user_role()
+{
+    global $current_user;
+    $user_roles = $current_user->roles;
+    $user_role  = array_shift($user_roles);
+    return $user_role;
+}
+function wpmg_add_menu_icons_styles()
+{
+?>
+
+<style>
+
+#adminmenu .toplevel_page_mailinggroup_intro div.wp-menu-image:before { 
+
+content: '\f237';
+
+}
+
+</style>
+<?php
+}
+add_action('admin_head', 'wpmg_add_menu_icons_styles');
+add_filter('authenticate', 'wpmg_bainternet_allow_email_login', 20, 3);
+function wpmg_bainternet_allow_email_login($user, $username, $password)
+{
+    if (is_email($username)) {
+        $user = get_user_by_email($username);
+        if ($user)
+            $username = $user->user_login;
+    }
+    return wp_authenticate_username_password(null, $username, $password);
+}
+
+
+add_action( 'wpmg_cron_task_send_email', 'wpmg_cron_send_email' );
+require_once("crons/wpmg_cron_send_email.php");
+
+add_action( 'wpmg_cron_task_parse_email', 'wpmg_cron_parse_email' );
+require_once("crons/wpmg_cron_parse_email.php");
+
+add_action( 'wpmg_cron_task_bounced_email', 'wpmg_cron_bounced_email' );
+require_once("crons/wpmg_cron_bounced_email.php");
+
+function wpmg_activate_license_page() {
+	$license 	= get_option( 'wpmg_mailing_license_key' );
+	$status 	= get_option( 'wpmg_mailing_license_status' );
+	?>
+	<div class="wrap">
+		<h2><?php _e('WP Mailing Group License Options', 'mailing-group-module'); ?></h2>
+		<form method="post" action="options.php">
+		
+			<?php settings_fields('wpmg_mailing_license'); ?>
+			
+			<table class="form-table">
+				<tbody>
+					<tr valign="top">	
+						<th scope="row" valign="top">
+							<?php _e('License Key', 'mailing-group-module'); ?>
+						</th>
+						<td>
+							<input id="wpmg_mailing_license_key" name="wpmg_mailing_license_key" type="text" class="regular-text" value="<?php esc_attr_e( $license ); ?>" />
+							<label class="description" for="wpmg_mailing_license_key"><?php _e('Enter your license key', 'mailing-group-module'); ?></label>
+						</td>
+					</tr>
+					<?php if( false !== $license ) { ?>
+						<tr valign="top">	
+							<th scope="row" valign="top">
+								<?php _e('Activate License', 'mailing-group-module'); ?>
+							</th>
+							<td>
+								<?php if( $status !== false && $status == 'valid' ) { ?>
+									<span style="color:green;"><?php _e('active', 'mailing-group-module'); ?></span>
+								<?php } else {
+									wp_nonce_field( 'wpmg_mailing_nonce', 'wpmg_mailing_nonce' ); ?>
+									<input type="submit" class="button-secondary" name="wpmg_license_activate" value="<?php _e('Activate License', 'mailing-group-module'); ?>"/>
+								<?php } ?>
+							</td>
+						</tr>
+					<?php } ?>
+				</tbody>
+			</table>	
+			<?php submit_button(); ?>
+		
+		</form>
+	<?php
+}
+
+function wpmg_mailing_register_option() {
+	register_setting('wpmg_mailing_license', 'wpmg_mailing_license_key', 'wpmg_sanitize_license' );
+}
+add_action('admin_init', 'wpmg_mailing_register_option');
+
+function wpmg_sanitize_license( $new ) {
+	$old = get_option( 'wpmg_mailing_license_key' );
+	if( $old && $old != $new ) {
+		delete_option( 'wpmg_mailing_license_status' ); 
+	}
+	return $new;
+}
+
+function wpmg_mailing_activate_license() {
+	if( isset( $_POST['wpmg_license_activate'] ) ) {
+	 	if( ! check_admin_referer( 'wpmg_mailing_nonce', 'wpmg_mailing_nonce' ) ) 	
+			return; 
+		$license = trim( get_option( 'wpmg_mailing_license_key' ) );
+	
+		$api_params = array( 
+			'edd_action'=> 'activate_license', 
+			'license' 	=> $license, 
+			'item_name' => urlencode(WPMG_PRODUCT_ITEM_NAME), 
+			'url'       => home_url()
+		);
+
+		$response = wp_remote_get( add_query_arg( $api_params,WPMG_STORE_URL) );
+		
+		if ( is_wp_error( $response ) )
+			return false;
+
+		$license_data = json_decode( wp_remote_retrieve_body( $response ) );
+		update_option( 'wpmg_mailing_license_status', $license_data->license );
+	}
+}
+add_action('admin_init', 'wpmg_mailing_activate_license');
+
+if( !class_exists( 'wpmg_module_updater' ) ) {
+	include( dirname( __FILE__ ) . '/lib/wpmg_module_updater.php' );
+}
+
+$license_key = trim( get_option( 'wpmg_mailing_license_key' ) );
+
+$edd_updater = new wpmg_module_updater(WPMG_STORE_URL, __FILE__, array( 
+		'version' 	=> $WPMG_SETTINGS['MG_VERSION_NO'], 		
+		'license' 	=> $license_key, 	
+		'item_name' => WPMG_PRODUCT_ITEM_NAME, 	
+		'author' 	=> 'Marcus Sorensen & NetForce Labs',  
+		'url'       => home_url()
+	)
+);
