@@ -59,7 +59,7 @@ $table_name_usermeta                = $wpdb->prefix . "usermeta";
 add_filter( 'cron_schedules', 'cron_add_weekly' );
 function cron_add_weekly( $schedules ) {
 	// Adds once weekly to the existing schedules.
-	$schedules['wpmg_two_minute']     = array(
+	/*$schedules['wpmg_two_minute']     = array(
 		'interval' => 120,
 		'display'  => __( 'Every Two Minutes', 'mailing-group-module' )
 	);
@@ -70,6 +70,20 @@ function cron_add_weekly( $schedules ) {
 	$schedules['wpmg_fifteen_minute'] = array(
 		'interval' => 900,
 		'display'  => __( 'Every Fifteen Minutes', 'mailing-group-module' )
+	);*/
+
+	//Testing purposes
+	$schedules['wpmg_two_minute']     = array(
+		'interval' => 12,
+		'display'  => __( 'Every Two Minutes' )
+	);
+	$schedules['wpmg_five_minute']    = array(
+		'interval' => 15,
+		'display'  => __( 'Every Five Minutes' )
+	);
+	$schedules['wpmg_fifteen_minute'] = array(
+		'interval' => 30,
+		'display'  => __( 'Every Fifteen Minutes' )
 	);
 
 	return $schedules;
