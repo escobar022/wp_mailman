@@ -38,9 +38,9 @@ global $obj;
 /*Define global variable to be used in plugin*/
 global $wpdb, $table_name_group, $table_name_message, $table_name_requestmanager, $table_name_requestmanager_taxonomy, $table_name_user_taxonomy, $table_name_parsed_emails, $table_name_sent_emails, $table_name_users, $table_name_usermeta;
 $visibilityArray = array(
-	"Public"     => '1',
-	"Invitation" => '2',
-	"Private"    => '3'
+	'Public'     => '1',
+	'Invitation' => '2',
+	'Private'    => '3'
 );
 
 $WPMG_SETTINGS = get_option( "WPMG_SETTINGS" );
@@ -1122,11 +1122,10 @@ function wpmg_activation_url( $user_id, $user_reg = "" ) {
 
 /* frontend shortcode call */
 function wpmg_mailing_group_form_func( $atts ) {
-	$a = shortcode_atts( array(
-		'visibility' => $atts['visibility']
-	), array(
-		'visibility'
-	) );
+	//Updated Shortcode to properly display on front end and default to 'Public'
+	$atts = shortcode_atts( array(
+		'visibility' => 'Public'
+	),$atts );
 	ob_start();
 	global $wpdb, $objMem, $table_name_requestmanager_taxonomy, $table_name_user_taxonomy, $table_name_group, $table_name_requestmanager;
 	global $visibilityArray;

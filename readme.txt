@@ -83,6 +83,12 @@ If you do not have cron access, then you can only use the plugin to collect a li
 
 =1.0.1=
 * Added support for Selecting POP3 SSL as optional.
+* Shortcode defaults to Public
+* Updated shortcode functionality to properly display
+  -Use [mailing_group_form] for All Public
+  -Use [mailing_group_form visibility="Private"] for Private Only
+  -Use [mailing_group_form visibility="Invitation"] for Invitation Only
+
 
 = 1.0 =
 * First version of the plugin released.
