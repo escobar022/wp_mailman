@@ -80,7 +80,7 @@ function wpmg_cron_parse_email() {
 						$_ARRDB['email_bounced'] = $bounced_email;
 					}
 					$objMem->addNewRow( $table_name_parsed_emails, $_ARRDB, $myFields );
-					$obj->deleteMails( $i ); /* Delete Mail from Mail box */
+//					$obj->deleteMails( $i ); /* Delete Mail from Mail box */
 				}
 			} else {
 				echo "No Email Found.";

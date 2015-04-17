@@ -166,14 +166,15 @@ if(count($mailresult)>0) {
 						    }else{
 							   $headers[] = 'Content-type: text/plain'."\r\n";
 							} 					
-						    $wp_sent = wp_mail( $to,$subject,$body,$headers);
+//						    $wp_sent = wp_mail( $to,$subject,$body,$headers);
+//							$wp_sent = '';
 						
-							if($wp_sent) {										
-							$_ARRDB['status'] = "1";		
-							} else {						
-							$_ARRDB['status'] = "0";	
-							$_ARRDB['error_msg'] = $mail->ErrorInfo;	
-							}							
+//							if($wp_sent) {
+//							$_ARRDB['status'] = "1";
+//							} else {
+//							$_ARRDB['status'] = "0";
+//							$_ARRDB['error_msg'] = $mail->ErrorInfo;
+//							}
 						}							
 						$myFields=array("id","user_id","email_id","group_id","sent_date","status","error_msg");	
 						$objMem->addNewRow($table_name_sent_emails,$_ARRDB, $myFields);		
