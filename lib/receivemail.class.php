@@ -25,7 +25,12 @@ class receiveMail {
 
 	var $email = '';
 
+	protected $attachmentsDir;
 
+	var $serverEncoding = 'utf-8';
+
+
+	var $addAttachment = '';
 
 	function receiveMail( $username, $password, $EmailAddress, $mailserver, $servertype, $port, $ssl ) /* Constructure */ {
 		if ( $servertype == 'imap' ) {
@@ -43,11 +48,13 @@ class receiveMail {
 	}
 
 	function connect() /* Connect To the Mail Box */ {
-		$this->marubox = imap_open( $this->server, $this->username, $this->password );
+		$marubox = imap_open( $this->server, $this->username, $this->password );
 
-		if ( ! $this->marubox ) {
+		if ( ! $marubox ) {
 			echo "Error: Connecting to mail server";
 		}
+
+		return $marubox;
 	}
 
 	function get_bounced_email_address( $content ) {
@@ -59,13 +66,12 @@ class receiveMail {
 	}
 
 	function getHeaders( $mid ) /* Get Header info */ {
-		if ( ! $this->marubox ) {
+		if ( ! $this->connect() ) {
 			return false;
 		}
 
-		$mail_details = '';
-
-		$mail_header    = imap_header( $this->marubox, $mid );
+		$mail_details   = '';
+		$mail_header    = imap_header( $this->connect(), $mid );
 		$receiver       = $mail_header->to[0];
 		$sender         = $mail_header->from[0];
 		$sender_replyto = $mail_header->reply_to[0];
@@ -89,91 +95,276 @@ class receiveMail {
 		return $mail_details;
 	}
 
-	function get_mime_type( &$structure ) /* Get Mime type Internal Private Use */ {
-		$primary_mime_type = array( "TEXT", "MULTIPART", "MESSAGE", "APPLICATION", "AUDIO", "IMAGE", "VIDEO", "OTHER" );
-
-		if ( $structure->subtype ) {
-			return $primary_mime_type[ (int) $structure->type ] . '/' . $structure->subtype;
-		}
-
-		return "TEXT/PLAIN";
-	}
-
-	function get_part( $stream, $msg_number, $mime_type, $structure = false, $part_number = false ) //Get Part Of Message Internal Private Use
-	{
-		if ( ! $structure ) {
-			$structure = imap_fetchstructure( $stream, $msg_number );
-		}
-		if ( $structure ) {
-			if ( $mime_type == $this->get_mime_type( $structure ) ) {
-				if ( ! $part_number ) {
-					$part_number = "1";
-				}
-				$text = imap_fetchbody( $stream, $msg_number, $part_number );
-				if ( $structure->encoding == 3 ) {
-					return imap_base64( $text );
-				} else if ( $structure->encoding == 4 ) {
-					return imap_qprint( $text );
-				} else {
-					return $text;
-				}
-			}
-			if ( $structure->type == 1 ) /* multipart */ {
-				while ( list( $index, $sub_structure ) = each( $structure->parts ) ) {
-					if ( $part_number ) {
-						$prefix = $part_number . '.';
-					}
-					$data = $this->get_part( $stream, $msg_number, $mime_type, $sub_structure, $prefix . ( $index + 1 ) );
-					if ( $data ) {
-						return $data;
-					}
-				}
-			}
-		}
-
-		return false;
-	}
 
 	function getTotalMails() /* Get Total Number off Unread Email In Mailbox */ {
-		if ( ! $this->marubox ) {
+		if ( ! $this->connect() ) {
 			return false;
 		}
 
-		$headers = imap_headers( $this->marubox );
+		$headers = imap_headers( $this->connect() );
 
 		return count( $headers );
 	}
 
+	public function getMail( $mailId ) {
+		$head              = imap_rfc822_parse_headers( imap_fetchheader( $this->connect(), $mailId, FT_UID ) );
+		$mail              = new IncomingMail();
+		$mail->id          = $mailId;
+		$mail->date        = date( 'Y-m-d H:i:s', isset( $head->date ) ? strtotime( $head->date ) : time() );
+		$mail->subject     = isset( $head->subject ) ? $this->decodeMimeStr( $head->subject, $this->serverEncoding ) : null;
+		$mail->fromName    = isset( $head->from[0]->personal ) ? $this->decodeMimeStr( $head->from[0]->personal, $this->serverEncoding ) : null;
+		$mail->fromAddress = strtolower( $head->from[0]->mailbox . '@' . $head->from[0]->host );
 
-	function getBody( $mid ) /* Get Message Body */ {
-		if ( ! $this->marubox ) {
-			return false;
+		if ( isset( $head->to ) ) {
+			$toStrings = array();
+			foreach ( $head->to as $to ) {
+				if ( ! empty( $to->mailbox ) && ! empty( $to->host ) ) {
+					$toEmail              = strtolower( $to->mailbox . '@' . $to->host );
+					$toName               = isset( $to->personal ) ? $this->decodeMimeStr( $to->personal, $this->serverEncoding ) : null;
+					$toStrings[]          = $toName ? "$toName <$toEmail>" : $toEmail;
+					$mail->to[ $toEmail ] = $toName;
+				}
+			}
+			$mail->toString = implode( ', ', $toStrings );
 		}
 
-		$body = $this->get_part( $this->marubox, $mid, "TEXT/HTML" );
-		if ( $body == "" ) {
-			$body = $this->get_part( $this->marubox, $mid, "TEXT/PLAIN" );
-		}
-		if ( $body == "" ) {
-			return "";
+		if ( isset( $head->cc ) ) {
+			foreach ( $head->cc as $cc ) {
+				$mail->cc[ strtolower( $cc->mailbox . '@' . $cc->host ) ] = isset( $cc->personal ) ? $this->decodeMimeStr( $cc->personal, $this->serverEncoding ) : null;
+			}
 		}
 
-		return $body;
+		if ( isset( $head->reply_to ) ) {
+			foreach ( $head->reply_to as $replyTo ) {
+				$mail->replyTo[ strtolower( $replyTo->mailbox . '@' . $replyTo->host ) ] = isset( $replyTo->personal ) ? $this->decodeMimeStr( $replyTo->personal, $this->serverEncoding ) : null;
+			}
+		}
+
+		$mailStructure = imap_fetchstructure( $this->connect(), $mailId, FT_UID );
+
+
+		if ( empty( $mailStructure->parts ) ) {
+			$this->initMailPart( $mail, $mailStructure, 0 );
+		} else {
+			foreach ( $mailStructure->parts as $partNum => $partStructure ) {
+				$this->initMailPart( $mail, $partStructure, $partNum + 1 );
+
+			}
+		}
+
+		return $mail;
 	}
 
+
+	protected function initMailPart( IncomingMail $mail, $partStructure, $partNum ) {
+		$attachmentsDir = wp_upload_dir();
+		$serverEncoding = 'utf-8';
+
+		$data = $partNum ? imap_fetchbody( $this->connect(), $mail->id, $partNum, FT_UID ) : imap_body( $this->connect(), $mail->id, FT_UID );
+
+		if ( $partStructure->encoding == 1 ) {
+			$data = imap_utf8( $data );
+		} elseif ( $partStructure->encoding == 2 ) {
+			$data = imap_binary( $data );
+		} elseif ( $partStructure->encoding == 3 ) {
+			$data = imap_base64( $data );
+		} elseif ( $partStructure->encoding == 4 ) {
+			$data = imap_qprint( $data );
+		}
+
+		$params = array();
+		if ( ! empty( $partStructure->parameters ) ) {
+			foreach ( $partStructure->parameters as $param ) {
+				$params[ strtolower( $param->attribute ) ] = $param->value;
+			}
+		}
+		if ( ! empty( $partStructure->dparameters ) ) {
+			foreach ( $partStructure->dparameters as $param ) {
+				$paramName = strtolower( preg_match( '~^(.*?)\*~', $param->attribute, $matches ) ? $matches[1] : $param->attribute );
+				if ( isset( $params[ $paramName ] ) ) {
+					$params[ $paramName ] .= $param->value;
+				} else {
+					$params[ $paramName ] = $param->value;
+				}
+			}
+		}
+		if ( ! empty( $params['charset'] ) ) {
+			$data = $this->convertStringEncoding( $data, $params['charset'], $this->serverEncoding );
+		}
+
+		$attachmentId = $partStructure->ifid
+			? trim( $partStructure->id, " <>" )
+			: ( isset( $params['filename'] ) || isset( $params['name'] ) ? mt_rand() . mt_rand() : null );
+
+		if ( $attachmentId ) {
+			if ( empty( $params['filename'] ) && empty( $params['name'] ) ) {
+				$fileName = $attachmentId . '.' . strtolower( $partStructure->subtype );
+			} else {
+				$fileName = ! empty( $params['filename'] ) ? $params['filename'] : $params['name'];
+				$fileName = $this->decodeMimeStr( $fileName, $serverEncoding );
+				$fileName = $this->decodeRFC2231( $fileName, $serverEncoding );
+			}
+			$attachment       = new IncomingMailAttachment();
+			$attachment->id   = $attachmentId;
+			$attachment->name = $fileName;
+			if ( $attachmentsDir ) {
+				$replace              = array(
+					'/\s/'                   => '_',
+					'/[^0-9a-zа-яіїє_\.]/iu' => '',
+					'/_+/'                   => '_',
+					'/(^_)|(_$)/'            => '',
+				);
+				$fileSysName          = preg_replace( '~[\\\\/]~', '', $attachmentId . '_' . preg_replace( array_keys( $replace ), $replace, $fileName ) );
+				$attachment->filePath = $attachmentsDir['basedir'] . '/wp_mailinggroup' . DIRECTORY_SEPARATOR . $fileSysName;
+
+				file_put_contents( $attachment->filePath, $data );
+			}
+
+			$attachment->disposition = $partStructure->disposition;
+			$mail->addAttachment( $attachment );
+
+		} elseif ( $partStructure->type == 0 && $data ) {
+			if ( strtolower( $partStructure->subtype ) == 'plain' ) {
+				$mail->textPlain .= $data;
+			} else {
+				$mail->textHtml .= $data;
+			}
+		} elseif ( $partStructure->type == 2 && $data ) {
+			$mail->textPlain .= trim( $data );
+		}
+		if ( ! empty( $partStructure->parts ) ) {
+			foreach ( $partStructure->parts as $subPartNum => $subPartStructure ) {
+				if ( $partStructure->type == 2 && $partStructure->subtype == 'RFC822' ) {
+					$this->initMailPart( $mail, $subPartStructure, $partNum );
+				} else {
+					$this->initMailPart( $mail, $subPartStructure, $partNum . '.' . ( $subPartNum + 1 ) );
+				}
+			}
+		}
+	}
+
+	protected function convertStringEncoding( $string, $fromEncoding, $toEncoding ) {
+		$convertedString = false;
+		if ( $string && $fromEncoding !== $toEncoding ) {
+			if ( extension_loaded( 'mbstring' ) ) {
+				$convertedString = mb_convert_encoding( $string, $toEncoding, $fromEncoding );
+			} else {
+				$convertedString = @iconv( $fromEncoding, $toEncoding . '//IGNORE', $string );
+			}
+		}
+
+		// If conversion does not occur or is not successful, return the original string
+		return ( $convertedString !== false ) ? $convertedString : $string;
+	}
+
+	protected function decodeMimeStr( $string, $charset = 'utf-8' ) {
+		$newString = '';
+		$elements  = imap_mime_header_decode( $string );
+		for ( $i = 0; $i < count( $elements ); $i ++ ) {
+			if ( $elements[ $i ]->charset == 'default' ) {
+				$elements[ $i ]->charset = 'iso-8859-1';
+			}
+			$newString .= $this->convertStringEncoding( $elements[ $i ]->text, $elements[ $i ]->charset, $charset );
+		}
+
+		return $newString;
+	}
+
+	protected function decodeRFC2231( $string, $charset = 'utf-8' ) {
+		if ( preg_match( "/^(.*?)'.*?'(.*?)$/", $string, $matches ) ) {
+			$encoding = $matches[1];
+			$data     = $matches[2];
+			if ( $this->isUrlEncoded( $data ) ) {
+				$string = $this->convertStringEncoding( urldecode( $data ), $encoding, $charset );
+			}
+		}
+
+		return $string;
+	}
+
+	function isUrlEncoded( $string ) {
+		$hasInvalidChars = preg_match( '#[^%a-zA-Z0-9\-_\.\+]#', $string );
+		$hasEscapedChars = preg_match( '#%[a-zA-Z0-9]{2}#', $string );
+
+		return ! $hasInvalidChars && $hasEscapedChars;
+	}
+
+
 	function deleteMails( $mid ) /* Delete That Mail */ {
-		if ( ! $this->marubox ) {
+		if ( ! $this->connect() ) {
 			return false;
 		}
 
-		imap_delete( $this->marubox, $mid );
+		imap_delete( $this->connect(), $mid );
 	}
 
 	function close_mailbox() /* Close Mail Box */ {
-		if ( ! $this->marubox ) {
+		if ( ! $this->connect() ) {
 			return false;
 		}
 
-		imap_close( $this->marubox, CL_EXPUNGE );
+		imap_close( $this->connect(), CL_EXPUNGE );
 	}
+}
+
+class IncomingMail {
+
+	public $id;
+	public $newid;
+	public $date;
+	public $subject;
+
+	public $fromName;
+	public $fromAddress;
+
+	public $to = array();
+	public $toString;
+	public $cc = array();
+	public $replyTo = array();
+
+	public $textPlain;
+	public $textHtml;
+	/** @var IncomingMailAttachment[] */
+	protected $attachments = array();
+
+	public function addAttachment( IncomingMailAttachment $attachment ) {
+		$this->attachments[ $attachment->id ] = $attachment;
+	}
+
+	/**
+	 * @return IncomingMailAttachment[]
+	 */
+	public function getAttachments() {
+		return $this->attachments;
+	}
+
+	/**
+	 * Get array of internal HTML links placeholders
+	 * @return array attachmentId => link placeholder
+	 */
+	public function getInternalLinksPlaceholders() {
+		return preg_match_all( '/=["\'](cid:([\w\.%*@-]+))["\']/i', $this->textHtml, $matches ) ? array_combine( $matches[2], $matches[1] ) : array();
+	}
+
+	function fetch_html_body() {
+		$baseUri = get_site_url();
+		$baseUri     = rtrim( $baseUri, '\\/' ) . '/wp-content/uploads/wp_mailinggroup/';
+		$fetchedHtml = $this->textHtml;
+
+		foreach ( $this->getInternalLinksPlaceholders() as $attachmentId => $placeholder ) {
+			if ( isset( $this->attachments[ $attachmentId ] ) ) {
+				$fetchedHtml = str_replace( $placeholder, $baseUri . basename( $this->attachments[ $attachmentId ]->filePath ), $fetchedHtml );
+			}
+		}
+
+		return $fetchedHtml;
+	}
+}
+
+
+class IncomingMailAttachment {
+	public $id;
+	public $name;
+	public $filePath;
+	public $disposition;
 }

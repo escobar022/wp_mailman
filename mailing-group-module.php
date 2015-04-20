@@ -36,7 +36,7 @@ global $obj;
 
 
 /*Define global variable to be used in plugin*/
-global $wpdb, $table_name_group, $table_name_message, $table_name_requestmanager, $table_name_requestmanager_taxonomy, $table_name_user_taxonomy, $table_name_parsed_emails, $table_name_sent_emails, $table_name_users, $table_name_usermeta;
+global $wpdb, $table_name_group, $table_name_message, $table_name_requestmanager, $table_name_requestmanager_taxonomy, $table_name_user_taxonomy, $table_name_parsed_emails, $table_name_emails_attachments, $table_name_sent_emails, $table_name_users, $table_name_usermeta;
 $visibilityArray = array(
 	'Public'     => '1',
 	'Invitation' => '2',
@@ -52,6 +52,7 @@ $table_name_requestmanager          = $wpdb->prefix . "mailing_group_requestmana
 $table_name_requestmanager_taxonomy = $wpdb->prefix . "mailing_group_taxonomy";
 $table_name_user_taxonomy           = $wpdb->prefix . "mailing_group_user_taxonomy";
 $table_name_parsed_emails           = $wpdb->prefix . "mailing_group_parsed_emails";
+$table_name_emails_attachments      = $wpdb->prefix . "mailing_group_emails_attachments";
 $table_name_sent_emails             = $wpdb->prefix . "mailing_group_sent_emails";
 $table_name_users                   = $wpdb->prefix . "users";
 $table_name_usermeta                = $wpdb->prefix . "usermeta";
@@ -91,7 +92,7 @@ function cron_add_weekly( $schedules ) {
 
 function wpmg_add_mailing_group_plugin() {
 
-	global $wpdb, $table_name_group, $table_name_message, $table_name_requestmanager, $table_name_requestmanager_taxonomy, $table_name_user_taxonomy, $table_name_parsed_emails, $table_name_sent_emails, $table_name_users, $table_name_usermeta;
+	global $wpdb, $table_name_group, $table_name_message, $table_name_requestmanager, $table_name_requestmanager_taxonomy, $table_name_user_taxonomy, $table_name_parsed_emails, $table_name_emails_attachments, $table_name_sent_emails, $table_name_users, $table_name_usermeta;
 	/* ADD CONFIG OPTION TO OPTION TABLE*/
 
 	if ( ! wp_next_scheduled( 'wpmg_cron_task_send_email' ) ) {
@@ -322,6 +323,21 @@ The List Admin.
 		require_once( ABSPATH . "wp-admin/includes/upgrade.php" );
 		dbDelta( $sql );
 	}
+
+	$MSQL = "show tables like '$table_name_emails_attachments'";
+	if ( $wpdb->get_var( $MSQL ) != $table_name_emails_attachments ) {
+		$sql = "CREATE TABLE IF NOT EXISTS `$table_name_emails_attachments` (
+		 `id` bigint(100)  NOT NULL auto_increment,
+  `IDEmail` int(11) NOT NULL default '0',
+  `FileNameOrg` varchar(255) NOT NULL default '',
+  `Filedir` varchar(255) NOT NULL default '',
+  `AttachType` varchar(255) NOT NULL default '',
+  PRIMARY KEY  (`ID`),
+  KEY `IDEmail` (`IDEmail`)
+			) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1";
+		require_once( ABSPATH . "wp-admin/includes/upgrade.php" );
+		dbDelta( $sql );
+	}
 	$MSQL = "show tables like '$table_name_sent_emails'";
 	if ( $wpdb->get_var( $MSQL ) != $table_name_sent_emails ) {
 		$sql = "CREATE TABLE IF NOT EXISTS `$table_name_sent_emails` (
@@ -518,17 +534,17 @@ function wpmg_mailinggroup_membergroups() {
 }
 
 function wpmg_mailinggroup_adminarchive() {
-	global $wpdb, $objMem, $table_name_sent_emails, $table_name_parsed_emails, $table_name_group;
+	global $wpdb, $objMem, $table_name_sent_emails, $table_name_parsed_emails,$table_name_emails_attachments, $table_name_group;
 	include "template/mg_adminarchived.php";
 }
 
 function wpmg_mailinggroup_memberarchive() {
-	global $wpdb, $objMem, $table_name_group, $table_name_sent_emails, $table_name_parsed_emails, $table_name_user_taxonomy;
+	global $wpdb, $objMem, $table_name_group, $table_name_sent_emails, $table_name_parsed_emails, $table_name_emails_attachments,$table_name_user_taxonomy;
 	include "template/mg_memberarchived.php";
 }
 
 function wpmg_mailinggroup_viewmessage() {
-	global $wpdb, $objMem, $table_name_parsed_emails;
+	global $wpdb, $objMem, $table_name_parsed_emails ,$table_name_emails_attachments;
 	include "template/mg_viewmessage.php";
 }
 
@@ -668,7 +684,7 @@ add_action( 'wp_ajax_wpmg_viewmessage', 'wpmg_viewmessage_callback' );
 /* Short codes for ajax requests */
 /* callback function for above ajax requests */
 function wpmg_viewmessage_callback() {
-	global $wpdb, $objMem, $table_name_parsed_emails;
+	global $wpdb, $objMem, $table_name_parsed_emails , $table_name_emails_attachments;
 	include "template/mg_viewmessageajax.php";
 	die();  /* this is required to return a proper result */
 }
@@ -1125,7 +1141,7 @@ function wpmg_mailing_group_form_func( $atts ) {
 	//Updated Shortcode to properly display on front end and default to 'Public'
 	$atts = shortcode_atts( array(
 		'visibility' => 'Public'
-	),$atts );
+	), $atts );
 	ob_start();
 	global $wpdb, $objMem, $table_name_requestmanager_taxonomy, $table_name_user_taxonomy, $table_name_group, $table_name_requestmanager;
 	global $visibilityArray;
@@ -1237,8 +1253,8 @@ function wpmg_mailing_group_deactivate() {
 }
 
 function wpmg_mailing_group_uninstall() {
-	global $wpdb, $table_name_group, $table_name_message, $table_name_requestmanager, $table_name_requestmanager_taxonomy, $table_name_user_taxonomy, $table_name_parsed_emails, $table_name_sent_emails;
-	$sql = "DROP TABLE `$table_name_group`, `$table_name_message`, `$table_name_requestmanager`, `$table_name_requestmanager_taxonomy`, `$table_name_user_taxonomy`, `$table_name_parsed_emails`, `$table_name_sent_emails`";
+	global $wpdb, $table_name_group, $table_name_message, $table_name_requestmanager, $table_name_requestmanager_taxonomy, $table_name_user_taxonomy, $table_name_parsed_emails,$table_name_emails_attachments, $table_name_sent_emails;
+	$sql = "DROP TABLE `$table_name_group`, `$table_name_message`, `$table_name_requestmanager`, `$table_name_requestmanager_taxonomy`, `$table_name_user_taxonomy`, `$table_name_parsed_emails`,`$table_name_emails_attachments`, `$table_name_sent_emails`";
 	/* //$wpdb->query($sql); // comment this if you want to keep the database tables after installation */
 }
 

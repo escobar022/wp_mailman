@@ -7,7 +7,7 @@ defined( 'ABSPATH' ) or die( "Cannot access pages directly." );
  * Website: http://www.wpmailinggroup.com
  */
 function wpmg_cron_parse_email() {
-	global $wpdb, $objMem, $obj, $table_name_group, $table_name_message, $table_name_requestmanager, $table_name_requestmanager_taxonomy, $table_name_user_taxonomy, $table_name_parsed_emails, $table_name_sent_emails, $table_name_crons_run, $table_name_users, $table_name_usermeta;
+	global $wpdb, $objMem, $obj, $table_name_group, $table_name_message, $table_name_requestmanager, $table_name_requestmanager_taxonomy, $table_name_user_taxonomy, $table_name_parsed_emails,$table_name_emails_attachments, $table_name_sent_emails, $table_name_crons_run, $table_name_users, $table_name_usermeta;
 
 	require_once( WPMG_PLUGIN_URL . 'lib/mailinggroupclass.php' );
 	$objMem = new mailinggroupClass();
@@ -57,10 +57,20 @@ function wpmg_cron_parse_email() {
 				"status"
 			);
 
+			$myFieldsAttachment = array(
+				"id",
+				"IDEmail",
+				"FileNameOrg",
+				"Filedir",
+				"AttachType"
+			);
+
 			if ( $tot > 0 ) {
 				for ( $i = $tot; $i > 0; $i -- ) {
 					$head         = $obj->getHeaders( $i );  /*  Get Header Info Return Array Of Headers **Array Keys are (subject,to,toOth,toNameOth,from,fromName) */
-					$emailContent = $obj->getBody( $i );
+					$mail = $obj->getMail( $i );
+					$emailContent =$mail->fetch_html_body();
+
 					/* get bounced email if any */
 					$bounced_email = "";
 					if ( $head['type'] == 'bounced' ) {
@@ -79,7 +89,21 @@ function wpmg_cron_parse_email() {
 					if ( $bounced_email != '' ) {
 						$_ARRDB['email_bounced'] = $bounced_email;
 					}
-					$objMem->addNewRow( $table_name_parsed_emails, $_ARRDB, $myFields );
+					$newid = $objMem->addNewRow( $table_name_parsed_emails, $_ARRDB, $myFields );
+
+					$attachments = $mail->getAttachments();
+
+					//Testing echo print_r($attachments,true);
+
+					foreach ( $attachments as $attachment ) {
+						$_ARRDB2['IDEmail']            = $newid;
+						$_ARRDB2['FileNameOrg']      = $attachment->name;
+						$_ARRDB2['Filedir'] = $attachment->filePath;
+						$_ARRDB2['AttachType'] = $attachment->disposition;
+						$objMem->addNewRow($table_name_emails_attachments, $_ARRDB2, $myFieldsAttachment );
+					}
+
+
 //					$obj->deleteMails( $i ); /* Delete Mail from Mail box */
 				}
 			} else {
