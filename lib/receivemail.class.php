@@ -155,7 +155,6 @@ class receiveMail {
 		return $mail;
 	}
 
-
 	protected function initMailPart( IncomingMail $mail, $partStructure, $partNum ) {
 		$attachmentsDir = wp_upload_dir();
 		$serverEncoding = 'utf-8';
