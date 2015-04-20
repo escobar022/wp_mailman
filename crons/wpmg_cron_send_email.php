@@ -171,9 +171,9 @@ function wpmg_cron_send_email() {
 
 									$attachment_send = array();
 
-										foreach ( $attachments as $attachment ) {
-											$attachment_send[] = $attachment->Filedir;
-										}
+									foreach ( $attachments as $attachment ) {
+										$attachment_send[] = $attachment->Filedir;
+									}
 
 
 									var_dump( $attachment_send );
