@@ -6,6 +6,9 @@ defined( 'ABSPATH' ) or die( "Cannot access pages directly." );
  * Author: Marcus Sorensen & netforcelabs.com
  * Website: http://www.wpmailinggroup.com
  */
+/**
+ *
+ */
 function wpmg_cron_parse_email() {
 	global $wpdb, $objMem, $obj, $table_name_group, $table_name_message, $table_name_requestmanager, $table_name_requestmanager_taxonomy, $table_name_user_taxonomy, $table_name_parsed_emails,$table_name_emails_attachments, $table_name_sent_emails, $table_name_crons_run, $table_name_users, $table_name_usermeta;
 
@@ -38,7 +41,7 @@ function wpmg_cron_parse_email() {
 				$obj->receiveMail( $email, $password, $email, $pop_server, $pop_server_type, $pop_port, false );
 			}
 			/* Connect to the Mail Box */
-			$obj->connect(); /* If connection fails give error message and exit */
+			$obj->getImapStream(); /* If connection fails give error message and exit */
 
 			/* Get Total Number of Unread Email in mail box */
 			$tot = $obj->getTotalMails(); /* Total Mails in Inbox Return integer value */
@@ -93,8 +96,6 @@ function wpmg_cron_parse_email() {
 
 					$attachments = $mail->getAttachments();
 
-					//Testing echo print_r($attachments,true);
-
 					foreach ( $attachments as $attachment ) {
 						$_ARRDB2['IDEmail']            = $newid;
 						$_ARRDB2['FileNameOrg']      = $attachment->name;
@@ -103,8 +104,11 @@ function wpmg_cron_parse_email() {
 						$objMem->addNewRow($table_name_emails_attachments, $_ARRDB2, $myFieldsAttachment );
 					}
 
+					$jay=$obj->deleteMail( $i);
 
-//					$obj->deleteMails( $i ); /* Delete Mail from Mail box */
+					var_dump($jay);
+
+
 				}
 			} else {
 				echo "No Email Found.";

@@ -20,19 +20,13 @@ class receiveMail {
 	var $server = '';
 	var $username = '';
 	var $password = '';
-
 	var $marubox = '';
-
 	var $email = '';
-
 	protected $attachmentsDir;
-
 	var $serverEncoding = 'utf-8';
-
-
 	var $addAttachment = '';
 
-	function receiveMail( $username, $password, $EmailAddress, $mailserver, $servertype, $port, $ssl ) /* Constructure */ {
+	function receiveMail( $username, $password, $EmailAddress, $mailserver, $servertype, $port, $ssl ){
 		if ( $servertype == 'imap' ) {
 			if ( $port == '' ) {
 				$port = '143';
@@ -46,15 +40,37 @@ class receiveMail {
 		$this->password = $password;
 		$this->email    = $EmailAddress;
 	}
-
-	function connect() /* Connect To the Mail Box */ {
-		$marubox = imap_open( $this->server, $this->username, $this->password );
-
-		if ( ! $marubox ) {
-			echo "Error: Connecting to mail server";
+	public function getImapStream( $forceConnection = true ) {
+		static $imapStream;
+		if ( $forceConnection ) {
+			if ( $imapStream && ( ! is_resource( $imapStream ) || ! imap_ping( $imapStream ) ) ) {
+				$this->disconnect();
+				$imapStream = null;
+			}
+			if ( ! $imapStream ) {
+				$imapStream = $this->initImapStream();
+			}
 		}
 
-		return $marubox;
+		return $imapStream;
+	}
+	protected function initImapStream() {
+		$imapStream = @imap_open( $this->server, $this->username, $this->password/*, 0, 0, array( 'DISABLE_AUTHENTICATOR' => 'GSSAPI' ) */);
+		if ( ! $imapStream ) {
+			throw new ImapMailboxException( 'Connection error: ' . imap_last_error() );
+		}
+		return $imapStream;
+	}
+
+	protected function disconnect() {
+		$imapStream = $this->getImapStream( false );
+		if ( $imapStream && is_resource( $imapStream ) ) {
+			imap_close( $imapStream, CL_EXPUNGE );
+		}
+	}
+
+	public function deleteMail( $mailId ) {
+		return imap_delete( $this->getImapStream(), $mailId, FT_UID );
 	}
 
 	function get_bounced_email_address( $content ) {
@@ -66,12 +82,12 @@ class receiveMail {
 	}
 
 	function getHeaders( $mid ) /* Get Header info */ {
-		if ( ! $this->connect() ) {
+		if ( ! $this->getImapStream() ) {
 			return false;
 		}
 
 		$mail_details   = '';
-		$mail_header    = imap_header( $this->connect(), $mid );
+		$mail_header    = imap_header( $this->getImapStream(), $mid );
 		$receiver       = $mail_header->to[0];
 		$sender         = $mail_header->from[0];
 		$sender_replyto = $mail_header->reply_to[0];
@@ -97,17 +113,17 @@ class receiveMail {
 
 
 	function getTotalMails() /* Get Total Number off Unread Email In Mailbox */ {
-		if ( ! $this->connect() ) {
+		if ( ! $this->getImapStream() ) {
 			return false;
 		}
 
-		$headers = imap_headers( $this->connect() );
+		$headers = imap_headers( $this->getImapStream() );
 
 		return count( $headers );
 	}
 
 	public function getMail( $mailId ) {
-		$head              = imap_rfc822_parse_headers( imap_fetchheader( $this->connect(), $mailId, FT_UID ) );
+		$head              = imap_rfc822_parse_headers( imap_fetchheader( $this->getImapStream(), $mailId, FT_UID ) );
 		$mail              = new IncomingMail();
 		$mail->id          = $mailId;
 		$mail->date        = date( 'Y-m-d H:i:s', isset( $head->date ) ? strtotime( $head->date ) : time() );
@@ -140,7 +156,7 @@ class receiveMail {
 			}
 		}
 
-		$mailStructure = imap_fetchstructure( $this->connect(), $mailId, FT_UID );
+		$mailStructure = imap_fetchstructure( $this->getImapStream(), $mailId, FT_UID );
 
 
 		if ( empty( $mailStructure->parts ) ) {
@@ -159,7 +175,7 @@ class receiveMail {
 		$attachmentsDir = wp_upload_dir();
 		$serverEncoding = 'utf-8';
 
-		$data = $partNum ? imap_fetchbody( $this->connect(), $mail->id, $partNum, FT_UID ) : imap_body( $this->connect(), $mail->id, FT_UID );
+		$data = $partNum ? imap_fetchbody( $this->getImapStream(), $mail->id, $partNum, FT_UID ) : imap_body( $this->getImapStream(), $mail->id, FT_UID );
 
 		if ( $partStructure->encoding == 1 ) {
 			$data = imap_utf8( $data );
@@ -288,21 +304,11 @@ class receiveMail {
 		return ! $hasInvalidChars && $hasEscapedChars;
 	}
 
-
-	function deleteMails( $mid ) /* Delete That Mail */ {
-		if ( ! $this->connect() ) {
-			return false;
-		}
-
-		imap_delete( $this->connect(), $mid );
-	}
-
 	function close_mailbox() /* Close Mail Box */ {
-		if ( ! $this->connect() ) {
+		if ( ! $this->getImapStream() ) {
 			return false;
 		}
-
-		imap_close( $this->connect(), CL_EXPUNGE );
+		return imap_close( $this->getImapStream(), CL_EXPUNGE );
 	}
 }
 
@@ -366,4 +372,9 @@ class IncomingMailAttachment {
 	public $name;
 	public $filePath;
 	public $disposition;
+}
+
+
+class ImapMailboxException extends Exception {
+
 }

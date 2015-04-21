@@ -8,7 +8,7 @@ defined( 'ABSPATH' ) or die( "Cannot access pages directly." );
  */
 
 function wpmg_cron_send_email() {
-	global $wpdb, $objMem, $table_name_group, $table_name_message, $table_name_requestmanager, $table_name_requestmanager_taxonomy, $table_name_user_taxonomy, $table_name_parsed_emails, $table_name_emails_attachments, $table_name_sent_emails, $table_name_crons_run, $table_name_users, $table_name_usermeta;
+	global $wpdb, $objMem, $obj,$table_name_group, $table_name_message, $table_name_requestmanager, $table_name_requestmanager_taxonomy, $table_name_user_taxonomy, $table_name_parsed_emails, $table_name_emails_attachments, $table_name_sent_emails, $table_name_crons_run, $table_name_users, $table_name_usermeta;
 
 	require_once( WPMG_PLUGIN_URL . 'lib/mailinggroupclass.php' );
 	$objMem = new mailinggroupClass();
@@ -70,11 +70,17 @@ function wpmg_cron_send_email() {
 								$_ARRDB['group_id']  = $receiverGroupId;
 								$_ARRDB['sent_date'] = date( "Y-m-d H:i:s" );
 								$_ARRDB['error_msg'] = "";
+
 								if ( $mail_type == 'smtp' ) {
-									require_once( WPMG_PLUGIN_URL . 'lib/class.phpmailer.php' );
+									global $phpmailer;
+									if ( !is_object( $phpmailer ) || !is_a( $phpmailer, 'PHPMailer' ) ) {
+										require_once ABSPATH . WPINC . '/class-phpmailer.php';
+										require_once ABSPATH . WPINC . '/class-smtp.php';
+										$phpmailer = new PHPMailer();
+									}
 									$mail = new PHPMailer();
 									$mail->IsSMTP();
-									$mail->SMTPDebug = 1;
+									$mail->SMTPDebug = 0;
 
 									if ( $resultGroup->smtp_username != '' && $resultGroup->smtp_password != '' ) {
 										$mail->Username   = $resultGroup->smtp_username;
@@ -90,6 +96,7 @@ function wpmg_cron_send_email() {
 									$mail->Host   = $resultGroup->smtp_server;
 									$mail->Port   = $resultGroup->smtp_port;
 									$mail->Sender = $resultGroup->email;
+
 									$mail->SetFrom( $senderEmail, $senderName );
 									/* reply to */
 									$mail->AddReplyTo( $groupEmail, $groupTitle );
@@ -106,6 +113,12 @@ function wpmg_cron_send_email() {
 									}
 									$mail->MsgHTML( $body );
 									$mail->AddAddress( $sendToEmail, $sendToName );
+
+									$attachments = $objMem->selectRowsbyField( $table_name_emails_attachments, "IDEMAIL", $receiverMailId, "and AttachType='ATTACHMENT'" );
+
+									foreach($attachments as $ATTACHMENT){
+										$mail->addAttachment( $ATTACHMENT->Filedir , $ATTACHMENT->FileNameOrg);
+									}
 									if ( ! $mail->Send() ) {
 										$_ARRDB['status']    = "0";
 										$_ARRDB['error_msg'] = $mail->ErrorInfo;
@@ -174,10 +187,6 @@ function wpmg_cron_send_email() {
 									foreach ( $attachments as $attachment ) {
 										$attachment_send[] = $attachment->Filedir;
 									}
-
-
-									var_dump( $attachment_send );
-
 
 									$wp_sent = wp_mail( $to, $subject, $body, $headers, $attachment_send );
 
