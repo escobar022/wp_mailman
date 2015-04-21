@@ -96,8 +96,7 @@ function wpmg_cron_send_email() {
 									$mail->Host   = $resultGroup->smtp_server;
 									$mail->Port   = $resultGroup->smtp_port;
 									$mail->Sender = $resultGroup->email;
-
-									$mail->SetFrom( $groupEmail, $groupTitle );
+									$mail->SetFrom( $senderEmail, $senderName );
 									/* reply to */
 									$mail->AddReplyTo( $groupEmail, $groupTitle );
 
