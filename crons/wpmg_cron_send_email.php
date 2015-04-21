@@ -8,7 +8,7 @@ defined( 'ABSPATH' ) or die( "Cannot access pages directly." );
  */
 
 function wpmg_cron_send_email() {
-	global $wpdb, $objMem, $obj,$table_name_group, $table_name_message, $table_name_requestmanager, $table_name_requestmanager_taxonomy, $table_name_user_taxonomy, $table_name_parsed_emails, $table_name_emails_attachments, $table_name_sent_emails, $table_name_crons_run, $table_name_users, $table_name_usermeta;
+	global $wpdb, $objMem, $obj, $table_name_group, $table_name_message, $table_name_requestmanager, $table_name_requestmanager_taxonomy, $table_name_user_taxonomy, $table_name_parsed_emails, $table_name_emails_attachments, $table_name_sent_emails, $table_name_crons_run, $table_name_users, $table_name_usermeta;
 
 	require_once( WPMG_PLUGIN_URL . 'lib/mailinggroupclass.php' );
 	$objMem = new mailinggroupClass();
@@ -73,7 +73,7 @@ function wpmg_cron_send_email() {
 
 								if ( $mail_type == 'smtp' ) {
 									global $phpmailer;
-									if ( !is_object( $phpmailer ) || !is_a( $phpmailer, 'PHPMailer' ) ) {
+									if ( ! is_object( $phpmailer ) || ! is_a( $phpmailer, 'PHPMailer' ) ) {
 										require_once ABSPATH . WPINC . '/class-phpmailer.php';
 										require_once ABSPATH . WPINC . '/class-smtp.php';
 										$phpmailer = new PHPMailer();
@@ -97,7 +97,7 @@ function wpmg_cron_send_email() {
 									$mail->Port   = $resultGroup->smtp_port;
 									$mail->Sender = $resultGroup->email;
 
-									$mail->SetFrom( $senderEmail, $senderName );
+									$mail->SetFrom( $groupEmail, $groupTitle );
 									/* reply to */
 									$mail->AddReplyTo( $groupEmail, $groupTitle );
 
@@ -116,8 +116,8 @@ function wpmg_cron_send_email() {
 
 									$attachments = $objMem->selectRowsbyField( $table_name_emails_attachments, "IDEMAIL", $receiverMailId, "and AttachType='ATTACHMENT'" );
 
-									foreach($attachments as $ATTACHMENT){
-										$mail->addAttachment( $ATTACHMENT->Filedir , $ATTACHMENT->FileNameOrg);
+									foreach ( $attachments as $ATTACHMENT ) {
+										$mail->addAttachment( $ATTACHMENT->Filedir, $ATTACHMENT->FileNameOrg );
 									}
 									if ( ! $mail->Send() ) {
 										$_ARRDB['status']    = "0";

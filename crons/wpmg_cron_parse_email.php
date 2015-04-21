@@ -104,10 +104,7 @@ function wpmg_cron_parse_email() {
 						$objMem->addNewRow($table_name_emails_attachments, $_ARRDB2, $myFieldsAttachment );
 					}
 
-					$jay=$obj->deleteMail( $i);
-
-					var_dump($jay);
-
+					$obj->deleteMail( $i);
 
 				}
 			} else {
