@@ -48,6 +48,8 @@ function wpmg_cron_parse_email() {
 
 			$myFields = array(
 				"id",
+				"UID",
+				"references",
 				"type",
 				"email_bounced",
 				"email_from",
@@ -57,7 +59,8 @@ function wpmg_cron_parse_email() {
 				"email_subject",
 				"email_content",
 				"email_group_id",
-				"status"
+				"status",
+				"date"
 			);
 
 			$myFieldsAttachment = array(
@@ -88,6 +91,9 @@ function wpmg_cron_parse_email() {
 					$_ARRDB['email_subject']   = $head['subject'];
 					$_ARRDB['email_content']   = $emailContent;
 					$_ARRDB['email_group_id']  = $id;
+					$_ARRDB['UID']  = $mail->UID;
+					$_ARRDB['references']  = $mail->references;
+					$_ARRDB['date']  = $mail->date;
 					$_ARRDB['status']          = "0";
 					if ( $bounced_email != '' ) {
 						$_ARRDB['email_bounced'] = $bounced_email;

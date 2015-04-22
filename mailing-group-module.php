@@ -60,7 +60,7 @@ $table_name_usermeta                = $wpdb->prefix . "usermeta";
 add_filter( 'cron_schedules', 'cron_add_weekly' );
 function cron_add_weekly( $schedules ) {
 	// Adds once weekly to the existing schedules.
-	/*$schedules['wpmg_two_minute']     = array(
+	$schedules['wpmg_two_minute']     = array(
 		'interval' => 120,
 		'display'  => __( 'Every Two Minutes', 'mailing-group-module' )
 	);
@@ -71,10 +71,10 @@ function cron_add_weekly( $schedules ) {
 	$schedules['wpmg_fifteen_minute'] = array(
 		'interval' => 900,
 		'display'  => __( 'Every Fifteen Minutes', 'mailing-group-module' )
-	);*/
+	);
 
 	//Testing purposes
-	$schedules['wpmg_two_minute']     = array(
+	/*$schedules['wpmg_two_minute']     = array(
 		'interval' => 15,
 		'display'  => __( 'Every Two Minutes' )
 	);
@@ -85,7 +85,7 @@ function cron_add_weekly( $schedules ) {
 	$schedules['wpmg_fifteen_minute'] = array(
 		'interval' => 900,
 		'display'  => __( 'Every Fifteen Minutes' )
-	);
+	);*/
 
 	return $schedules;
 }
@@ -296,7 +296,8 @@ The List Admin.
 		$sql = "CREATE TABLE IF NOT EXISTS `$table_name_parsed_emails` (
 
 			  `id` bigint(100) NOT NULL AUTO_INCREMENT,
-
+			  `UID` varchar(255) DEFAULT NULL,
+			  `references` varchar(255) DEFAULT NULL,
               `type` varchar(50) NOT NULL DEFAULT 'email',
 
 			  `email_bounced` varchar(100) NOT NULL,
@@ -311,11 +312,12 @@ The List Admin.
 
 			  `email_subject` varchar(255) NOT NULL,
 
-			  `email_content` longblob NOT NULL,
+			  `email_content` text NOT NULL,
 
 			  `email_group_id` int(20) NOT NULL,
 
 			  `status` tinyint(2) NOT NULL DEFAULT '0',
+			  `date` datetime NOT NULL,
 
 			  PRIMARY KEY (`id`)
 

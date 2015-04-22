@@ -81,6 +81,7 @@ function wpmg_cron_send_email() {
 									$mail = new PHPMailer();
 									$mail->IsSMTP();
 									$mail->SMTPDebug = 0;
+									$mail->addCustomHeader('references',$emailParsed->UID);
 
 									if ( $resultGroup->smtp_username != '' && $resultGroup->smtp_password != '' ) {
 										$mail->Username   = $resultGroup->smtp_username;

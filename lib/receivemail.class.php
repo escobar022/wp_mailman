@@ -126,6 +126,8 @@ class receiveMail {
 		$head              = imap_rfc822_parse_headers( imap_fetchheader( $this->getImapStream(), $mailId, FT_UID ) );
 		$mail              = new IncomingMail();
 		$mail->id          = $mailId;
+		$mail->UID         =$head->message_id;
+		$mail->references = $head->references;
 		$mail->date        = date( 'Y-m-d H:i:s', isset( $head->date ) ? strtotime( $head->date ) : time() );
 		$mail->subject     = isset( $head->subject ) ? $this->decodeMimeStr( $head->subject, $this->serverEncoding ) : null;
 		$mail->fromName    = isset( $head->from[0]->personal ) ? $this->decodeMimeStr( $head->from[0]->personal, $this->serverEncoding ) : null;
@@ -315,6 +317,8 @@ class receiveMail {
 class IncomingMail {
 
 	public $id;
+	public $UID;
+	public $references;
 	public $newid;
 	public $date;
 	public $subject;
