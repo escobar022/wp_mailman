@@ -30,11 +30,11 @@
  * DataTables features
  */
 #col-left {
-	width:90% !important;
+	width: 90% !important;
 }
 
 #col-left-pop {
-	width:90% !important;
+	width: 90% !important;
 }
 
 .form-field input, .form-field textarea {
@@ -43,69 +43,72 @@
 
 .dataTables_wrapper {
 	position: relative;
-	clear: both;
-	zoom: 1; /* Feeling sorry for IE */
-	
+	clear:    both;
+	zoom:     1; /* Feeling sorry for IE */
+
 }
 
 .dataTables_processing {
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	width: 250px;
-	height: 30px;
-	margin-left: -125px;
-	margin-top: -15px;
-	padding: 14px 0 2px 0;
-	border: 1px solid #ddd;
-	text-align: center;
-	color: #999;
-	font-size: 14px;
+	position:         absolute;
+	top:              50%;
+	left:             50%;
+	width:            250px;
+	height:           30px;
+	margin-left:      -125px;
+	margin-top:       -15px;
+	padding:          14px 0 2px 0;
+	border:           1px solid #ddd;
+	text-align:       center;
+	color:            #999;
+	font-size:        14px;
 	background-color: white;
 }
 
 .dataTables_length {
-	width: 40%;
-	float: left;
-	padding:10px 0 10px 0px;
-	
+	width:   40%;
+	float:   left;
+	padding: 10px 0 10px 0px;
+
 }
 
 .dataTables_filter {
-	width: 50%;
-	float: right;
+	width:      50%;
+	float:      right;
 	text-align: right;
 }
 
 .dataTables_info {
-	width: 60%;
-	float: left;
-	padding-bottom:5px;
+	width:          60%;
+	float:          left;
+	padding-bottom: 5px;
 }
 
 .dataTables_paginate {
-	float: right;
+	float:      right;
 	text-align: right;
 }
 
 /* Pagination nested */
 .paginate_disabled_previous, .paginate_disabled_next {
 	height: 19px;
-	float: left;
+	float:  left;
 	cursor: auto;
-	color: #111 !important;
+	color:  #111 !important;
 }
+
 .paginate_enabled_previous, .paginate_enabled_next {
-	height: 19px;
-	float: left;
-	cursor: pointer;
+	height:  19px;
+	float:   left;
+	cursor:  pointer;
 	*cursor: hand;
-	color: #111 !important;
+	color:   #111 !important;
 }
+
 .paginate_disabled_previous:hover, .paginate_enabled_previous:hover,
 .paginate_disabled_next:hover, .paginate_enabled_next:hover {
 	text-decoration: none !important;
 }
+
 .paginate_disabled_previous:active, .paginate_enabled_previous:active,
 .paginate_disabled_next:active, .paginate_enabled_next:active {
 	outline: none;
@@ -115,12 +118,14 @@
 .paginate_disabled_next {
 	color: #666 !important;
 }
+
 .paginate_disabled_previous, .paginate_enabled_previous {
 	padding-left: 23px;
 }
+
 .paginate_disabled_next, .paginate_enabled_next {
 	padding-right: 23px;
-	margin-left: 10px;
+	margin-left:   10px;
 }
 
 .paginate_disabled_previous {
@@ -130,6 +135,7 @@
 .paginate_enabled_previous {
 	background: url('../images/back_enabled.png') no-repeat left -2px;
 }
+
 .paginate_enabled_previous:hover {
 	background: url('../images/back_enabled_hover.png') no-repeat left -2px;
 }
@@ -141,20 +147,19 @@
 .paginate_enabled_next {
 	background: url('../images/forward_enabled.png') no-repeat right -1px;
 }
+
 .paginate_enabled_next:hover {
 	background: url('../images/forward_enabled_hover.png') no-repeat right -1px;
 }
-
-
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * DataTables display
  */
 table.display {
 	margin: 0 auto;
-	clear: both;
-	width: 100%;
-	
+	clear:  both;
+	width:  100%;
+
 	/* Note Firefox 3.5 and before have a bug with border-collapse
 	 * ( https://bugzilla.mozilla.org/show%5Fbug.cgi?id=155955 ) 
 	 * border-spacing: 0; is one possible option. Conditional-css.com is
@@ -170,21 +175,21 @@ table.display {
 }
 
 table.display thead th {
-	padding: 3px 18px 3px 10px;
+	padding:       3px 18px 3px 10px;
 	border-bottom: 1px solid black;
-	font-weight: bold;
-	cursor: pointer;
-	* cursor: hand;
+	font-weight:   bold;
+	cursor:        pointer;
+	*cursor:       hand;
 }
 
 table.display tfoot th {
-	padding: 3px 18px 3px 10px;
-	border-top: 1px solid black;
+	padding:     3px 18px 3px 10px;
+	border-top:  1px solid black;
 	font-weight: bold;
 }
 
 table.display tr.heading2 td {
-	//border-bottom: 1px solid #aaa;
+/ / border-bottom : 1 px solid #aaa;
 }
 
 table.display td {
@@ -194,7 +199,6 @@ table.display td {
 table.display td.center {
 	text-align: center;
 }
-
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * DataTables sorting
@@ -221,7 +225,7 @@ table.display td.center {
 }
 
 #mailinggrouplist th a {
-	padding-left:10px !important;
+	padding-left: 10px !important;
 }
 
 #messagelist .sorting_asc {
@@ -246,7 +250,7 @@ table.display td.center {
 }
 
 #messagelist a {
-	padding-left:10px !important;
+	padding-left: 10px !important;
 }
 
 #memberlist .sorting_asc {
@@ -271,27 +275,27 @@ table.display td.center {
 }
 
 #memberlistdata th a {
-	padding-left:10px !important;
+	padding-left: 10px !important;
 }
 
 #mailingrequestmanager, #mailinggrouplist, #importuser {
-	width:75% !important;
-	table-layout:auto;
+	width:        75% !important;
+	table-layout: auto;
 }
 
 #mailingrequestmanager_wrapper .dataTables_filter, #mailinggrouplist_wrapper .dataTables_filter, #importuser_wrapper .dataTables_filter {
-	width:35%;
-	float:left;
-	text-align:right;
+	width:      35%;
+	float:      left;
+	text-align: right;
 }
 
 #mailinggrouplist_filter {
-	padding:10px 0 10px 0px;
+	padding: 10px 0 10px 0px;
 }
 
 #mailingrequestmanager_wrapper .dataTables_paginate, #mailinggrouplist_wrapper .dataTables_paginate, #importuser_wrapper .dataTables_paginate {
-	float:left !important;
-	margin-left:50px !important;
+	float:       left !important;
+	margin-left: 50px !important;
 }
 
 #mailingrequestmanager .sorting_asc {
@@ -315,15 +319,16 @@ table.display td.center {
 }
 
 #mailingrequestmanager th a {
-	padding-left:10px !important;
+	padding-left: 10px !important;
 }
 
 th:active {
 	outline: none;
 }
 
-.topRow {background: linear-gradient(to top, #ECECEC, #F9F9F9) repeat scroll 0 0 #F1F1F1; }
-
+.topRow {
+	background: linear-gradient(to top, #ECECEC, #F9F9F9) repeat scroll 0 0 #F1F1F1;
+}
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * DataTables row classes
@@ -341,9 +346,9 @@ th:active {
 }
 
 .top, .bottom {
-	padding: 15px;
+	padding:          15px;
 	background-color: #F5F5F5;
-	border: 1px solid #CCCCCC;
+	border:           1px solid #CCCCCC;
 }
 
 .top .dataTables_info {
@@ -360,8 +365,8 @@ th:active {
 
 tfoot input {
 	margin: 0.5em 0;
-	width: 100%;
-	color: #444;
+	width:  100%;
+	color:  #444;
 }
 
 tfoot input.search_init {
@@ -370,23 +375,22 @@ tfoot input.search_init {
 
 td.group {
 	background-color: #d1cfd0;
-	border-bottom: 2px solid #A19B9E;
-	border-top: 2px solid #A19B9E;
+	border-bottom:    2px solid #A19B9E;
+	border-top:       2px solid #A19B9E;
 }
 
 td.details {
 	background-color: #d1cfd0;
-	border: 2px solid #A19B9E;
+	border:           2px solid #A19B9E;
 }
-
 
 .example_alt_pagination div.dataTables_info {
 	width: 40%;
 }
 
 .paging_full_numbers {
-	width: 400px;
-	height: 22px;
+	width:       400px;
+	height:      22px;
 	line-height: 22px;
 }
 
@@ -399,15 +403,15 @@ td.details {
 }
 
 .paging_full_numbers a.paginate_button,
- 	.paging_full_numbers a.paginate_active {
-	border: 1px solid #aaa;
+.paging_full_numbers a.paginate_active {
+	border:                1px solid #aaa;
 	-webkit-border-radius: 5px;
-	-moz-border-radius: 5px;
-	padding: 2px 5px;
-	margin: 0 3px;
-	cursor: pointer;
-	*cursor: hand;
-	color: #333 !important;
+	-moz-border-radius:    5px;
+	padding:               2px 5px;
+	margin:                0 3px;
+	cursor:                pointer;
+	*cursor:               hand;
+	color:                 #333 !important;
 }
 
 .paging_full_numbers a.paginate_button {
@@ -416,7 +420,7 @@ td.details {
 
 .paging_full_numbers a.paginate_button:hover {
 	background-color: #ccc;
-	text-decoration: none !important;
+	text-decoration:  none !important;
 }
 
 .paging_full_numbers a.paginate_active {
@@ -430,7 +434,6 @@ table.display tr.even.row_selected td {
 table.display tr.odd.row_selected td {
 	background-color: #9FAFD1;
 }
-
 
 /*
  * Sorting classes for columns
@@ -543,7 +546,6 @@ tr.even.gradeU td.sorting_3 {
 	background-color: #e2e2e2;
 }
 
-
 /*
  * Row highlighting example
  */
@@ -587,7 +589,6 @@ tr.even.gradeU td.sorting_3 {
 	background-color: #DBFF70;
 }
 
-
 /*
  * KeyTable
  */
@@ -616,376 +617,551 @@ table.display tr.gradeU {
 }
 
 div.box {
-	height: 100px;
-	padding: 10px;
-	overflow: auto;
-	border: 1px solid #8080FF;
+	height:           100px;
+	padding:          10px;
+	overflow:         auto;
+	border:           1px solid #8080FF;
 	background-color: #E5E5FF;
 }
 
 .last {
-    text-align: left;
+	text-align: left;
 }
 
 .last a {
-	text-decoration:none;
+	text-decoration: none;
 }
+
 .dataTables_length label {
-	cursor:auto !important;
+	cursor: auto !important;
 }
 
 .dataTables_filter label {
-	cursor:auto !important;
+	cursor: auto !important;
 }
 
 .dataTables_filter input {
-	height:30px !important;
+	height: 30px !important;
 }
 
 .widefat thead th:last-of-type {
-    border-top-right-radius: 3px;
-    text-align: left;
+	border-top-right-radius: 3px;
+	text-align:              left;
 }
 
-table.widefat{margin-bottom:10px;}
-
-
+table.widefat {
+	margin-bottom: 10px;
+}
 
 .col-wrap p.submit {
-   /* margin-top: -28px !important;*/
-   text-align:center !important;
+	/* margin-top: -28px !important;*/
+	text-align: center !important;
 }
-
-
 
 .form-table th, .form-wrap label {
-    color: #222222;
-    float: left;
-    margin-right: 25px;
-    text-shadow: 0 1px 0 #FFFFFF;
-    width: 152px;
+	color:        #222222;
+	float:        left;
+	margin-right: 25px;
+	text-shadow:  0 1px 0 #FFFFFF;
+	width:        152px;
 }
 
-#addemailsetting  .form-field input, .form-field textarea {
-    border-style: solid;
-    border-width: 1px;
-    float: left;
-	margin-bottom:0px;
-    width: 50%;
-	 text-align: left;
+#addemailsetting .form-field input, .form-field textarea {
+	border-style:  solid;
+	border-width:  1px;
+	float:         left;
+	margin-bottom: 0px;
+	width:         50%;
+	text-align:    left;
 }
 
 .form-field input, .form-field textarea {
-    border-style: solid;
-    border-width: 1px;
-    float: left;
-	margin-bottom:14px;
-    width: 50%;
-	 text-align: left;
+	border-style:  solid;
+	border-width:  1px;
+	float:         left;
+	margin-bottom: 14px;
+	width:         50%;
+	text-align:    left;
 }
 
-.form-field input#auto_delete_no{width:auto !important; float:none !important;}
-.form-field input#auto_delete_yes{width:auto !important; float:none !important;}
-.form-field input#archive_message{width:auto !important; margin-left:3px;}
-.form-field input#auto_delete_limit{float:none !important; width:125px !important;}
-
-
-#addemailsetting  .form-field {
-
-	    height: 0px !important;
+.form-field input#auto_delete_no {
+	width: auto !important;
+	float: none !important;
 }
+
+.form-field input#auto_delete_yes {
+	width: auto !important;
+	float: none !important;
+}
+
+.form-field input#archive_message {
+	width:       auto !important;
+	margin-left: 3px;
+}
+
+.form-field input#auto_delete_limit {
+	float: none !important;
+	width: 125px !important;
+}
+
+#addemailsetting .form-field {
+
+	height: 0px !important;
+}
+
 .form-wrap .form-field {
-    margin: 0 0 0px;
-    padding: 0px 0;
-	
+	margin:  0 0 0px;
+	padding: 0px 0;
+
 }
 
 .validate .form-field {
 
-	    height: auto !important; clear:both;
+	height: auto !important;
+	clear:  both;
 
 }
-.form-wrap{margin-top:20px;}
 
+.form-wrap {
+	margin-top: 20px;
+}
 
 .form-field label {
-    cursor: auto;
+	cursor: auto;
 }
 
-
-.col-wrap #addemailsetting  p.submit {
-    margin-top: 0 !important;
-	margin-left:0px;
+.col-wrap #addemailsetting p.submit {
+	margin-top:  0 !important;
+	margin-left: 0px;
 }
 
-.check_div { width:400px; float:left; }
-.check_div .inner_check input { float:left; width:auto !important; margin-right:5px;}
+.check_div {
+	width: 400px;
+	float: left;
+}
 
-.check_div .inner_check {width:200px; float:left; word-wrap: break-word; font-style:normal }
+.check_div .inner_check input {
+	float:        left;
+	width:        auto !important;
+	margin-right: 5px;
+}
+
+.check_div .inner_check {
+	width:      200px;
+	float:      left;
+	word-wrap:  break-word;
+	font-style: normal
+}
 
 .ajaxContent {
-	clear:both;
-	padding-left:30px;
-	padding-right:30px;
-	width:72%;
-}
-.lft{
-	float:left;
-}
-.rgt {
-	float:left;
-	margin-left:20px;
-}
-.innn {
-	float:left;
+	clear:         both;
+	padding-left:  30px;
+	padding-right: 30px;
+	width:         72%;
 }
 
+.lft {
+	float: left;
+}
+
+.rgt {
+	float:       left;
+	margin-left: 20px;
+}
+
+.innn {
+	float: left;
+}
 
 .variableslist {
-    margin-top: 10px;
-    padding-left: 180px;
+	margin-top:   10px;
+	padding-left: 180px;
 }
+
 .variableslist_pop {
-    padding-left: 120px;
+	padding-left: 120px;
 }
+
 .marginleft {
-	margin-left:180px !important;
+	margin-left: 180px !important;
 }
+
 .clearbth {
-	clear:both;
+	clear: both;
 }
+
 .check_div_fir {
-	float:left;
-	clear:both;
-	font-weight:bold;
-	margin-right:15px;
+	float:        left;
+	clear:        both;
+	font-weight:  bold;
+	margin-right: 15px;
 }
+
 .outer_group_div {
 
 }
+
 .user_form_div .check_div_fir {
-    clear: both;
-    float: left;
-    font-weight: normal;
-    margin-right: 15px;
-    width: 159px;
+	clear:        both;
+	float:        left;
+	font-weight:  normal;
+	margin-right: 15px;
+	width:        159px;
 }
+
 .user_form_div .check_div_imp {
-    float: left;
-    width: 350px;
+	float: left;
+	width: 350px;
 }
+
 #c_captcha {
-	width:150px !important;
-	margin-right:10px;
+	width:        150px !important;
+	margin-right: 10px;
 }
-.check_div_imp { width:750px; float:left; }
-.check_div_imp .inner_check_imp input { float:left; width:auto !important; margin-right:5px;}
 
-.check_div_imp .inner_check_imp { float:left; word-wrap: break-word; font-style:normal; padding:5px; }
+.check_div_imp {
+	width: 750px;
+	float: left;
+}
 
-.ltfloat { float:left; margin-right:5px !important; }
+.check_div_imp .inner_check_imp input {
+	float:        left;
+	width:        auto !important;
+	margin-right: 5px;
+}
+
+.check_div_imp .inner_check_imp {
+	float:      left;
+	word-wrap:  break-word;
+	font-style: normal;
+	padding:    5px;
+}
+
+.ltfloat {
+	float:        left;
+	margin-right: 5px !important;
+}
 
 /************** ICONS *********************/
 .last a {
-	padding:10px !important;
+	padding: 10px !important;
 }
 
-.add_subscriber { background: url('../images/user_add.png') no-repeat center; }
-.view_users { background: url('../images/view_users.png') no-repeat center; }
-.archive_messages { background: url('../images/view_archive.png') no-repeat center; }
-.edit_record { background: url('../images/edit.png') no-repeat center; }
-.delete_record { background: url('../images/delete.png') no-repeat center; }
-.approve_record { background: url('../images/tick.png') no-repeat center; }
-.reject_record { background: url('../images/delete.png') no-repeat center; }
-.view_record { background: url('../images/zoom-in.png') no-repeat center; }
-.send_mail { background: url('../images/mail_outgoing.png') no-repeat center !important; }
+.add_subscriber {
+	background: url('../images/user_add.png') no-repeat center;
+}
+
+.view_users {
+	background: url('../images/view_users.png') no-repeat center;
+}
+
+.archive_messages {
+	background: url('../images/view_archive.png') no-repeat center;
+}
+
+.edit_record {
+	background: url('../images/edit.png') no-repeat center;
+}
+
+.delete_record {
+	background: url('../images/delete.png') no-repeat center;
+}
+
+.approve_record {
+	background: url('../images/tick.png') no-repeat center;
+}
+
+.reject_record {
+	background: url('../images/delete.png') no-repeat center;
+}
+
+.view_record {
+	background: url('../images/zoom-in.png') no-repeat center;
+}
+
+.send_mail {
+	background: url('../images/mail_outgoing.png') no-repeat center !important;
+}
 
 .tabs_icons {
-	margin-left:20px;
-	margin-top:20px;
+	margin-left: 20px;
+	margin-top:  20px;
 }
-.icon_content{
-	float:left;
+
+.icon_content {
+	float: left;
 }
+
 .activeicon {
-	border:1px solid #000000;
-	padding:10px;
-	background-color:#E6E6E6;
-	margin-top:-10px;
+	border:           1px solid #000000;
+	padding:          10px;
+	background-color: #E6E6E6;
+	margin-top:       -10px;
 }
+
 .backlink {
-	font-size:12px;
-	padding:5px;
+	font-size: 12px;
+	padding:   5px;
 }
 
 .codeexample {
-	margin-left:180px !important;
+	margin-left: 180px !important;
 }
 
 #approvedeleterequest .tablenav {
-    margin: 6px 0 10px !important;
-	width:72% !important;
+	margin: 6px 0 10px !important;
+	width:  72% !important;
 }
+
 #pop_server {
-	color:#666666;
-	font-style:italic;
+	color:      #666666;
+	font-style: italic;
 	text-align: left;
-	width:250px !important;
+	width:      250px !important;
 }
+
 #smtp_server {
-	color:#666666;
-	font-style:italic;
+	color:      #666666;
+	font-style: italic;
 	text-align: left;
-	width:250px !important;
+	width:      250px !important;
 }
+
 #pop_server:focus {
-	color:#000000;
-	font-style:normal;
-	width:250px !important;
+	color:      #000000;
+	font-style: normal;
+	width:      250px !important;
 }
+
 #smtp_server:focus {
-	color:#000000;
-	font-style:normal;
-	width:250px !important;
+	color:      #000000;
+	font-style: normal;
+	width:      250px !important;
 }
+
 #addgroup #title {
-	color:#666666;
-	font-style:italic;
+	color:      #666666;
+	font-style: italic;
 	text-align: left;
-	width:250px !important;
+	width:      250px !important;
 }
+
 #addgroup #title:focus {
-	color:#000000;
-	font-style:normal;
-	width:250px !important;
+	color:      #000000;
+	font-style: normal;
+	width:      250px !important;
 }
+
 #addgroup #email {
-	color:#666666;
-	font-style:italic;
+	color:      #666666;
+	font-style: italic;
 	text-align: left;
-	width:250px !important;
+	width:      250px !important;
 }
+
 #addgroup #email:focus {
-	color:#000000;
-	font-style:normal;
-	width:250px !important;
+	color:      #000000;
+	font-style: normal;
+	width:      250px !important;
 }
+
 #addgroup #sender_name {
-	color:#666666;
-	font-style:italic;
+	color:      #666666;
+	font-style: italic;
 	text-align: left;
-	width:265px !important;
+	width:      265px !important;
 }
+
 #addgroup #sender_name:focus {
-	color:#000000;
-	font-style:normal;
-	width:265px !important;
+	color:      #000000;
+	font-style: normal;
+	width:      265px !important;
 }
+
 #addgroup #sender_email {
-	color:#666666;
-	font-style:italic;
+	color:      #666666;
+	font-style: italic;
 	text-align: left;
-	width:265px !important;
+	width:      265px !important;
 }
+
 #addgroup #sender_email:focus {
-	color:#000000;
-	font-style:normal;
-	width:265px !important;
+	color:      #000000;
+	font-style: normal;
+	width:      265px !important;
 }
-.noteclass{
-	font-size:10px !important;
-	clear:both !important;
+
+.noteclass {
+	font-size:   10px !important;
+	clear:       both !important;
 	margin-left: 185px !important;
 }
+
 .codemail {
-	margin 0px !important;
-	padding:0px !important;
+	margin:  0px !important;
+	padding: 0px !important;
 }
+
 #subscription_email {
-	color:#666666;
-	font-style:italic;
+	color:      #666666;
+	font-style: italic;
 	text-align: left;
-	width:250px !important;
+	width:      250px !important;
 }
+
 #subscription_email:focus {
-	color:#000000;
-	font-style:normal;
-	width:250px !important;
+	color:      #000000;
+	font-style: normal;
+	width:      250px !important;
 }
+
 #bounce_alert_email {
-	color:#666666;
-	font-style:italic;
+	color:      #666666;
+	font-style: italic;
 	text-align: left;
-	width:250px !important;
+	width:      250px !important;
 }
+
 #bounce_alert_email:focus {
-	color:#000000;
-	font-style:normal;
-	width:258px !important;
+	color:      #000000;
+	font-style: normal;
+	width:      258px !important;
 }
-.lftcode{
-	float:left;
+
+.lftcode {
+	float: left;
 }
+
 .toplevel_page_mailinggroup_intro .wp-first-item {
-    /*display: none !important;*/
+	/*display: none !important;*/
 }
 
 #addgroup #pop_port {
-	width:40px !important;
+	width: 40px !important;
 }
-#addgroup #smtp_port {
-	width:40px !important;
-}
-input[type=checkbox], input[type=radio] {
-	margin: 0px !important;
-}
-#addgroup textarea {
-	width:510px !important; 
-}
-#styleform textarea {
-	width:400px !important;
-}
-.div800 {
-	width:800px;
-}
-.hidetd{display:none;}
 
-.pimportcsv { clear:both; }
+#addgroup #smtp_port {
+	width: 40px !important;
+}
+
+/*input[type=checkbox], input[type=radio] {
+	margin: 0px !important;
+}*/
+
+#addgroup textarea {
+	width: 510px !important;
+}
+
+#styleform textarea {
+	width: 400px !important;
+}
+
+.div800 {
+	width: 800px;
+}
+
+.hidetd {
+	display: none;
+}
+
+.pimportcsv {
+	clear: both;
+}
 
 .dataTables_paginate {
-float: right;
-display: block;
-cursor: default;
-height: 30px;
-color: #555;
-line-height: 30px;
-font-size: 12px;
+	float:       right;
+	display:     block;
+	cursor:      default;
+	height:      30px;
+	color:       #555;
+	line-height: 30px;
+	font-size:   12px;
 }
+
 .dataTables_paginate a:hover {
-color: #aaa;
-background: #eee;
-background: rgba(0,0,0,.05);
+	color:      #aaa;
+	background: #eee;
+	background: rgba(0, 0, 0, .05);
 }
+
 .dataTables_paginate a.disabled {
-color: #aaa;
-background: #eee;
-background: rgba(0,0,0,.05);
-display:none;
+	color:      #aaa;
+	background: #eee;
+	background: rgba(0, 0, 0, .05);
+	display:    none;
 }
+
 .dataTables_paginate a {
-padding: 0 10px 3px;
-background: #eee;
-background: rgba(0,0,0,.05);
-font-size: 14px;
-font-weight: 400;
-cursor:pointer;
-margin:0 5px;
+	padding:     0 10px 3px;
+	background:  #eee;
+	background:  rgba(0, 0, 0, .05);
+	font-size:   14px;
+	font-weight: 400;
+	cursor:      pointer;
+	margin:      0 5px;
 }
+
 .dataTables_paginate a.current {
-padding: 0 10px 3px;
-background: #eee;
-background: rgba(0,0,0,.05);
-font-size: 15px;
-font-weight: 700;
-cursor:pointer;
+	padding:     0 10px 3px;
+	background:  #eee;
+	background:  rgba(0, 0, 0, .05);
+	font-size:   15px;
+	font-weight: 700;
+	cursor:      pointer;
 }
+
+/*Mailing Group Styling*/
+#mg_group_fields div {
+	margin-bottom: 10px;
+}
+
+#mg_group_fields label {
+	display: block;
+	font-weight: bold;
+	margin-bottom: 5px;
+}
+
+/*description_block*/
+#mg_group_fields .description_block code {
+	padding: 0;
+	margin: 0;
+}
+
+/*Checkbox*/
+#mg_group_fields .checkbox input {
+	display: inline-block;
+	margin-right: 10px;
+}
+
+#mg_group_fields .checkbox p.checkbox {
+	display: inline-block;
+}
+
+/*radio*/
+#mg_group_fields .radio input {
+	display: inline-block;
+	margin-right: 5px;
+}
+
+#mg_group_fields .radio label.radio {
+	display: inline-block;
+	margin-right: 10px;
+}
+
+/*Header Type*/
+#mg_group_fields .header {
+	display: block;
+}
+#mg_group_fields .header h3 {
+	padding: 0 10% 0 0;
+	font-size: 18px;
+	display: inline-block;
+	border-bottom: solid 3px #a0a5aa;;
+}
+
+/*Custom for Maling Group */
+#mg_group_server_typeContain,#mg_group_mail_stypeContain,#mg_group_archiveContain,#mg_group_footer_textContain{
+	border-top: solid 3px #a0a5aa;
+	padding-top: 10px;
+}
+

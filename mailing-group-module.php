@@ -57,6 +57,573 @@ $table_name_sent_emails             = $wpdb->prefix . "mailing_group_sent_emails
 $table_name_users                   = $wpdb->prefix . "users";
 $table_name_usermeta                = $wpdb->prefix . "usermeta";
 
+add_action( 'init', 'ICS_type_func', 0 );
+add_action( 'add_meta_boxes', 'add_custom_meta_box', 0 );
+add_action( 'save_post', 'save_custom_meta', 0 );
+
+function ICS_type_func() {
+
+	$labels = array(
+		'name'               => _x( 'Mailing Groups', 'Post Type General Name', 'text_domain' ),
+		'singular_name'      => _x( 'Mailing Group', 'Post Type Singular Name', 'text_domain' ),
+		'menu_name'          => __( 'Mailing Groups', 'text_domain' ),
+		'parent_item_colon'  => __( 'Parent Item:', 'text_domain' ),
+		'all_items'          => __( 'All Items', 'text_domain' ),
+		'view_item'          => __( 'View Item', 'text_domain' ),
+		'add_new_item'       => __( 'New Mailing Group', 'text_domain' ),
+		'add_new'            => __( 'New Mailing Group', 'text_domain' ),
+		'edit_item'          => __( 'Adjust Settings', 'text_domain' ),
+		'update_item'        => __( 'Update Item', 'text_domain' ),
+		'search_items'       => __( 'Search Item', 'text_domain' ),
+		'not_found'          => __( 'Not found', 'text_domain' ),
+		'not_found_in_trash' => __( 'Not found in Trash', 'text_domain' ),
+	);
+	$args   = array(
+		'label'               => __( 'mg_groups', 'text_domain' ),
+		'description'         => __( 'Mailing Groups', 'text_domain' ),
+		'labels'              => $labels,
+		'supports'            => array( 'title', 'author', ),
+		'taxonomies'          => array( 'category', 'post_tag' ),
+		'hierarchical'        => false,
+		'public'              => true,
+		'show_ui'             => true,
+		'show_in_menu'        => true,
+		'show_in_nav_menus'   => true,
+		'show_in_admin_bar'   => true,
+		'menu_position'       => 5,
+		'can_export'          => true,
+		'has_archive'         => true,
+		'exclude_from_search' => false,
+		'publicly_queryable'  => false,
+		'capability_type'     => 'page',
+	);
+	register_post_type( 'mg_groups', $args );
+}
+
+// Add the Meta Box
+function add_custom_meta_box() {
+	add_meta_box(
+		'mg_group_fields', // $id
+		'Mailing Group Options', // $title
+		'show_custom_meta_box', // $callback
+		'mg_groups', // $page
+		'normal', // $context
+		'high' ); // $priority
+}
+
+// The Callback
+function show_custom_meta_box() {
+	// Field Array
+	$prefix             = 'mg_group_';
+	$custom_meta_fields = array(
+		array(
+			'label' => 'Use Title In Subject?',
+			'desc'  => 'When sending out emails,append group title to subject line',
+			'id'    => $prefix . 'use_in_subject',
+			'type'  => 'checkbox'
+		),
+		array(
+			'label' => 'Group Email Address',
+			'id'    => $prefix . 'email',
+			'type'  => 'text'
+		),
+		array(
+			'label' => 'Password:',
+			'id'    => $prefix . 'password',
+			'type'  => 'password'
+		),
+		array(
+			'label'   => 'Access Mailbox via :',
+			'id'      => $prefix . 'server_type',
+			'type'    => 'radio',
+			'options' => array(
+				'one' => array(
+					'label' => 'POP3',
+					'value' => 'pop3'
+				),
+				'two' => array(
+					'label' => 'IMAP',
+					'value' => 'imap'
+				)
+			)
+		),
+		array(
+			'label' => 'Incoming Mail Server :',
+			'id'    => $prefix . 'server',
+			'type'  => 'text'
+		),
+		array(
+			'label' => 'Port:',
+			'id'    => $prefix . 'server_port',
+			'type'  => 'text'
+		),
+		array(
+			'label' => 'User/Pass Required?',
+			'id'    => $prefix . 'up_required',
+			'type'  => 'checkbox'
+		),
+		array(
+			'label' => 'Username:',
+			'id'    => $prefix . 'mail_username',
+			'type'  => 'text'
+		),
+		array(
+			'label' => 'Password:',
+			'id'    => $prefix . 'mail_password',
+			'type'  => 'password'
+		),
+		array(
+			'label' => 'SSL/Secure',
+			'id'    => $prefix . 'pop_ssl',
+			'type'  => 'checkbox'
+		),
+		array(
+			'label'   => 'Choose Mailing Function :',
+			'id'      => $prefix . 'mail_stype',
+			'type'    => 'radio',
+			'options' => array(
+				'one'   => array(
+					'label' => 'WP Mail',
+					'value' => 'wp'
+				),
+				'two'   => array(
+					'label' => 'SMTP Mail',
+					'value' => 'smtp'
+				),
+				'three' => array(
+					'label' => 'PHP Mail',
+					'value' => 'php'
+				)
+			)
+		),
+		array(
+			'label' => 'SMTP Server:',
+			'id'    => $prefix . 'smtp_server',
+			'type'  => 'text'
+		),
+		array(
+			'label' => 'Port:',
+			'id'    => $prefix . 'smtp_port',
+			'type'  => 'text'
+		),
+		array(
+			'label' => 'SSL/Secure Connection',
+			'id'    => $prefix . 'smtp_ssl',
+			'type'  => 'checkbox'
+		),
+		array(
+			'label' => 'Username:',
+			'id'    => $prefix . 'smtp_username',
+			'type'  => 'text'
+		),
+		array(
+			'label' => 'Password:',
+			'id'    => $prefix . 'smtp_password',
+			'type'  => 'password'
+		),
+		array(
+			'label' => 'Archive:',
+			'id'    => $prefix . 'archive',
+			'type'  => 'checkbox'
+		),
+		array(
+			'label'   => 'Auto-delete old messages:',
+			'id'      => $prefix . 'auto_delete',
+			'type'    => 'radio',
+			'options' => array(
+				'one' => array(
+					'label' => 'No',
+					'value' => 'no'
+				),
+				'two' => array(
+					'label' => 'Yes',
+					'value' => 'yes'
+				)
+			)
+		),
+		array(
+			'label' => 'Days',
+			'id'    => $prefix . 'auto_delete_limit',
+			'type'  => 'text'
+		),
+		array(
+			'label' => 'Footer text for emails:',
+			'id'    => $prefix . 'footer_text',
+			'type'  => 'textarea',
+			'default' => '-- -- -- --
+This message was sent to <b>{%name%}</b> at <b>{%email%}</b> by the <a href="{%site_url%}">{%site_url%}</a> website using the <a href="http://WPMailingGroup.com">WPMailingGroup plugin</a>.
+{%archive_url%}
+<b><a href="{%unsubscribe_url%}">Unsubscribe</a></b> | <a href="{%profile_url%}">Update Profile</a>'
+		),
+		array(
+			'label'   => 'Available Variables',
+			'type'    => 'description_block',
+			'example' => '<code>
+			{%name%} = Name of the receiving member<br>
+			{%email%} = Email of the receiving member<br>
+			{%site_url%} = Sites URL<br>
+			{%archive_url%} = Message Archive page URL<br>
+			(NB: Message Archive in Premium version only)<br>
+			{%profile_url%} = User profile URL<br>
+			{%unsubscribe_url%} = Unsubscribe URL</code>'
+		),
+		array(
+			'label'   => 'Settings for Subscription Request messages',
+			'label_type'    => 'header'
+		),
+		array(
+			'label' => 'Sender name:',
+			'id'    => $prefix . 'sender_name',
+			'type'  => 'text'
+		),
+		array(
+			'label' => 'Sender email:',
+			'id'    => $prefix . 'sender_email',
+			'type'  => 'text'
+		),
+		array(
+			'label'   => 'Mailing Group Status',
+			'label_type'    => 'header'
+		),
+		array(
+			'label' => 'Status:',
+			'id'    => $prefix . 'status',
+			'type'  => 'select',
+			'options' => array (
+				'one' => array (
+					'label' => 'Inactive',
+					'value' => 0
+				),
+				'two' => array (
+					'label' => 'Active',
+					'value' => 1
+				)
+			)
+		),
+		array(
+			'label' => 'Visibility:',
+			'id'    => $prefix . 'visibility',
+			'type'  => 'select',
+			'options' => array (
+				'one' => array (
+					'label' => 'Public',
+					'value' => 1
+				),
+				'two' => array (
+					'label' => 'Invitation',
+					'value' => 2
+				),
+				'three' => array (
+					'label' => 'Private',
+					'value' => 3
+				)
+			)
+		)
+	);
+
+	global $post;
+	// Use nonce for verification
+	echo '<input type="hidden" name="custom_meta_box_nonce" value="' . wp_create_nonce( basename( __FILE__ ) ) . '" />';
+
+	// Begin the field table and loop
+	echo '<div class="form-table">';
+	foreach ( $custom_meta_fields as $field ) {
+		// get value of this field if it exists for this post
+		$meta = get_post_meta( $post->ID, $field['id'], true );
+		// begin a table row with
+
+		switch ( $field['label_type'] ) {
+			case '':
+				echo '<div class="'. $field['type'].'" id="' . $field['id'] . 'Contain"><label for="' . $field['id'] . '">' . $field['label'] . '</label>';
+				break;
+			case 'header':
+				echo '<div class="'. $field['label_type'].'"><h3>' . $field['label'] . '</h3></div>';
+				break;
+		}
+		switch ( $field['type'] ) {
+			// case items will go here
+			// text
+			case 'text':
+				echo '<input type="text" name="' . $field['id'] . '" id="' . $field['id'] . '" value="' . $meta . '" size="30" />
+        <br /><span class="description">' . $field['desc'] . '</span></div>';
+				break;
+			// password
+			case 'password':
+				echo '<input type="password" name="' . $field['id'] . '" id="' . $field['id'] . '" value="' . $meta . '" size="30" />
+        <br /><span class="description">' . $field['desc'] . '</span></div>';
+				break;
+			// textarea
+			case 'textarea':
+				$meta = ($meta = '') ? $meta : $field['default'] ;
+				echo '<textarea name="' . $field['id'] . '" id="' . $field['id'] . '" cols="50" rows="5" >' . $meta . '</textarea>
+        <br /><span class="description">' . $field['desc'] . '</span></div>';
+				break;
+			// description_block
+			case 'description_block':
+				echo ''.$field['example'].'</div>';
+				break;
+			// checkbox
+			case 'checkbox':
+				echo '<input type="checkbox" name="' . $field['id'] . '" id="' . $field['id'] . '" ', $meta ? ' checked="checked"' : '', '/><p class="checkbox" for="' . $field['id'] . '">' . $field['desc'] . '</p></div>';
+				break;
+			// select
+			case 'select':
+				echo '<select name="' . $field['id'] . '" id="' . $field['id'] . '">';
+				foreach ( $field['options'] as $option ) {
+					echo '<option', $meta == $option['value'] ? ' selected="selected"' : '', ' value="' . $option['value'] . '">' . $option['label'] . '</option></div>';
+				}
+				echo '</select><br /><span class="description">' . $field['desc'] . '</span></div>';
+				break;
+			// radio
+			case 'radio':
+				foreach ( $field['options'] as $option ) {
+					echo '<input type="radio" name="' . $field['id'] . '" id="' . $option['value'] . '" value="' . $option['value'] . '" ', $meta == $option['value'] ? ' checked="checked"' : '', ' />
+                <label class="radio" for="' . $option['value'] . '">' . $option['label'] . '</label>';
+				}
+				echo '</div>';
+				break;
+		} //end switch
+	} // end foreach
+	echo '</div>'; // end table
+}
+
+// Save the Data
+function save_custom_meta( $post_id ) {
+	$prefix             = 'mg_group_';
+	$custom_meta_fields = array(
+		array(
+			'label' => 'Use Title In Subject?',
+			'desc'  => 'When sending out emails,append group title to subject line',
+			'id'    => $prefix . 'use_in_subject',
+			'type'  => 'checkbox'
+		),
+		array(
+			'label' => 'Group Email Address',
+			'id'    => $prefix . 'email',
+			'type'  => 'text'
+		),
+		array(
+			'label' => 'Password:',
+			'id'    => $prefix . 'password',
+			'type'  => 'password'
+		),
+		array(
+			'label'   => 'Access Mailbox via :',
+			'id'      => $prefix . 'server_type',
+			'type'    => 'radio',
+			'options' => array(
+				'one' => array(
+					'label' => 'POP3',
+					'value' => 'pop3'
+				),
+				'two' => array(
+					'label' => 'IMAP',
+					'value' => 'imap'
+				)
+			)
+		),
+		array(
+			'label' => 'Incoming Mail Server :',
+			'id'    => $prefix . 'server',
+			'type'  => 'text'
+		),
+		array(
+			'label' => 'Port:',
+			'id'    => $prefix . 'server_port',
+			'type'  => 'text'
+		),
+		array(
+			'label' => 'User/Pass Required?',
+			'id'    => $prefix . 'up_required',
+			'type'  => 'checkbox'
+		),
+		array(
+			'label' => 'Username:',
+			'id'    => $prefix . 'mail_username',
+			'type'  => 'text'
+		),
+		array(
+			'label' => 'Password:',
+			'id'    => $prefix . 'mail_password',
+			'type'  => 'password'
+		),
+		array(
+			'label' => 'SSL/Secure',
+			'id'    => $prefix . 'pop_ssl',
+			'type'  => 'checkbox'
+		),
+		array(
+			'label'   => 'Choose Mailing Function :',
+			'id'      => $prefix . 'mail_stype',
+			'type'    => 'radio',
+			'options' => array(
+				'one'   => array(
+					'label' => 'WP Mail',
+					'value' => 'wp'
+				),
+				'two'   => array(
+					'label' => 'SMTP Mail',
+					'value' => 'smtp'
+				),
+				'three' => array(
+					'label' => 'PHP Mail',
+					'value' => 'php'
+				)
+			)
+		),
+		array(
+			'label' => 'SMTP Server:',
+			'id'    => $prefix . 'smtp_server',
+			'type'  => 'text'
+		),
+		array(
+			'label' => 'Port:',
+			'id'    => $prefix . 'smtp_port',
+			'type'  => 'text'
+		),
+		array(
+			'label' => 'SSL/Secure Connection',
+			'id'    => $prefix . 'smtp_ssl',
+			'type'  => 'checkbox'
+		),
+		array(
+			'label' => 'Username:',
+			'id'    => $prefix . 'smtp_username',
+			'type'  => 'text'
+		),
+		array(
+			'label' => 'Password:',
+			'id'    => $prefix . 'smtp_password',
+			'type'  => 'password'
+		),
+		array(
+			'label' => 'Archive:',
+			'id'    => $prefix . 'archive',
+			'type'  => 'checkbox'
+		),
+		array(
+			'label'   => 'Auto-delete old messages:',
+			'id'      => $prefix . 'auto_delete',
+			'type'    => 'radio',
+			'options' => array(
+				'one' => array(
+					'label' => 'No',
+					'value' => 'no'
+				),
+				'two' => array(
+					'label' => 'Yes',
+					'value' => 'yes'
+				)
+			)
+		),
+		array(
+			'label' => 'Days',
+			'id'    => $prefix . 'auto_delete_limit',
+			'type'  => 'text'
+		),
+		array(
+			'label' => 'Footer text for emails:',
+			'id'    => $prefix . 'footer_text',
+			'type'  => 'textarea',
+			'default' => '-- -- -- --
+This message was sent to <b>{%name%}</b> at <b>{%email%}</b> by the <a href="{%site_url%}">{%site_url%}</a> website using the <a href="http://WPMailingGroup.com">WPMailingGroup plugin</a>.
+{%archive_url%}
+<b><a href="{%unsubscribe_url%}">Unsubscribe</a></b> | <a href="{%profile_url%}">Update Profile</a>'
+		),
+		array(
+			'label'   => 'Available Variables',
+			'type'    => 'description_block',
+			'example' => '<code>
+			{%name%} = Name of the receiving member<br>
+			{%email%} = Email of the receiving member<br>
+			{%site_url%} = Sites URL<br>
+			{%archive_url%} = Message Archive page URL<br>
+			(NB: Message Archive in Premium version only)<br>
+			{%profile_url%} = User profile URL<br>
+			{%unsubscribe_url%} = Unsubscribe URL</code>'
+		),
+		array(
+			'label'   => 'Settings for Subscription Request messages',
+			'label_type'    => 'header'
+		),
+		array(
+			'label' => 'Sender name:',
+			'id'    => $prefix . 'sender_name',
+			'type'  => 'text'
+		),
+		array(
+			'label' => 'Sender email:',
+			'id'    => $prefix . 'sender_email',
+			'type'  => 'text'
+		),
+		array(
+			'label'   => 'Mailing Group Status',
+			'label_type'    => 'header'
+		),
+		array(
+			'label' => 'Status:',
+			'id'    => $prefix . 'status',
+			'type'  => 'select',
+			'options' => array (
+				'one' => array (
+					'label' => 'Inactive',
+					'value' => 0
+				),
+				'two' => array (
+					'label' => 'Active',
+					'value' => 1
+				)
+			)
+		),
+		array(
+			'label' => 'Visibility:',
+			'id'    => $prefix . 'visibility',
+			'type'  => 'select',
+			'options' => array (
+				'one' => array (
+					'label' => 'Public',
+					'value' => 1
+				),
+				'two' => array (
+					'label' => 'Invitation',
+					'value' => 2
+				),
+				'three' => array (
+					'label' => 'Private',
+					'value' => 3
+				)
+			)
+		)
+	);
+	// verify nonce
+	if ( ! wp_verify_nonce( $_POST['custom_meta_box_nonce'], basename( __FILE__ ) ) ) {
+		return $post_id;
+	}
+	// check autosave
+	if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+		return $post_id;
+	}
+	// check permissions
+	if ( 'page' == $_POST['post_type'] ) {
+		if ( ! current_user_can( 'edit_page', $post_id ) ) {
+			return $post_id;
+		}
+	} elseif ( ! current_user_can( 'edit_post', $post_id ) ) {
+		return $post_id;
+	}
+
+	// loop through fields and save the data
+	foreach ( $custom_meta_fields as $field ) {
+		$old = get_post_meta( $post_id, $field['id'], true );
+		$new = $_POST[ $field['id'] ];
+		if ( $new && $new != $old ) {
+			update_post_meta( $post_id, $field['id'], $new );
+		} elseif ( '' == $new && $old ) {
+			delete_post_meta( $post_id, $field['id'], $old );
+		}
+	} // end foreach
+}
+
 add_filter( 'cron_schedules', 'cron_add_weekly' );
 function cron_add_weekly( $schedules ) {
 	// Adds once weekly to the existing schedules.
@@ -536,17 +1103,17 @@ function wpmg_mailinggroup_membergroups() {
 }
 
 function wpmg_mailinggroup_adminarchive() {
-	global $wpdb, $objMem, $table_name_sent_emails, $table_name_parsed_emails,$table_name_emails_attachments, $table_name_group;
+	global $wpdb, $objMem, $table_name_sent_emails, $table_name_parsed_emails, $table_name_emails_attachments, $table_name_group;
 	include "template/mg_adminarchived.php";
 }
 
 function wpmg_mailinggroup_memberarchive() {
-	global $wpdb, $objMem, $table_name_group, $table_name_sent_emails, $table_name_parsed_emails, $table_name_emails_attachments,$table_name_user_taxonomy;
+	global $wpdb, $objMem, $table_name_group, $table_name_sent_emails, $table_name_parsed_emails, $table_name_emails_attachments, $table_name_user_taxonomy;
 	include "template/mg_memberarchived.php";
 }
 
 function wpmg_mailinggroup_viewmessage() {
-	global $wpdb, $objMem, $table_name_parsed_emails ,$table_name_emails_attachments;
+	global $wpdb, $objMem, $table_name_parsed_emails, $table_name_emails_attachments;
 	include "template/mg_viewmessage.php";
 }
 
@@ -686,7 +1253,7 @@ add_action( 'wp_ajax_wpmg_viewmessage', 'wpmg_viewmessage_callback' );
 /* Short codes for ajax requests */
 /* callback function for above ajax requests */
 function wpmg_viewmessage_callback() {
-	global $wpdb, $objMem, $table_name_parsed_emails , $table_name_emails_attachments;
+	global $wpdb, $objMem, $table_name_parsed_emails, $table_name_emails_attachments;
 	include "template/mg_viewmessageajax.php";
 	die();  /* this is required to return a proper result */
 }
@@ -1255,7 +1822,7 @@ function wpmg_mailing_group_deactivate() {
 }
 
 function wpmg_mailing_group_uninstall() {
-	global $wpdb, $table_name_group, $table_name_message, $table_name_requestmanager, $table_name_requestmanager_taxonomy, $table_name_user_taxonomy, $table_name_parsed_emails,$table_name_emails_attachments, $table_name_sent_emails;
+	global $wpdb, $table_name_group, $table_name_message, $table_name_requestmanager, $table_name_requestmanager_taxonomy, $table_name_user_taxonomy, $table_name_parsed_emails, $table_name_emails_attachments, $table_name_sent_emails;
 	$sql = "DROP TABLE `$table_name_group`, `$table_name_message`, `$table_name_requestmanager`, `$table_name_requestmanager_taxonomy`, `$table_name_user_taxonomy`, `$table_name_parsed_emails`,`$table_name_emails_attachments`, `$table_name_sent_emails`";
 	/* //$wpdb->query($sql); // comment this if you want to keep the database tables after installation */
 }
