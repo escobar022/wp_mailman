@@ -319,15 +319,17 @@ jQuery(document).ready(function () {
 jQuery(function ($) {
 	$('#mg_group_mail_usernameContain,#mg_group_mail_passwordContain,#mg_group_pop_sslContain').hide();
 
-	function server_type(){
-		if ($("input[name=mg_group_server_type]:checked").val() == 'imap') {
-			$("input[name=mg_group_pop_ssl]").prop('checked', false);
-			$("#mg_group_pop_sslContain").hide();
-		}
+	function server_type() {
 		if ($("input[name=mg_group_server_type]:checked").val() == 'pop3') {
 			if ($('#mg_group_up_required').is(':checked')) {
 				$("#mg_group_pop_sslContain").show();
+			} else {
+				$("input[name=mg_group_pop_ssl]").prop('checked', false);
+				$("#mg_group_pop_sslContain").hide();
 			}
+		} else {
+			$("input[name=mg_group_pop_ssl]").prop('checked', false);
+			$("#mg_group_pop_sslContain").hide();
 		}
 	}
 
@@ -347,8 +349,8 @@ jQuery(function ($) {
 
 	mail_box_up();
 	$("#mg_group_up_required").click(function () {
-		server_type();
 		mail_box_up();
+		server_type();
 	});
 
 	var mail_user_pass = '#mg_group_smtp_serverContain,#mg_group_smtp_portContain,#mg_group_smtp_sslContain,#mg_group_smtp_usernameContain,#mg_group_smtp_passwordContain';
@@ -374,10 +376,9 @@ jQuery(function ($) {
 
 	if ($("input[name=mg_group_mail_stype]:checked").val() == 'smtp') {
 		$(mail_user_pass).show();
-
 	}
 
-	function smtp_ssl(){
+	function smtp_ssl() {
 		if ($('#mg_group_smtp_ssl').is(':checked')) {
 			$('#mg_group_smtp_usernameContain,#mg_group_smtp_passwordContain').show();
 		} else {
