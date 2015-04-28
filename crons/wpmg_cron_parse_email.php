@@ -6,33 +6,39 @@ defined( 'ABSPATH' ) or die( "Cannot access pages directly." );
  * Author: Marcus Sorensen & netforcelabs.com
  * Website: http://www.wpmailinggroup.com
  */
-/**
- *
- */
+
 function wpmg_cron_parse_email() {
 	global $wpdb, $objMem, $obj, $table_name_group, $table_name_message, $table_name_requestmanager, $table_name_requestmanager_taxonomy, $table_name_user_taxonomy, $table_name_parsed_emails,$table_name_emails_attachments, $table_name_sent_emails, $table_name_crons_run, $table_name_users, $table_name_usermeta;
 
 	require_once( WPMG_PLUGIN_URL . 'lib/mailinggroupclass.php' );
 	$objMem = new mailinggroupClass();
 
-	/* get all groups one by one */
-	$groupresult = $objMem->selectRows( $table_name_group, "", " where status = '1' order by id desc" );
-	if ( count( $groupresult ) > 0 ) {
-		foreach ( $groupresult as $row ) {
-			$id              = $row->id;
-			$email           = $row->email;
-			$password        = $row->password;
-			$pop_server_type = $row->pop_server_type;
-			$pop_server      = $row->pop_server;
-			$pop_port        = $row->pop_port;
-			$pop_ssl         = $row->pop_ssl;
-			$pop_username    = $row->pop_username;
-			$pop_password    = $row->pop_password;
+	$args = array(
+		'post_type'  => 'mg_groups',
+		'post_status' => 'publish',
+		'perm'        => 'readable',
+	);
+	$query = new WP_Query( $args );
 
-			if ( $pop_ssl == 1 ) {
-				$ssl = true;
-			} else {
+	$groups = $query->get_posts();
+
+	if ( count( $groups ) > 0 ) {
+		foreach ( $groups as $row ) {
+
+			$id = $row->ID;
+			$email = get_post_meta( $id, 'mg_group_email',true );
+			$password       = get_post_meta( $id, 'mg_group_password',true );
+			$pop_server_type = get_post_meta( $id, 'mg_group_server_type',true );
+			$pop_server      = get_post_meta( $id, 'mg_group_server',true );
+			$pop_port        = get_post_meta( $id, 'mg_group_server_port',true );
+			$pop_ssl         = get_post_meta( $id, 'pop_ssl',true );
+			$pop_username    = get_post_meta( $id, 'mg_group_mail_username',true );
+			$pop_password    = get_post_meta( $id, 'mg_group_password',true );
+
+			if ( $pop_ssl != 'on' ) {
 				$ssl = false;
+			} else {
+				$ssl = true;
 			}
 
 			if ( $pop_username != '' && $pop_password != '' ) {

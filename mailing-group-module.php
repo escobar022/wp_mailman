@@ -57,11 +57,11 @@ $table_name_sent_emails             = $wpdb->prefix . "mailing_group_sent_emails
 $table_name_users                   = $wpdb->prefix . "users";
 $table_name_usermeta                = $wpdb->prefix . "usermeta";
 
-add_action( 'init', 'ICS_type_func', 0 );
+add_action( 'init', 'Mailing_Groups', 0 );
 add_action( 'add_meta_boxes', 'add_custom_meta_box', 0 );
 add_action( 'save_post', 'save_custom_meta', 0 );
 
-function ICS_type_func() {
+function Mailing_Groups() {
 
 	$labels = array(
 		'name'               => _x( 'Mailing Groups', 'Post Type General Name', 'text_domain' ),

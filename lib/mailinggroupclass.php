@@ -1,4 +1,5 @@
 <?php
+
 class mailinggroupClass {
 
 	function addNewRow( $tblname, $grpinfo, $fields ) {
@@ -239,4 +240,28 @@ class mailinggroupClass {
 	}
 }
 
-?>
+/*$args = array(
+	'post_type'  => 'mg_groups',
+	'post_status' => 'publish',
+	'perm'        => 'readable',
+);
+$query = new WP_Query( $args );
+
+$groups = $query->get_posts();
+
+if ( count( $groups ) > 0 ) {
+	foreach ( $groups as $row ) {
+
+		$id = $row->ID;
+		$email = get_post_meta( $id, 'mg_group_email',true );
+		$password       = get_post_meta( $id, 'mg_group_password',true );
+		$pop_server_type = get_post_meta( $id, 'mg_group_server_type',true );
+		$pop_server      = get_post_meta( $id, 'mg_group_server',true );
+		$pop_port        = get_post_meta( $id, 'mg_group_server_port',true );
+		$pop_ssl         = get_post_meta( $id, 'pop_ssl',true );
+		$pop_username    = get_post_meta( $id, 'mg_group_mail_username',true );
+		$pop_password    = get_post_meta( $id, 'mg_group_password',true );
+
+	}
+
+}*/
