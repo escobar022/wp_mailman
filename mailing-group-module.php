@@ -57,9 +57,9 @@ $table_name_sent_emails             = $wpdb->prefix . "mailing_group_sent_emails
 $table_name_users                   = $wpdb->prefix . "users";
 $table_name_usermeta                = $wpdb->prefix . "usermeta";
 
-add_action( 'init', 'Mailing_Groups', 0 );
-add_action( 'add_meta_boxes', 'add_custom_meta_box', 0 );
-add_action( 'save_post', 'save_custom_meta', 0 );
+add_action( 'init', 'Mailing_Groups' );
+add_action( 'add_meta_boxes', 'add_custom_meta_box' );
+add_action( 'save_post', 'save_custom_meta',10,2 );
 
 function Mailing_Groups() {
 
@@ -98,6 +98,42 @@ function Mailing_Groups() {
 		'capability_type'     => 'page',
 	);
 	register_post_type( 'mg_groups', $args );
+
+	$labels = array(
+		'name'               => _x( 'Group Threads', 'Post Type General Name', 'text_domain' ),
+		'singular_name'      => _x( 'Group Thread', 'Post Type Singular Name', 'text_domain' ),
+		'menu_name'          => __( 'Group Threads', 'text_domain' ),
+		'parent_item_colon'  => __( 'Parent Item:', 'text_domain' ),
+		'all_items'          => __( 'All Items', 'text_domain' ),
+		'view_item'          => __( 'View Item', 'text_domain' ),
+		'add_new_item'       => __( 'New Thread', 'text_domain' ),
+		'add_new'            => __( 'New Group Thread', 'text_domain' ),
+		'edit_item'          => __( 'Adjust Email Display', 'text_domain' ),
+		'update_item'        => __( 'Update Item', 'text_domain' ),
+		'search_items'       => __( 'Search Item', 'text_domain' ),
+		'not_found'          => __( 'Not found', 'text_domain' ),
+		'not_found_in_trash' => __( 'Not found in Trash', 'text_domain' ),
+	);
+	$args   = array(
+		'label'               => __( 'mg_threads', 'text_domain' ),
+		'description'         => __( 'Group Threads', 'text_domain' ),
+		'labels'              => $labels,
+		'supports'            => array( 'title', 'author', ),
+		'taxonomies'          => array( 'category', 'post_tag' ),
+		'hierarchical'        => false,
+		'public'              => true,
+		'show_ui'             => true,
+		'show_in_menu'        => true,
+		'show_in_nav_menus'   => true,
+		'show_in_admin_bar'   => true,
+		'menu_position'       => 6,
+		'can_export'          => true,
+		'has_archive'         => true,
+		'exclude_from_search' => false,
+		'publicly_queryable'  => false,
+		'capability_type'     => 'page',
+	);
+	register_post_type( 'mg_threads', $args );
 }
 
 // Add the Meta Box
@@ -108,12 +144,23 @@ function add_custom_meta_box() {
 		'show_custom_meta_box', // $callback
 		'mg_groups', // $page
 		'normal', // $context
-		'high' ); // $priority
+		'high',
+		mg_group_custom_meta_fields()
+	); // $priority
+
+	add_meta_box(
+		'mg_group_thread_fields', // $id
+		'Thread Content', // $title
+		'show_custom_meta_box', // $callback
+		'mg_threads', // $page
+		'normal', // $context
+		'high',
+		mg_thread_custom_meta_fields()
+	); // $priority
 }
 
-// The Callback
-function show_custom_meta_box() {
-	// Field Array
+//Custom Fields
+function mg_group_custom_meta_fields() {
 	$prefix             = 'mg_group_';
 	$custom_meta_fields = array(
 		array(
@@ -247,9 +294,9 @@ function show_custom_meta_box() {
 			'type'  => 'text'
 		),
 		array(
-			'label' => 'Footer text for emails:',
-			'id'    => $prefix . 'footer_text',
-			'type'  => 'textarea',
+			'label'   => 'Footer text for emails:',
+			'id'      => $prefix . 'footer_text',
+			'type'    => 'textarea',
 			'default' => '-- -- -- --
 This message was sent to <b>{%name%}</b> at <b>{%email%}</b> by the <a href="{%site_url%}">{%site_url%}</a> website using the <a href="http://WPMailingGroup.com">WPMailingGroup plugin</a>.
 {%archive_url%}
@@ -268,8 +315,8 @@ This message was sent to <b>{%name%}</b> at <b>{%email%}</b> by the <a href="{%s
 			{%unsubscribe_url%} = Unsubscribe URL</code>'
 		),
 		array(
-			'label'   => 'Settings for Subscription Request messages',
-			'label_type'    => 'header'
+			'label'      => 'Settings for Subscription Request messages',
+			'label_type' => 'header'
 		),
 		array(
 			'label' => 'Sender name:',
@@ -282,38 +329,38 @@ This message was sent to <b>{%name%}</b> at <b>{%email%}</b> by the <a href="{%s
 			'type'  => 'text'
 		),
 		array(
-			'label'   => 'Mailing Group Status',
-			'label_type'    => 'header'
+			'label'      => 'Mailing Group Status',
+			'label_type' => 'header'
 		),
 		array(
-			'label' => 'Status:',
-			'id'    => $prefix . 'status',
-			'type'  => 'select',
-			'options' => array (
-				'one' => array (
+			'label'   => 'Status:',
+			'id'      => $prefix . 'status',
+			'type'    => 'select',
+			'options' => array(
+				'one' => array(
 					'label' => 'Inactive',
 					'value' => 0
 				),
-				'two' => array (
+				'two' => array(
 					'label' => 'Active',
 					'value' => 1
 				)
 			)
 		),
 		array(
-			'label' => 'Visibility:',
-			'id'    => $prefix . 'visibility',
-			'type'  => 'select',
-			'options' => array (
-				'one' => array (
+			'label'   => 'Visibility:',
+			'id'      => $prefix . 'visibility',
+			'type'    => 'select',
+			'options' => array(
+				'one'   => array(
 					'label' => 'Public',
 					'value' => 1
 				),
-				'two' => array (
+				'two'   => array(
 					'label' => 'Invitation',
 					'value' => 2
 				),
-				'three' => array (
+				'three' => array(
 					'label' => 'Private',
 					'value' => 3
 				)
@@ -321,7 +368,55 @@ This message was sent to <b>{%name%}</b> at <b>{%email%}</b> by the <a href="{%s
 		)
 	);
 
-	global $post;
+	return $custom_meta_fields;
+
+}
+
+//Custom Fields Threads
+function mg_thread_custom_meta_fields() {
+	$prefix             = 'mg_thread';
+	$custom_meta_fields = array(
+		array(
+			'label' => 'Use Title In Subject?',
+			'desc'  => 'When sending out emails,append group title to subject line',
+			'id'    => $prefix . 'use_in_subject',
+			'type'  => 'checkbox'
+		),
+		array(
+			'label' => 'Group Email Address',
+			'id'    => $prefix . 'email',
+			'type'  => 'text'
+		),
+		array(
+			'label' => 'Password:',
+			'id'    => $prefix . 'password',
+			'type'  => 'password'
+		),
+		array(
+			'label'   => 'Access Mailbox via :',
+			'id'      => $prefix . 'server_type',
+			'type'    => 'radio',
+			'options' => array(
+				'one' => array(
+					'label' => 'POP3',
+					'value' => 'pop3'
+				),
+				'two' => array(
+					'label' => 'IMAP',
+					'value' => 'imap'
+				)
+			)
+		)
+	);
+
+	return $custom_meta_fields;
+
+}
+//Show Boxes
+function show_custom_meta_box($post, $metabox) {
+	// Field Array
+	$custom_meta_fields =  $metabox['args'];
+
 	// Use nonce for verification
 	echo '<input type="hidden" name="custom_meta_box_nonce" value="' . wp_create_nonce( basename( __FILE__ ) ) . '" />';
 
@@ -334,10 +429,10 @@ This message was sent to <b>{%name%}</b> at <b>{%email%}</b> by the <a href="{%s
 
 		switch ( $field['label_type'] ) {
 			case '':
-				echo '<div class="'. $field['type'].'" id="' . $field['id'] . 'Contain"><label for="' . $field['id'] . '">' . $field['label'] . '</label>';
+				echo '<div class="' . $field['type'] . '" id="' . $field['id'] . 'Contain"><label for="' . $field['id'] . '">' . $field['label'] . '</label>';
 				break;
 			case 'header':
-				echo '<div class="'. $field['label_type'].'"><h3>' . $field['label'] . '</h3></div>';
+				echo '<div class="' . $field['label_type'] . '"><h3>' . $field['label'] . '</h3></div>';
 				break;
 		}
 		switch ( $field['type'] ) {
@@ -354,13 +449,13 @@ This message was sent to <b>{%name%}</b> at <b>{%email%}</b> by the <a href="{%s
 				break;
 			// textarea
 			case 'textarea':
-				$meta = ($meta = '') ? $meta : $field['default'] ;
+				$meta = ( $meta = '' ) ? $meta : $field['default'];
 				echo '<textarea name="' . $field['id'] . '" id="' . $field['id'] . '" cols="50" rows="5" >' . $meta . '</textarea>
         <br /><span class="description">' . $field['desc'] . '</span></div>';
 				break;
 			// description_block
 			case 'description_block':
-				echo ''.$field['example'].'</div>';
+				echo '' . $field['example'] . '</div>';
 				break;
 			// checkbox
 			case 'checkbox':
@@ -388,213 +483,50 @@ This message was sent to <b>{%name%}</b> at <b>{%email%}</b> by the <a href="{%s
 }
 
 // Save the Data
-function save_custom_meta( $post_id ) {
-	$prefix             = 'mg_group_';
-	$custom_meta_fields = array(
-		array(
-			'label' => 'Use Title In Subject?',
-			'desc'  => 'When sending out emails,append group title to subject line',
-			'id'    => $prefix . 'use_in_subject',
-			'type'  => 'checkbox'
-		),
-		array(
-			'label' => 'Group Email Address',
-			'id'    => $prefix . 'email',
-			'type'  => 'text'
-		),
-		array(
-			'label' => 'Password:',
-			'id'    => $prefix . 'password',
-			'type'  => 'password'
-		),
-		array(
-			'label'   => 'Access Mailbox via :',
-			'id'      => $prefix . 'server_type',
-			'type'    => 'radio',
-			'options' => array(
-				'one' => array(
-					'label' => 'POP3',
-					'value' => 'pop3'
-				),
-				'two' => array(
-					'label' => 'IMAP',
-					'value' => 'imap'
-				)
-			)
-		),
-		array(
-			'label' => 'Incoming Mail Server :',
-			'id'    => $prefix . 'server',
-			'type'  => 'text'
-		),
-		array(
-			'label' => 'Port:',
-			'id'    => $prefix . 'server_port',
-			'type'  => 'text'
-		),
-		array(
-			'label' => 'User/Pass Required?',
-			'id'    => $prefix . 'up_required',
-			'type'  => 'checkbox'
-		),
-		array(
-			'label' => 'Username:',
-			'id'    => $prefix . 'mail_username',
-			'type'  => 'text'
-		),
-		array(
-			'label' => 'Password:',
-			'id'    => $prefix . 'mail_password',
-			'type'  => 'password'
-		),
-		array(
-			'label' => 'SSL/Secure',
-			'id'    => $prefix . 'pop_ssl',
-			'type'  => 'checkbox'
-		),
-		array(
-			'label'   => 'Choose Mailing Function :',
-			'id'      => $prefix . 'mail_stype',
-			'type'    => 'radio',
-			'options' => array(
-				'one'   => array(
-					'label' => 'WP Mail',
-					'value' => 'wp'
-				),
-				'two'   => array(
-					'label' => 'SMTP Mail',
-					'value' => 'smtp'
-				),
-				'three' => array(
-					'label' => 'PHP Mail',
-					'value' => 'php'
-				)
-			)
-		),
-		array(
-			'label' => 'SMTP Server:',
-			'id'    => $prefix . 'smtp_server',
-			'type'  => 'text'
-		),
-		array(
-			'label' => 'Port:',
-			'id'    => $prefix . 'smtp_port',
-			'type'  => 'text'
-		),
-		array(
-			'label' => 'SSL/Secure Connection',
-			'id'    => $prefix . 'smtp_ssl',
-			'type'  => 'checkbox'
-		),
-		array(
-			'label' => 'Username:',
-			'id'    => $prefix . 'smtp_username',
-			'type'  => 'text'
-		),
-		array(
-			'label' => 'Password:',
-			'id'    => $prefix . 'smtp_password',
-			'type'  => 'password'
-		),
-		array(
-			'label' => 'Archive:',
-			'id'    => $prefix . 'archive',
-			'type'  => 'checkbox'
-		),
-		array(
-			'label'   => 'Auto-delete old messages:',
-			'id'      => $prefix . 'auto_delete',
-			'type'    => 'radio',
-			'options' => array(
-				'one' => array(
-					'label' => 'No',
-					'value' => 'no'
-				),
-				'two' => array(
-					'label' => 'Yes',
-					'value' => 'yes'
-				)
-			)
-		),
-		array(
-			'label' => 'Days',
-			'id'    => $prefix . 'auto_delete_limit',
-			'type'  => 'text'
-		),
-		array(
-			'label' => 'Footer text for emails:',
-			'id'    => $prefix . 'footer_text',
-			'type'  => 'textarea',
-			'default' => '-- -- -- --
-This message was sent to <b>{%name%}</b> at <b>{%email%}</b> by the <a href="{%site_url%}">{%site_url%}</a> website using the <a href="http://WPMailingGroup.com">WPMailingGroup plugin</a>.
-{%archive_url%}
-<b><a href="{%unsubscribe_url%}">Unsubscribe</a></b> | <a href="{%profile_url%}">Update Profile</a>'
-		),
-		array(
-			'label'   => 'Available Variables',
-			'type'    => 'description_block',
-			'example' => '<code>
-			{%name%} = Name of the receiving member<br>
-			{%email%} = Email of the receiving member<br>
-			{%site_url%} = Sites URL<br>
-			{%archive_url%} = Message Archive page URL<br>
-			(NB: Message Archive in Premium version only)<br>
-			{%profile_url%} = User profile URL<br>
-			{%unsubscribe_url%} = Unsubscribe URL</code>'
-		),
-		array(
-			'label'   => 'Settings for Subscription Request messages',
-			'label_type'    => 'header'
-		),
-		array(
-			'label' => 'Sender name:',
-			'id'    => $prefix . 'sender_name',
-			'type'  => 'text'
-		),
-		array(
-			'label' => 'Sender email:',
-			'id'    => $prefix . 'sender_email',
-			'type'  => 'text'
-		),
-		array(
-			'label'   => 'Mailing Group Status',
-			'label_type'    => 'header'
-		),
-		array(
-			'label' => 'Status:',
-			'id'    => $prefix . 'status',
-			'type'  => 'select',
-			'options' => array (
-				'one' => array (
-					'label' => 'Inactive',
-					'value' => 0
-				),
-				'two' => array (
-					'label' => 'Active',
-					'value' => 1
-				)
-			)
-		),
-		array(
-			'label' => 'Visibility:',
-			'id'    => $prefix . 'visibility',
-			'type'  => 'select',
-			'options' => array (
-				'one' => array (
-					'label' => 'Public',
-					'value' => 1
-				),
-				'two' => array (
-					'label' => 'Invitation',
-					'value' => 2
-				),
-				'three' => array (
-					'label' => 'Private',
-					'value' => 3
-				)
-			)
-		)
-	);
+function save_custom_meta(  $post_id, $post  ) {
+
+	if($post->post_type == 'mg_groups'){
+		$custom_meta_fields =  mg_group_custom_meta_fields();
+	}
+
+	if($post->post_type == 'mg_threads'){
+		$custom_meta_fields =  mg_thread_custom_meta_fields();
+	}
+	// verify nonce
+	if ( ! wp_verify_nonce( $_POST['custom_meta_box_nonce'], basename( __FILE__ ) ) ) {
+		return $post_id;
+	}
+	// check autosave
+	if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+		return $post_id;
+	}
+	// check permissions
+	if ( 'page' == $_POST['post_type'] ) {
+		if ( ! current_user_can( 'edit_page', $post_id ) ) {
+			return $post_id;
+		}
+	} elseif ( ! current_user_can( 'edit_post', $post_id ) ) {
+		return $post_id;
+	}
+
+	// loop through fields and save the data
+	foreach ( $custom_meta_fields as $field ) {
+		$old = get_post_meta( $post_id, $field['id'], true );
+		$new = $_POST[ $field['id'] ];
+		if ( $new && $new != $old ) {
+			update_post_meta( $post_id, $field['id'], $new );
+		} elseif ( '' == $new && $old ) {
+			delete_post_meta( $post_id, $field['id'], $old );
+		}
+	} // end foreach
+}
+
+// The Callback
+
+
+// Save the Data
+function mg_thread_save_custom_meta( $post_id ) {
+	$custom_meta_fields = mg_thread_custom_meta_fields();
 	// verify nonce
 	if ( ! wp_verify_nonce( $_POST['custom_meta_box_nonce'], basename( __FILE__ ) ) ) {
 		return $post_id;
