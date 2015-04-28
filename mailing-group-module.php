@@ -59,7 +59,7 @@ $table_name_usermeta                = $wpdb->prefix . "usermeta";
 
 add_action( 'init', 'Mailing_Groups' );
 add_action( 'add_meta_boxes', 'add_custom_meta_box' );
-add_action( 'save_post', 'save_custom_meta',10,2 );
+add_action( 'save_post', 'save_custom_meta', 10, 2 );
 
 function Mailing_Groups() {
 
@@ -131,7 +131,7 @@ function Mailing_Groups() {
 		'has_archive'         => true,
 		'exclude_from_search' => false,
 		'publicly_queryable'  => false,
-		'capability_type'     => 'page',
+		'capability_type'     => 'post',
 	);
 	register_post_type( 'mg_threads', $args );
 }
@@ -146,17 +146,17 @@ function add_custom_meta_box() {
 		'normal', // $context
 		'high',
 		mg_group_custom_meta_fields()
-	); // $priority
+	);
 
 	add_meta_box(
-		'mg_group_thread_fields', // $id
-		'Thread Content', // $title
-		'show_custom_meta_box', // $callback
-		'mg_threads', // $page
-		'normal', // $context
+		'mg_group_thread_fields',
+		'Thread Content',
+		'show_custom_meta_box',
+		'mg_threads',
+		'normal',
 		'high',
 		mg_thread_custom_meta_fields()
-	); // $priority
+	);
 }
 
 //Custom Fields
@@ -374,48 +374,82 @@ This message was sent to <b>{%name%}</b> at <b>{%email%}</b> by the <a href="{%s
 
 //Custom Fields Threads
 function mg_thread_custom_meta_fields() {
-	$prefix             = 'mg_thread';
+	$prefix             = 'mg_thread_';
 	$custom_meta_fields = array(
 		array(
-			'label' => 'Use Title In Subject?',
-			'desc'  => 'When sending out emails,append group title to subject line',
-			'id'    => $prefix . 'use_in_subject',
-			'type'  => 'checkbox'
-		),
-		array(
-			'label' => 'Group Email Address',
-			'id'    => $prefix . 'email',
+			'label' => 'Type',
+			'id'    => $prefix . 'references',
 			'type'  => 'text'
 		),
 		array(
-			'label' => 'Password:',
-			'id'    => $prefix . 'password',
-			'type'  => 'password'
+			'label' => 'Unique Header ID',
+			'desc'  => 'When sending out emails,append group title to subject line',
+			'id'    => $prefix . 'UID',
+			'type'  => 'text'
 		),
 		array(
-			'label'   => 'Access Mailbox via :',
-			'id'      => $prefix . 'server_type',
-			'type'    => 'radio',
-			'options' => array(
-				'one' => array(
-					'label' => 'POP3',
-					'value' => 'pop3'
-				),
-				'two' => array(
-					'label' => 'IMAP',
-					'value' => 'imap'
-				)
-			)
+			'label' => 'References',
+			'id'    => $prefix . 'references',
+			'type'  => 'text'
+		),
+		array(
+			'label' => 'Email Bounced',
+			'id'    => $prefix . 'email_bounced',
+			'type'  => 'text'
+		),
+		array(
+			'label' => 'Email From',
+			'id'    => $prefix . 'email_from',
+			'type'  => 'text'
+		),
+		array(
+			'label' => 'Email From Name',
+			'id'    => $prefix . 'email_from_name',
+			'type'  => 'text'
+		),
+		array(
+			'label' => 'Email To',
+			'id'    => $prefix . 'email_to',
+			'type'  => 'text'
+		),
+		array(
+			'label' => 'Email To Name',
+			'id'    => $prefix . 'email_to-name',
+			'type'  => 'text'
+		),
+		array(
+			'label' => 'Email Subject',
+			'id'    => $prefix . 'email_subject',
+			'type'  => 'text'
+		),
+		array(
+			'label' => 'Email Content',
+			'id'    => $prefix . 'email_content',
+			'type'  => 'email'
+		),
+		array(
+			'label' => 'Email Group ID',
+			'id'    => $prefix . 'email_group_id',
+			'type'  => 'text'
+		),
+		array(
+			'label' => 'Status',
+			'id'    => $prefix . 'status',
+			'type'  => 'text'
+		),
+		array(
+			'label' => 'Date',
+			'id'    => $prefix . 'date',
+			'type'  => 'text'
 		)
 	);
-
 	return $custom_meta_fields;
-
 }
+
 //Show Boxes
-function show_custom_meta_box($post, $metabox) {
+function show_custom_meta_box( $post, $metabox ) {
 	// Field Array
-	$custom_meta_fields =  $metabox['args'];
+	$custom_meta_fields = $metabox['args'];
 
 	// Use nonce for verification
 	echo '<input type="hidden" name="custom_meta_box_nonce" value="' . wp_create_nonce( basename( __FILE__ ) ) . '" />';
@@ -449,9 +483,13 @@ function show_custom_meta_box($post, $metabox) {
 				break;
 			// textarea
 			case 'textarea':
-				$meta = ( $meta = '' ) ? $meta : $field['default'];
+				$meta = ( $meta != '' ) ? $meta : $field['default'];
 				echo '<textarea name="' . $field['id'] . '" id="' . $field['id'] . '" cols="50" rows="5" >' . $meta . '</textarea>
         <br /><span class="description">' . $field['desc'] . '</span></div>';
+				break;
+			// Email Content
+			case 'email':
+				echo  '<div class="'.$field['type'].'"> '.$meta . '</div></div>';
 				break;
 			// description_block
 			case 'description_block':
@@ -483,15 +521,14 @@ function show_custom_meta_box($post, $metabox) {
 }
 
 // Save the Data
-function save_custom_meta(  $post_id, $post  ) {
-
-	if($post->post_type == 'mg_groups'){
-		$custom_meta_fields =  mg_group_custom_meta_fields();
+function save_custom_meta( $post_id, $post ) {
+	$custom_meta_fields='';
+	if ( $post->post_type == 'mg_groups' ) {
+		$custom_meta_fields = mg_group_custom_meta_fields();
 	}
 
-	if($post->post_type == 'mg_threads'){
-		$custom_meta_fields =  mg_thread_custom_meta_fields();
-	}
+
+		$custom_meta_fields = mg_thread_custom_meta_fields();
 	// verify nonce
 	if ( ! wp_verify_nonce( $_POST['custom_meta_box_nonce'], basename( __FILE__ ) ) ) {
 		return $post_id;
@@ -521,37 +558,7 @@ function save_custom_meta(  $post_id, $post  ) {
 	} // end foreach
 }
 
-// Save the Data
-function mg_thread_save_custom_meta( $post_id ) {
-	$custom_meta_fields = mg_thread_custom_meta_fields();
-	// verify nonce
-	if ( ! wp_verify_nonce( $_POST['custom_meta_box_nonce'], basename( __FILE__ ) ) ) {
-		return $post_id;
-	}
-	// check autosave
-	if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
-		return $post_id;
-	}
-	// check permissions
-	if ( 'page' == $_POST['post_type'] ) {
-		if ( ! current_user_can( 'edit_page', $post_id ) ) {
-			return $post_id;
-		}
-	} elseif ( ! current_user_can( 'edit_post', $post_id ) ) {
-		return $post_id;
-	}
 
-	// loop through fields and save the data
-	foreach ( $custom_meta_fields as $field ) {
-		$old = get_post_meta( $post_id, $field['id'], true );
-		$new = $_POST[ $field['id'] ];
-		if ( $new && $new != $old ) {
-			update_post_meta( $post_id, $field['id'], $new );
-		} elseif ( '' == $new && $old ) {
-			delete_post_meta( $post_id, $field['id'], $old );
-		}
-	} // end foreach
-}
 
 add_filter( 'cron_schedules', 'cron_add_weekly' );
 function cron_add_weekly( $schedules ) {

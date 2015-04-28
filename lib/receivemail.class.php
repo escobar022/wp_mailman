@@ -222,6 +222,7 @@ class receiveMail {
 				$fileName = $this->decodeRFC2231( $fileName, $serverEncoding );
 			}
 			$attachment       = new IncomingMailAttachment();
+
 			$attachment->id   = $attachmentId;
 			$attachment->name = $fileName;
 			if ( $attachmentsDir ) {

@@ -8,7 +8,7 @@ defined( 'ABSPATH' ) or die( "Cannot access pages directly." );
  */
 
 function wpmg_cron_parse_email() {
-	global $wpdb, $objMem, $obj, $table_name_group, $table_name_message, $table_name_requestmanager, $table_name_requestmanager_taxonomy, $table_name_user_taxonomy, $table_name_parsed_emails,$table_name_emails_attachments, $table_name_sent_emails, $table_name_crons_run, $table_name_users, $table_name_usermeta;
+	global $wpdb, $objMem, $obj, $table_name_message, $table_name_requestmanager, $table_name_requestmanager_taxonomy, $table_name_user_taxonomy, $table_name_parsed_emails,$table_name_emails_attachments, $table_name_sent_emails, $table_name_crons_run, $table_name_users, $table_name_usermeta;
 
 	require_once( WPMG_PLUGIN_URL . 'lib/mailinggroupclass.php' );
 	$objMem = new mailinggroupClass();
@@ -83,11 +83,13 @@ function wpmg_cron_parse_email() {
 					$mail = $obj->getMail( $i );
 					$emailContent =$mail->fetch_html_body();
 
+					var_dump($emailContent);
 					/* get bounced email if any */
 					$bounced_email = "";
 					if ( $head['type'] == 'bounced' ) {
 						$bounced_email = $obj->get_bounced_email_address( $emailContent );
 					}
+
 					/* Insert into database and delete from server */
 					$_ARRDB['type']            = $head['type'];
 					$_ARRDB['email_from']      = $head['from'];
@@ -106,6 +108,33 @@ function wpmg_cron_parse_email() {
 					}
 					$newid = $objMem->addNewRow( $table_name_parsed_emails, $_ARRDB, $myFields );
 
+					// Create post object
+					$my_post = array(
+						'post_title'    => $head['subject'],
+						'post_type'     => 'mg_threads',
+						'post_status'   => 'publish',
+					);
+
+// Insert the post into the database
+					$pid = wp_insert_post( $my_post );
+
+					//ADD OUR CUSTOM FIELDS
+					add_post_meta($pid, 'mg_thread_type', $head['type'] , true);
+					add_post_meta($pid, 'mg_thread_UID', $mail->UID , true);
+					add_post_meta($pid, 'mg_thread_references', $mail->references , true);
+					if ( $bounced_email != '' ) {
+						add_post_meta($pid, 'mg_thread_email_bounced', $bounced_email , true);
+					}
+					add_post_meta($pid, 'mg_thread_email_from', $head['from'] , true);
+					add_post_meta($pid, 'mg_thread_email_from_name', $head['fromName'] , true);
+					add_post_meta($pid, 'mg_thread_email_to', $head['to'] , true);
+					add_post_meta($pid, 'mg_thread_email_to_name', $head['toName'] , true);
+					add_post_meta($pid, 'mg_thread_email_subject', $head['subject'] , true);
+					add_post_meta($pid, 'mg_thread_email_content', $emailContent , true);
+					add_post_meta($pid, 'mg_thread_email_group_id', $id , true);
+					add_post_meta($pid, 'mg_thread_email_status', 0 , true);
+					add_post_meta($pid, 'mg_thread_date', $mail->date , true);
+
 					$attachments = $mail->getAttachments();
 
 					foreach ( $attachments as $attachment ) {
@@ -116,7 +145,7 @@ function wpmg_cron_parse_email() {
 						$objMem->addNewRow($table_name_emails_attachments, $_ARRDB2, $myFieldsAttachment );
 					}
 
-					$obj->deleteMail( $i);
+					/*$obj->deleteMail( $i);*/
 
 				}
 			} else {
