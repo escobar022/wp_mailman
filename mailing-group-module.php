@@ -521,9 +521,6 @@ function save_custom_meta(  $post_id, $post  ) {
 	} // end foreach
 }
 
-// The Callback
-
-
 // Save the Data
 function mg_thread_save_custom_meta( $post_id ) {
 	$custom_meta_fields = mg_thread_custom_meta_fields();
@@ -574,11 +571,11 @@ function cron_add_weekly( $schedules ) {
 
 	//Testing purposes
 	$schedules['wpmg_two_minute']     = array(
-		'interval' => 15,
+		'interval' => 30,
 		'display'  => __( 'Every Two Minutes' )
 	);
 	$schedules['wpmg_five_minute']    = array(
-		'interval' => 18,
+		'interval' => 35,
 		'display'  => __( 'Every Five Minutes' )
 	);
 	$schedules['wpmg_fifteen_minute'] = array(
