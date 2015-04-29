@@ -26,7 +26,7 @@ class receiveMail {
 	var $serverEncoding = 'utf-8';
 	var $addAttachment = '';
 
-	function receiveMail( $username, $password, $EmailAddress, $mailserver, $servertype, $port, $ssl ){
+	function receiveMail( $username, $password, $EmailAddress, $mailserver, $servertype, $port, $ssl ) {
 		if ( $servertype == 'imap' ) {
 			if ( $port == '' ) {
 				$port = '143';
@@ -40,6 +40,7 @@ class receiveMail {
 		$this->password = $password;
 		$this->email    = $EmailAddress;
 	}
+
 	public function getImapStream( $forceConnection = true ) {
 		static $imapStream;
 		if ( $forceConnection ) {
@@ -54,11 +55,13 @@ class receiveMail {
 
 		return $imapStream;
 	}
+
 	protected function initImapStream() {
-		$imapStream = @imap_open( $this->server, $this->username, $this->password/*, 0, 0, array( 'DISABLE_AUTHENTICATOR' => 'GSSAPI' ) */);
+		$imapStream = @imap_open( $this->server, $this->username, $this->password/*, 0, 0, array( 'DISABLE_AUTHENTICATOR' => 'GSSAPI' ) */ );
 		if ( ! $imapStream ) {
 			throw new ImapMailboxException( 'Connection error: ' . imap_last_error() );
 		}
+
 		return $imapStream;
 	}
 
@@ -126,8 +129,8 @@ class receiveMail {
 		$head              = imap_rfc822_parse_headers( imap_fetchheader( $this->getImapStream(), $mailId, FT_UID ) );
 		$mail              = new IncomingMail();
 		$mail->id          = $mailId;
-		$mail->UID         =$head->message_id;
-		$mail->references = $head->references;
+		$mail->UID         = $head->message_id;
+		$mail->references  = $head->references;
 		$mail->date        = date( 'Y-m-d H:i:s', isset( $head->date ) ? strtotime( $head->date ) : time() );
 		$mail->subject     = isset( $head->subject ) ? $this->decodeMimeStr( $head->subject, $this->serverEncoding ) : null;
 		$mail->fromName    = isset( $head->from[0]->personal ) ? $this->decodeMimeStr( $head->from[0]->personal, $this->serverEncoding ) : null;
@@ -174,7 +177,7 @@ class receiveMail {
 	}
 
 	protected function initMailPart( IncomingMail $mail, $partStructure, $partNum ) {
-		$attachmentsDir = wp_upload_dir();
+
 		$serverEncoding = 'utf-8';
 
 		$data = $partNum ? imap_fetchbody( $this->getImapStream(), $mail->id, $partNum, FT_UID ) : imap_body( $this->getImapStream(), $mail->id, FT_UID );
@@ -188,6 +191,7 @@ class receiveMail {
 		} elseif ( $partStructure->encoding == 4 ) {
 			$data = imap_qprint( $data );
 		}
+
 
 		$params = array();
 		if ( ! empty( $partStructure->parameters ) ) {
@@ -213,6 +217,7 @@ class receiveMail {
 			? trim( $partStructure->id, " <>" )
 			: ( isset( $params['filename'] ) || isset( $params['name'] ) ? mt_rand() . mt_rand() : null );
 
+
 		if ( $attachmentId ) {
 			if ( empty( $params['filename'] ) && empty( $params['name'] ) ) {
 				$fileName = $attachmentId . '.' . strtolower( $partStructure->subtype );
@@ -221,10 +226,15 @@ class receiveMail {
 				$fileName = $this->decodeMimeStr( $fileName, $serverEncoding );
 				$fileName = $this->decodeRFC2231( $fileName, $serverEncoding );
 			}
-			$attachment       = new IncomingMailAttachment();
 
-			$attachment->id   = $attachmentId;
-			$attachment->name = $fileName;
+			$attachment = new IncomingMailAttachment();
+
+			$attachment->id          = $attachmentId;
+			$attachment->name        = $fileName;
+			$attachment->disposition = $partStructure->disposition;
+
+			/*$attachmentsDir = wp_upload_dir();
+
 			if ( $attachmentsDir ) {
 				$replace              = array(
 					'/\s/'                   => '_',
@@ -236,9 +246,9 @@ class receiveMail {
 				$attachment->filePath = $attachmentsDir['basedir'] . '/wp_mailinggroup' . DIRECTORY_SEPARATOR . $fileSysName;
 
 				file_put_contents( $attachment->filePath, $data );
-			}
+			}*/
 
-			$attachment->disposition = $partStructure->disposition;
+			$attachment->wordpresdir = wp_upload_bits( $fileName, null, $data );
 			$mail->addAttachment( $attachment );
 
 		} elseif ( $partStructure->type == 0 && $data ) {
@@ -260,6 +270,7 @@ class receiveMail {
 			}
 		}
 	}
+
 
 	protected function convertStringEncoding( $string, $fromEncoding, $toEncoding ) {
 		$convertedString = false;
@@ -311,6 +322,7 @@ class receiveMail {
 		if ( ! $this->getImapStream() ) {
 			return false;
 		}
+
 		return imap_close( $this->getImapStream(), CL_EXPUNGE );
 	}
 }
@@ -357,7 +369,7 @@ class IncomingMail {
 	}
 
 	function fetch_html_body() {
-		$baseUri = get_site_url();
+		$baseUri     = get_site_url();
 		$baseUri     = rtrim( $baseUri, '\\/' ) . '/wp-content/uploads/wp_mailinggroup/';
 		$fetchedHtml = $this->textHtml;
 
@@ -377,6 +389,7 @@ class IncomingMailAttachment {
 	public $name;
 	public $filePath;
 	public $disposition;
+	public $wordpresdir = array();
 }
 
 

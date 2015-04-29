@@ -378,7 +378,7 @@ function mg_thread_custom_meta_fields() {
 	$custom_meta_fields = array(
 		array(
 			'label' => 'Type',
-			'id'    => $prefix . 'references',
+			'id'    => $prefix . 'type',
 			'type'  => 'text'
 		),
 		array(
@@ -414,7 +414,7 @@ function mg_thread_custom_meta_fields() {
 		),
 		array(
 			'label' => 'Email To Name',
-			'id'    => $prefix . 'email_to-name',
+			'id'    => $prefix . 'email_to_name',
 			'type'  => 'text'
 		),
 		array(
@@ -434,7 +434,7 @@ function mg_thread_custom_meta_fields() {
 		),
 		array(
 			'label' => 'Status',
-			'id'    => $prefix . 'status',
+			'id'    => $prefix . 'email_status',
 			'type'  => 'text'
 		),
 		array(

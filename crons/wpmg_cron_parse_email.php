@@ -8,13 +8,13 @@ defined( 'ABSPATH' ) or die( "Cannot access pages directly." );
  */
 
 function wpmg_cron_parse_email() {
-	global $wpdb, $objMem, $obj, $table_name_message, $table_name_requestmanager, $table_name_requestmanager_taxonomy, $table_name_user_taxonomy, $table_name_parsed_emails,$table_name_emails_attachments, $table_name_sent_emails, $table_name_crons_run, $table_name_users, $table_name_usermeta;
+	global $wpdb, $objMem, $obj, $table_name_message, $table_name_requestmanager, $table_name_requestmanager_taxonomy, $table_name_user_taxonomy, $table_name_parsed_emails, $table_name_emails_attachments, $table_name_sent_emails, $table_name_crons_run, $table_name_users, $table_name_usermeta;
 
 	require_once( WPMG_PLUGIN_URL . 'lib/mailinggroupclass.php' );
 	$objMem = new mailinggroupClass();
 
-	$args = array(
-		'post_type'  => 'mg_groups',
+	$args  = array(
+		'post_type'   => 'mg_groups',
 		'post_status' => 'publish',
 		'perm'        => 'readable',
 	);
@@ -25,15 +25,15 @@ function wpmg_cron_parse_email() {
 	if ( count( $groups ) > 0 ) {
 		foreach ( $groups as $row ) {
 
-			$id = $row->ID;
-			$email = get_post_meta( $id, 'mg_group_email',true );
-			$password       = get_post_meta( $id, 'mg_group_password',true );
-			$pop_server_type = get_post_meta( $id, 'mg_group_server_type',true );
-			$pop_server      = get_post_meta( $id, 'mg_group_server',true );
-			$pop_port        = get_post_meta( $id, 'mg_group_server_port',true );
-			$pop_ssl         = get_post_meta( $id, 'pop_ssl',true );
-			$pop_username    = get_post_meta( $id, 'mg_group_mail_username',true );
-			$pop_password    = get_post_meta( $id, 'mg_group_password',true );
+			$id              = $row->ID;
+			$email           = get_post_meta( $id, 'mg_group_email', true );
+			$password        = get_post_meta( $id, 'mg_group_password', true );
+			$pop_server_type = get_post_meta( $id, 'mg_group_server_type', true );
+			$pop_server      = get_post_meta( $id, 'mg_group_server', true );
+			$pop_port        = get_post_meta( $id, 'mg_group_server_port', true );
+			$pop_ssl         = get_post_meta( $id, 'pop_ssl', true );
+			$pop_username    = get_post_meta( $id, 'mg_group_mail_username', true );
+			$pop_password    = get_post_meta( $id, 'mg_group_password', true );
 
 			if ( $pop_ssl != 'on' ) {
 				$ssl = false;
@@ -80,10 +80,10 @@ function wpmg_cron_parse_email() {
 			if ( $tot > 0 ) {
 				for ( $i = $tot; $i > 0; $i -- ) {
 					$head         = $obj->getHeaders( $i );  /*  Get Header Info Return Array Of Headers **Array Keys are (subject,to,toOth,toNameOth,from,fromName) */
-					$mail = $obj->getMail( $i );
-					$emailContent =$mail->fetch_html_body();
+					$mail         = $obj->getMail( $i );
+					$emailContent = $mail->fetch_html_body();
 
-					var_dump($emailContent);
+					var_dump( $emailContent );
 					/* get bounced email if any */
 					$bounced_email = "";
 					if ( $head['type'] == 'bounced' ) {
@@ -91,7 +91,7 @@ function wpmg_cron_parse_email() {
 					}
 
 					/* Insert into database and delete from server */
-					$_ARRDB['type']            = $head['type'];
+					/*$_ARRDB['type']            = $head['type'];
 					$_ARRDB['email_from']      = $head['from'];
 					$_ARRDB['email_from_name'] = $head['fromName'];
 					$_ARRDB['email_to']        = $head['to'];
@@ -99,53 +99,72 @@ function wpmg_cron_parse_email() {
 					$_ARRDB['email_subject']   = $head['subject'];
 					$_ARRDB['email_content']   = $emailContent;
 					$_ARRDB['email_group_id']  = $id;
-					$_ARRDB['UID']  = $mail->UID;
-					$_ARRDB['references']  = $mail->references;
-					$_ARRDB['date']  = $mail->date;
+					$_ARRDB['UID']             = $mail->UID;
+					$_ARRDB['references']      = $mail->references;
+					$_ARRDB['date']            = $mail->date;
 					$_ARRDB['status']          = "0";
 					if ( $bounced_email != '' ) {
 						$_ARRDB['email_bounced'] = $bounced_email;
 					}
-					$newid = $objMem->addNewRow( $table_name_parsed_emails, $_ARRDB, $myFields );
+					$newid = $objMem->addNewRow( $table_name_parsed_emails, $_ARRDB, $myFields );*/
 
 					// Create post object
-					$my_post = array(
-						'post_title'    => $head['subject'],
-						'post_type'     => 'mg_threads',
-						'post_status'   => 'publish',
+					$thread = array(
+						'post_title'  => $head['subject'],
+						'post_type'   => 'mg_threads',
+						'post_status' => 'publish',
 					);
 
 // Insert the post into the database
-					$pid = wp_insert_post( $my_post );
+					$pid = wp_insert_post( $thread );
 
 					//ADD OUR CUSTOM FIELDS
-					add_post_meta($pid, 'mg_thread_type', $head['type'] , true);
-					add_post_meta($pid, 'mg_thread_UID', $mail->UID , true);
-					add_post_meta($pid, 'mg_thread_references', $mail->references , true);
+					add_post_meta( $pid, 'mg_thread_type', $head['type'], true );
+					add_post_meta( $pid, 'mg_thread_UID', $mail->UID, true );
+					add_post_meta( $pid, 'mg_thread_references', $mail->references, true );
 					if ( $bounced_email != '' ) {
-						add_post_meta($pid, 'mg_thread_email_bounced', $bounced_email , true);
+						add_post_meta( $pid, 'mg_thread_email_bounced', $bounced_email, true );
 					}
-					add_post_meta($pid, 'mg_thread_email_from', $head['from'] , true);
-					add_post_meta($pid, 'mg_thread_email_from_name', $head['fromName'] , true);
-					add_post_meta($pid, 'mg_thread_email_to', $head['to'] , true);
-					add_post_meta($pid, 'mg_thread_email_to_name', $head['toName'] , true);
-					add_post_meta($pid, 'mg_thread_email_subject', $head['subject'] , true);
-					add_post_meta($pid, 'mg_thread_email_content', $emailContent , true);
-					add_post_meta($pid, 'mg_thread_email_group_id', $id , true);
-					add_post_meta($pid, 'mg_thread_email_status', 0 , true);
-					add_post_meta($pid, 'mg_thread_date', $mail->date , true);
+					add_post_meta( $pid, 'mg_thread_email_from', $head['from'], true );
+					add_post_meta( $pid, 'mg_thread_email_from_name', $head['fromName'], true );
+					add_post_meta( $pid, 'mg_thread_email_to', $head['to'], true );
+					add_post_meta( $pid, 'mg_thread_email_to_name', $head['toName'], true );
+					add_post_meta( $pid, 'mg_thread_email_subject', $head['subject'], true );
+					add_post_meta( $pid, 'mg_thread_email_content', $emailContent, true );
+					add_post_meta( $pid, 'mg_thread_email_group_id', $id, true );
+					add_post_meta( $pid, 'mg_thread_email_status', 0, true );
+					add_post_meta( $pid, 'mg_thread_date', $mail->date, true );
 
 					$attachments = $mail->getAttachments();
 
 					foreach ( $attachments as $attachment ) {
-						$_ARRDB2['IDEmail']            = $newid;
+						/*$_ARRDB2['IDEmail']            = $newid;
 						$_ARRDB2['FileNameOrg']      = $attachment->name;
 						$_ARRDB2['Filedir'] = $attachment->filePath;
 						$_ARRDB2['AttachType'] = $attachment->disposition;
-						$objMem->addNewRow($table_name_emails_attachments, $_ARRDB2, $myFieldsAttachment );
+						$objMem->addNewRow($table_name_emails_attachments, $_ARRDB2, $myFieldsAttachment );*/
+
+						$wp_res = $attachment->wordpresdir;
+
+						if ( ! $wp_res['error'] ) {
+							$wp_filetype   = wp_check_filetype( $attachment->name, null );
+							$attachment    = array(
+								'post_mime_type' => $wp_filetype['type'],
+								'post_parent'    => $pid,
+								'post_title'     => preg_replace( '/\.[^.]+$/', '', $attachment->name ),
+								'post_content'   => '',
+								'post_status'    => 'inherit'
+							);
+							$attachment_id = wp_insert_attachment( $attachment, $wp_res['file'], $pid );
+							if ( ! is_wp_error( $attachment_id ) ) {
+								require_once( ABSPATH . "wp-admin" . '/includes/image.php' );
+								$attachment_data = wp_generate_attachment_metadata( $attachment_id, $wp_res['file'] );
+								wp_update_attachment_metadata( $attachment_id, $attachment_data );
+							}
+						}
 					}
 
-					/*$obj->deleteMail( $i);*/
+					$obj->deleteMail( $i );
 
 				}
 			} else {
