@@ -383,7 +383,6 @@ function mg_thread_custom_meta_fields() {
 		),
 		array(
 			'label' => 'Unique Header ID',
-			'desc'  => 'When sending out emails,append group title to subject line',
 			'id'    => $prefix . 'UID',
 			'type'  => 'text'
 		),

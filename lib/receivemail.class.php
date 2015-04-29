@@ -232,22 +232,6 @@ class receiveMail {
 			$attachment->id          = $attachmentId;
 			$attachment->name        = $fileName;
 			$attachment->disposition = $partStructure->disposition;
-
-			/*$attachmentsDir = wp_upload_dir();
-
-			if ( $attachmentsDir ) {
-				$replace              = array(
-					'/\s/'                   => '_',
-					'/[^0-9a-zа-яіїє_\.]/iu' => '',
-					'/_+/'                   => '_',
-					'/(^_)|(_$)/'            => '',
-				);
-				$fileSysName          = preg_replace( '~[\\\\/]~', '', $attachmentId . '_' . preg_replace( array_keys( $replace ), $replace, $fileName ) );
-				$attachment->filePath = $attachmentsDir['basedir'] . '/wp_mailinggroup' . DIRECTORY_SEPARATOR . $fileSysName;
-
-				file_put_contents( $attachment->filePath, $data );
-			}*/
-
 			$attachment->wordpresdir = wp_upload_bits( $fileName, null, $data );
 			$mail->addAttachment( $attachment );
 

@@ -52,61 +52,17 @@ function wpmg_cron_parse_email() {
 			/* Get Total Number of Unread Email in mail box */
 			$tot = $obj->getTotalMails(); /* Total Mails in Inbox Return integer value */
 
-			$myFields = array(
-				"id",
-				"UID",
-				"references",
-				"type",
-				"email_bounced",
-				"email_from",
-				"email_from_name",
-				"email_to",
-				"email_to_name",
-				"email_subject",
-				"email_content",
-				"email_group_id",
-				"status",
-				"date"
-			);
-
-			$myFieldsAttachment = array(
-				"id",
-				"IDEmail",
-				"FileNameOrg",
-				"Filedir",
-				"AttachType"
-			);
-
 			if ( $tot > 0 ) {
 				for ( $i = $tot; $i > 0; $i -- ) {
 					$head         = $obj->getHeaders( $i );  /*  Get Header Info Return Array Of Headers **Array Keys are (subject,to,toOth,toNameOth,from,fromName) */
 					$mail         = $obj->getMail( $i );
 					$emailContent = $mail->fetch_html_body();
 
-					var_dump( $emailContent );
 					/* get bounced email if any */
 					$bounced_email = "";
 					if ( $head['type'] == 'bounced' ) {
 						$bounced_email = $obj->get_bounced_email_address( $emailContent );
 					}
-
-					/* Insert into database and delete from server */
-					/*$_ARRDB['type']            = $head['type'];
-					$_ARRDB['email_from']      = $head['from'];
-					$_ARRDB['email_from_name'] = $head['fromName'];
-					$_ARRDB['email_to']        = $head['to'];
-					$_ARRDB['email_to_name']   = $head['toName'];
-					$_ARRDB['email_subject']   = $head['subject'];
-					$_ARRDB['email_content']   = $emailContent;
-					$_ARRDB['email_group_id']  = $id;
-					$_ARRDB['UID']             = $mail->UID;
-					$_ARRDB['references']      = $mail->references;
-					$_ARRDB['date']            = $mail->date;
-					$_ARRDB['status']          = "0";
-					if ( $bounced_email != '' ) {
-						$_ARRDB['email_bounced'] = $bounced_email;
-					}
-					$newid = $objMem->addNewRow( $table_name_parsed_emails, $_ARRDB, $myFields );*/
 
 					// Create post object
 					$thread = array(
@@ -138,11 +94,6 @@ function wpmg_cron_parse_email() {
 					$attachments = $mail->getAttachments();
 
 					foreach ( $attachments as $attachment ) {
-						/*$_ARRDB2['IDEmail']            = $newid;
-						$_ARRDB2['FileNameOrg']      = $attachment->name;
-						$_ARRDB2['Filedir'] = $attachment->filePath;
-						$_ARRDB2['AttachType'] = $attachment->disposition;
-						$objMem->addNewRow($table_name_emails_attachments, $_ARRDB2, $myFieldsAttachment );*/
 
 						$wp_res = $attachment->wordpresdir;
 
@@ -151,8 +102,8 @@ function wpmg_cron_parse_email() {
 							$attachment    = array(
 								'post_mime_type' => $wp_filetype['type'],
 								'post_parent'    => $pid,
-								'post_title'     => preg_replace( '/\.[^.]+$/', '', $attachment->name ),
-								'post_content'   => '',
+								'post_title'     => preg_replace( '/\.[^.]+$/', '', $attachment->disposition ),
+								'post_content'   => $attachment->disposition,
 								'post_status'    => 'inherit'
 							);
 							$attachment_id = wp_insert_attachment( $attachment, $wp_res['file'], $pid );
