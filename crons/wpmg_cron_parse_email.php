@@ -8,10 +8,7 @@ defined( 'ABSPATH' ) or die( "Cannot access pages directly." );
  */
 
 function wpmg_cron_parse_email() {
-	global $wpdb, $objMem, $obj, $table_name_message, $table_name_requestmanager, $table_name_requestmanager_taxonomy, $table_name_user_taxonomy, $table_name_parsed_emails, $table_name_emails_attachments, $table_name_sent_emails, $table_name_crons_run, $table_name_users, $table_name_usermeta;
-
-	require_once( WPMG_PLUGIN_URL . 'lib/mailinggroupclass.php' );
-	$objMem = new mailinggroupClass();
+	global $wpdb, $obj, $table_name_message, $table_name_requestmanager, $table_name_requestmanager_taxonomy, $table_name_user_taxonomy, $table_name_parsed_emails, $table_name_emails_attachments, $table_name_sent_emails, $table_name_crons_run, $table_name_users, $table_name_usermeta;
 
 	$args  = array(
 		'post_type'   => 'mg_groups',
@@ -102,8 +99,9 @@ function wpmg_cron_parse_email() {
 							$attachment    = array(
 								'post_mime_type' => $wp_filetype['type'],
 								'post_parent'    => $pid,
-								'post_title'     => preg_replace( '/\.[^.]+$/', '', $attachment->disposition ),
-								'post_content'   => $attachment->disposition,
+								'post_title'     => preg_replace( '/\.[^.]+$/', '', $attachment->name ),
+								'post_content'   => '',
+								'post_excerpt'   => $attachment->disposition,
 								'post_status'    => 'inherit'
 							);
 							$attachment_id = wp_insert_attachment( $attachment, $wp_res['file'], $pid );
@@ -114,9 +112,7 @@ function wpmg_cron_parse_email() {
 							}
 						}
 					}
-
 					$obj->deleteMail( $i );
-
 				}
 			} else {
 				echo "No Email Found.";
