@@ -8,7 +8,7 @@ defined( 'ABSPATH' ) or die( "Cannot access pages directly." );
  */
 
 function wpmg_cron_parse_email() {
-	global  $obj;
+	global $obj;
 
 	$args  = array(
 		'post_type'   => 'mg_groups',
@@ -55,7 +55,7 @@ function wpmg_cron_parse_email() {
 					$mail         = $obj->getMail( $i );
 					$emailContent = $mail->fetch_html_body();
 
-					preg_match('#\[(.*)\]#', $mail->references, $match);
+					preg_match( '#\[(.*)\]#', $mail->references, $match );
 					$parent_ID = $match[1];
 
 					/* get bounced email if any */
@@ -69,8 +69,8 @@ function wpmg_cron_parse_email() {
 						'post_title'  => $head['subject'],
 						'post_type'   => 'mg_threads',
 						'post_status' => 'publish',
-						'tags_input'     => get_the_title($id),
-						'post_parent' =>  $parent_ID
+						'tags_input'  => get_the_title( $id ),
+						'post_parent' => $parent_ID
 					);
 
 					// Insert the post into the database
@@ -80,7 +80,7 @@ function wpmg_cron_parse_email() {
 					add_post_meta( $pid, 'mg_thread_type', $head['type'], true );
 					add_post_meta( $pid, 'mg_thread_UID', $mail->UID, true );
 					add_post_meta( $pid, 'mg_thread_references', $mail->references, true );
-					add_post_meta( $pid, 'mg_thread_parent_id',  $parent_ID, true );
+					add_post_meta( $pid, 'mg_thread_parent_id', $parent_ID, true );
 					if ( $bounced_email != '' ) {
 						add_post_meta( $pid, 'mg_thread_email_bounced', $bounced_email, true );
 					}
@@ -101,15 +101,15 @@ function wpmg_cron_parse_email() {
 						$wp_res = $attachment->wordpresdir;
 
 						if ( ! $wp_res['error'] ) {
-							$wp_filetype   = wp_check_filetype( $attachment->name, null );
-							$attached_insert    = array(
+							$wp_filetype     = wp_check_filetype( $attachment->name, null );
+							$attached_insert = array(
 								'post_mime_type' => $wp_filetype['type'],
 								'post_parent'    => $pid,
 								'post_title'     => preg_replace( '/\.[^.]+$/', '', $attachment->name ),
 								'post_content'   => '',
 								'post_status'    => 'inherit'
 							);
-							$attachment_id = wp_insert_attachment( $attached_insert, $wp_res['file'], $pid );
+							$attachment_id   = wp_insert_attachment( $attached_insert, $wp_res['file'], $pid );
 
 							if ( ! is_wp_error( $attachment_id ) ) {
 								add_post_meta( $attachment_id, '_wp_attachment_image_alt', $attachment->disposition, true );
