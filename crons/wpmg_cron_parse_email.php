@@ -55,6 +55,9 @@ function wpmg_cron_parse_email() {
 					$mail         = $obj->getMail( $i );
 					$emailContent = $mail->fetch_html_body();
 
+					preg_match('#\[(.*)\]#', $mail->references, $match);
+					$parent_ID = $match[1];
+
 					/* get bounced email if any */
 					$bounced_email = "";
 					if ( $head['type'] == 'bounced' ) {
@@ -66,15 +69,18 @@ function wpmg_cron_parse_email() {
 						'post_title'  => $head['subject'],
 						'post_type'   => 'mg_threads',
 						'post_status' => 'publish',
+						'tags_input'     => get_the_title($id),
+						'post_parent' =>  $parent_ID
 					);
 
-// Insert the post into the database
+					// Insert the post into the database
 					$pid = wp_insert_post( $thread );
 
 					//ADD OUR CUSTOM FIELDS
 					add_post_meta( $pid, 'mg_thread_type', $head['type'], true );
 					add_post_meta( $pid, 'mg_thread_UID', $mail->UID, true );
 					add_post_meta( $pid, 'mg_thread_references', $mail->references, true );
+					add_post_meta( $pid, 'mg_thread_parent_id',  $parent_ID, true );
 					if ( $bounced_email != '' ) {
 						add_post_meta( $pid, 'mg_thread_email_bounced', $bounced_email, true );
 					}
@@ -113,6 +119,7 @@ function wpmg_cron_parse_email() {
 							}
 						}
 					}
+					//debug
 					$obj->deleteMail( $i );
 				}
 			} else {

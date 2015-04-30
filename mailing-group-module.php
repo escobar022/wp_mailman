@@ -392,6 +392,11 @@ function mg_thread_custom_meta_fields() {
 			'type'  => 'text'
 		),
 		array(
+			'label' => 'Parent ID',
+			'id'    => $prefix . 'parent_id',
+			'type'  => 'text'
+		),
+		array(
 			'label' => 'Email Bounced',
 			'id'    => $prefix . 'email_bounced',
 			'type'  => 'text'
