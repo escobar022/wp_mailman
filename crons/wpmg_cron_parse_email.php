@@ -8,7 +8,7 @@ defined( 'ABSPATH' ) or die( "Cannot access pages directly." );
  */
 
 function wpmg_cron_parse_email() {
-	global $wpdb, $obj, $table_name_message, $table_name_requestmanager, $table_name_requestmanager_taxonomy, $table_name_user_taxonomy, $table_name_parsed_emails, $table_name_emails_attachments, $table_name_sent_emails, $table_name_crons_run, $table_name_users, $table_name_usermeta;
+	global  $obj;
 
 	$args  = array(
 		'post_type'   => 'mg_groups',
@@ -96,16 +96,17 @@ function wpmg_cron_parse_email() {
 
 						if ( ! $wp_res['error'] ) {
 							$wp_filetype   = wp_check_filetype( $attachment->name, null );
-							$attachment    = array(
+							$attached_insert    = array(
 								'post_mime_type' => $wp_filetype['type'],
 								'post_parent'    => $pid,
 								'post_title'     => preg_replace( '/\.[^.]+$/', '', $attachment->name ),
 								'post_content'   => '',
-								'post_excerpt'   => $attachment->disposition,
 								'post_status'    => 'inherit'
 							);
-							$attachment_id = wp_insert_attachment( $attachment, $wp_res['file'], $pid );
+							$attachment_id = wp_insert_attachment( $attached_insert, $wp_res['file'], $pid );
+
 							if ( ! is_wp_error( $attachment_id ) ) {
+								add_post_meta( $attachment_id, '_wp_attachment_image_alt', $attachment->disposition, true );
 								require_once( ABSPATH . "wp-admin" . '/includes/image.php' );
 								$attachment_data = wp_generate_attachment_metadata( $attachment_id, $wp_res['file'] );
 								wp_update_attachment_metadata( $attachment_id, $attachment_data );

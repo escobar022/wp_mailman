@@ -353,16 +353,12 @@ class IncomingMail {
 	}
 
 	function fetch_html_body() {
-		$baseUri     = get_site_url();
-		$baseUri     = rtrim( $baseUri, '\\/' ) . '/wp-content/uploads/wp_mailinggroup/';
 		$fetchedHtml = $this->textHtml;
-
 		foreach ( $this->getInternalLinksPlaceholders() as $attachmentId => $placeholder ) {
 			if ( isset( $this->attachments[ $attachmentId ] ) ) {
-				$fetchedHtml = str_replace( $placeholder, $baseUri . basename( $this->attachments[ $attachmentId ]->filePath ), $fetchedHtml );
+				$fetchedHtml = str_replace( $placeholder, $this->attachments[ $attachmentId ]->wordpresdir['url'], $fetchedHtml );
 			}
 		}
-
 		return $fetchedHtml;
 	}
 }
@@ -371,7 +367,6 @@ class IncomingMail {
 class IncomingMailAttachment {
 	public $id;
 	public $name;
-	public $filePath;
 	public $disposition;
 	public $wordpresdir = array();
 }

@@ -19,15 +19,15 @@ function wpmg_cron_send_email() {
 		'post_type'   => 'mg_threads',
 		'post_status' => 'publish',
 		'perm'        => 'readable',
-		'meta_key'   => 'mg_thread_email_status',
-		'meta_value' => 'Pending'
+		'meta_key'    => 'mg_thread_email_status',
+		'meta_value'  => 'Pending'
 
 	);
 	$query = new WP_Query( $args );
 
 	$threads = $query->get_posts();
 
-	if ( count( $threads ) > 0 )  {
+	if ( count( $threads ) > 0 ) {
 
 		foreach ( $threads as $emailParsed ) {
 
@@ -38,7 +38,7 @@ function wpmg_cron_send_email() {
 			if ( is_numeric( $receiverGroupId ) && $receiverGroupId > 0 ) {
 
 				/* get sender user details */
-				$senderUser = get_user_by("email", $senderEmail);
+				$senderUser   = get_user_by( "email", $senderEmail );
 				$senderUserId = $senderUser->ID;
 				$senderName   = $senderUser->display_name;
 				$senderEmail  = $senderUser->user_email;
@@ -51,7 +51,7 @@ function wpmg_cron_send_email() {
 						foreach ( $membersGroup as $key => $memberstoSent ) {
 
 							$footerText            = wpmg_nl2brformat( wpmg_dbStripslashes( get_post_meta( $receiverGroupId, 'mg_group_footer_text', true ) ) );
-							$groupTitle            = get_the_title($receiverGroupId);
+							$groupTitle            = get_the_title( $receiverGroupId );
 							$groupEmail            = get_post_meta( $receiverGroupId, 'mg_group_email', true );
 							$useinSubject          = get_post_meta( $receiverGroupId, 'mg_group_use_in_subject', true );
 							$mail_type             = get_post_meta( $receiverGroupId, 'mg_group_mail_type', true );
@@ -87,7 +87,7 @@ function wpmg_cron_send_email() {
 									$mail = new PHPMailer();
 									$mail->IsSMTP();
 									$mail->SMTPDebug = 0;
-									$mail->addCustomHeader('references',get_post_meta( $receiverMailId, 'mg_thread_UID', true ));
+									$mail->addCustomHeader( 'references', get_post_meta( $receiverMailId, 'mg_thread_UID', true ) );
 
 									if ( get_post_meta( $receiverGroupId, 'mg_group_smtp_username', true ) != '' && get_post_meta( $receiverGroupId, 'mg_group_smtp_password', true ) != '' ) {
 										$mail->Username   = get_post_meta( $receiverGroupId, 'mg_group_smtp_username', true );
@@ -110,7 +110,7 @@ function wpmg_cron_send_email() {
 									if ( $useinSubject ) {
 										$mail->Subject = "[" . $groupTitle . "] " . get_post_meta( $receiverMailId, 'mg_thread_email_subject', true );
 									} else {
-										$mail->Subject =  get_post_meta( $receiverMailId, 'mg_thread_email_subject', true );
+										$mail->Subject = get_post_meta( $receiverMailId, 'mg_thread_email_subject', true );
 									}
 									if ( $sendtouserEmailFormat == '1' ) {
 										$mail->IsHTML( true );
@@ -121,35 +121,38 @@ function wpmg_cron_send_email() {
 									$mail->AddAddress( $sendToEmail, $sendToName );
 
 									$args = array(
-										'numberposts' => -1,
+										'numberposts' => - 1,
 										'post_parent' => $receiverMailId,
 										'post_status' => null,
-										'post_type' => 'attachment',
+										'post_type'   => 'attachment',
 									);
 
 									$attachments = get_children( $args );
 
 									if ( $attachments ) {
 										foreach ( $attachments as $attachment ) {
-											$fullsize_path = get_attached_file( $attachment->ID );
-											$filename_only = basename($fullsize_path);
-											$mail->addAttachment($fullsize_path, $filename_only );
+											if ( get_post_meta( $attachment->ID, '_wp_attachment_image_alt', true ) === 'ATTACHMENT' ) {
+												$fullsize_path = get_attached_file( $attachment->ID );
+												$filename_only = basename( $fullsize_path );
+												$mail->addAttachment( $fullsize_path, $filename_only );
+											}
+
 										}
 									}
 
 									if ( ! $mail->Send() ) {
-										update_post_meta($receiverMailId,'mg_thread_email_status','Error');
-										update_post_meta($receiverMailId,'mg_thread_email_status_error',$mail->ErrorInfo);
+										update_post_meta( $receiverMailId, 'mg_thread_email_status', 'Error' );
+										update_post_meta( $receiverMailId, 'mg_thread_email_status_error', $mail->ErrorInfo );
 									} else {
-										update_post_meta($receiverMailId,'mg_thread_email_status','Sent');
+										update_post_meta( $receiverMailId, 'mg_thread_email_status', 'Sent' );
 									}
 
 								}
 								if ( $mail_type == 'php' ) {
 									if ( $useinSubject ) {
-										$mail_Subject = "[" . $groupTitle . "] " .  get_post_meta( $receiverMailId, 'mg_thread_email_subject', true );
+										$mail_Subject = "[" . $groupTitle . "] " . get_post_meta( $receiverMailId, 'mg_thread_email_subject', true );
 									} else {
-										$mail_Subject =  get_post_meta( $receiverMailId, 'mg_thread_email_subject', true );
+										$mail_Subject = get_post_meta( $receiverMailId, 'mg_thread_email_subject', true );
 									}
 
 									$to      = $sendToEmail;
@@ -180,7 +183,7 @@ function wpmg_cron_send_email() {
 									if ( $useinSubject ) {
 										$mail_Subject = "[" . $groupTitle . "] " . get_post_meta( $receiverMailId, 'mg_thread_email_subject', true );
 									} else {
-										$mail_Subject =  get_post_meta( $receiverMailId, 'mg_thread_email_subject', true );
+										$mail_Subject = get_post_meta( $receiverMailId, 'mg_thread_email_subject', true );
 									}
 
 									$to      = $sendToEmail;
