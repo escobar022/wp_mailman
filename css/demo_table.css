@@ -1160,7 +1160,7 @@ table.widefat {
 }
 
 /*Custom for Maling Group */
-#mg_group_server_typeContain,#mg_group_mail_stypeContain,#mg_group_archiveContain,#mg_group_footer_textContain{
+#mg_group_server_typeContain,#mg_group_mail_typeContain,#mg_group_archiveContain,#mg_group_footer_textContain{
 	border-top: solid 3px #a0a5aa;
 	padding-top: 10px;
 }

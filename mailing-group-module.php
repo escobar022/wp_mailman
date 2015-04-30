@@ -118,9 +118,9 @@ function Mailing_Groups() {
 		'label'               => __( 'mg_threads', 'text_domain' ),
 		'description'         => __( 'Group Threads', 'text_domain' ),
 		'labels'              => $labels,
-		'supports'            => array( 'title', 'author', ),
+		'supports'            => array( 'title', 'page-attributes'),
 		'taxonomies'          => array( 'category', 'post_tag' ),
-		'hierarchical'        => false,
+		'hierarchical'        => true,
 		'public'              => true,
 		'show_ui'             => true,
 		'show_in_menu'        => true,
@@ -131,7 +131,7 @@ function Mailing_Groups() {
 		'has_archive'         => true,
 		'exclude_from_search' => false,
 		'publicly_queryable'  => false,
-		'capability_type'     => 'post',
+		'capability_type'     => 'page',
 	);
 	register_post_type( 'mg_threads', $args );
 }
@@ -226,7 +226,7 @@ function mg_group_custom_meta_fields() {
 		),
 		array(
 			'label'   => 'Choose Mailing Function :',
-			'id'      => $prefix . 'mail_stype',
+			'id'      => $prefix . 'mail_type',
 			'type'    => 'radio',
 			'options' => array(
 				'one'   => array(
@@ -423,7 +423,7 @@ function mg_thread_custom_meta_fields() {
 		),
 		array(
 			'label' => 'Email Content',
-			'id'    => $prefix . 'email_content',
+			'readonly'    => $prefix . 'email_content',
 			'type'  => 'email'
 		),
 		array(
@@ -488,8 +488,9 @@ function show_custom_meta_box( $post, $metabox ) {
 				break;
 			// Email Content
 			case 'email':
-				echo  '<div class="'.$field['type'].'"> '.$meta . '</div></div>';
+				echo  '<div class="'.$field['type'].'"> '.get_post_meta( $post->ID, $field['readonly'], true ) . '</div></div>';
 				break;
+
 			// description_block
 			case 'description_block':
 				echo '' . $field['example'] . '</div>';
@@ -522,12 +523,15 @@ function show_custom_meta_box( $post, $metabox ) {
 // Save the Data
 function save_custom_meta( $post_id, $post ) {
 	$custom_meta_fields='';
+
 	if ( $post->post_type == 'mg_groups' ) {
 		$custom_meta_fields = mg_group_custom_meta_fields();
 	}
 
-
+	if ( $post->post_type == 'mg_threads' ) {
 		$custom_meta_fields = mg_thread_custom_meta_fields();
+	}
+
 	// verify nonce
 	if ( ! wp_verify_nonce( $_POST['custom_meta_box_nonce'], basename( __FILE__ ) ) ) {
 		return $post_id;

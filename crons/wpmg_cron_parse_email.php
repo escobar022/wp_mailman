@@ -85,7 +85,7 @@ function wpmg_cron_parse_email() {
 					add_post_meta( $pid, 'mg_thread_email_subject', $head['subject'], true );
 					add_post_meta( $pid, 'mg_thread_email_content', $emailContent, true );
 					add_post_meta( $pid, 'mg_thread_email_group_id', $id, true );
-					add_post_meta( $pid, 'mg_thread_email_status', 0, true );
+					add_post_meta( $pid, 'mg_thread_email_status', 'Pending', true );
 					add_post_meta( $pid, 'mg_thread_date', $mail->date, true );
 
 					$attachments = $mail->getAttachments();

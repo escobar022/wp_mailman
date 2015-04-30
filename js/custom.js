@@ -358,7 +358,7 @@ jQuery(function ($) {
 	$(mail_user_pass).hide();
 
 
-	$("input[name=mg_group_mail_stype]").click(function () {
+	$("input[name=mg_group_mail_type]").click(function () {
 		var mail_type = $(this).val();
 		if (mail_type == 'smtp') {
 			$(mail_user_pass).show();
@@ -374,7 +374,7 @@ jQuery(function ($) {
 		}
 	});
 
-	if ($("input[name=mg_group_mail_stype]:checked").val() == 'smtp') {
+	if ($("input[name=mg_group_mail_type]:checked").val() == 'smtp') {
 		$(mail_user_pass).show();
 	}
 
