@@ -238,7 +238,7 @@ function mg_group_custom_meta_fields() {
 					'value' => 'smtp'
 				),
 				'three' => array(
-					'label' => 'PHP Mail',
+					'label' => 'PHP Mail(No Attachments)',
 					'value' => 'php'
 				)
 			)
@@ -437,14 +437,19 @@ function mg_thread_custom_meta_fields() {
 			'type'  => 'text'
 		),
 		array(
+			'label' => 'Date',
+			'id'    => $prefix . 'date',
+			'type'  => 'text'
+		),
+		array(
 			'label' => 'Status',
 			'id'    => $prefix . 'email_status',
 			'type'  => 'text'
 		),
 		array(
-			'label' => 'Date',
-			'id'    => $prefix . 'date',
-			'type'  => 'text'
+			'label' => 'Status Error',
+			'id'    => $prefix . 'email_status_error',
+			'type'  => 'textarea'
 		)
 	);
 	return $custom_meta_fields;
@@ -493,9 +498,8 @@ function show_custom_meta_box( $post, $metabox ) {
 				break;
 			// Email Content
 			case 'email':
-				echo  '<div class="'.$field['type'].'"> '.get_post_meta( $post->ID, $field['readonly'], true ) . '</div></div>';
+				echo  '<div class="'.$field['type'].'Contain"> '.get_post_meta( $post->ID, $field['readonly'], true ) . '</div></div>';
 				break;
-
 			// description_block
 			case 'description_block':
 				echo '' . $field['example'] . '</div>';

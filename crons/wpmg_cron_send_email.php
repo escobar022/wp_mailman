@@ -1,19 +1,8 @@
 <?php
 defined( 'ABSPATH' ) or die( "Cannot access pages directly." );
-/*
- * Description: Cron to send emails to registered users in a particular mailing group
- * Created: 08/2013
- * Author: Marcus Sorensen & netforcelabs.com
- * Website: http://www.wpmailinggroup.com
- */
 
 function wpmg_cron_send_email() {
-	global $wpdb, $objMem, $obj, $table_name_group, $table_name_message, $table_name_requestmanager, $table_name_requestmanager_taxonomy, $table_name_user_taxonomy, $table_name_parsed_emails, $table_name_emails_attachments, $table_name_sent_emails, $table_name_crons_run, $table_name_users, $table_name_usermeta;
-
-	require_once( WPMG_PLUGIN_URL . 'lib/mailinggroupclass.php' );
-	$objMem = new mailinggroupClass();
-
-	$mailresult = $objMem->selectRows( $table_name_parsed_emails, "", " where status = '0' and type='email' order by id desc limit 0, 1" );
+	global $objMem, $table_name_user_taxonomy, $table_name_emails_attachments, $table_name_users, $table_name_usermeta;
 
 	$args  = array(
 		'post_type'   => 'mg_threads',
@@ -68,6 +57,9 @@ function wpmg_cron_send_email() {
 
 							if ( $Ustatus == 1 ) {
 								$body = get_post_meta( $thread_id, 'mg_thread_email_content', true );
+								if(empty($body)){
+									$body = get_post_meta( $thread_id, 'mg_thread_email_content_plain', true );
+								}
 
 								$has_parent = get_post_meta( $thread_id, 'mg_thread_parent_id', true );
 
@@ -140,7 +132,6 @@ function wpmg_cron_send_email() {
 												$filename_only = basename( $fullsize_path );
 												$mail->addAttachment( $fullsize_path, $filename_only );
 											}
-
 										}
 									}
 
@@ -152,6 +143,7 @@ function wpmg_cron_send_email() {
 									}
 
 								}
+
 								if ( $mail_type == 'php' ) {
 									if ( $useinSubject AND empty( $has_parent ) ) {
 										$mail_Subject = "[" . $groupTitle . "] " . get_post_meta( $thread_id, 'mg_thread_email_subject', true );
@@ -167,6 +159,8 @@ function wpmg_cron_send_email() {
 									$headers .= 'X-Mailer: PHP' . phpversion() . "\r\n";
 									$headers .= 'MIME-Version: 1.0' . "\r\n";
 									$headers .= 'Content-Type: ' . get_bloginfo( 'html_type' ) . '; charset=\"' . get_bloginfo( 'charset' ) . '\"' . "\r\n";
+									$headers .= 'references: [' . $thread_id . ']' . "\r\n";
+
 									if ( $sendtouserEmailFormat == '1' ) {
 										$headers .= 'Content-type: text/html' . "\r\n";
 									} else {
@@ -204,12 +198,23 @@ function wpmg_cron_send_email() {
 										$headers[] = 'Content-type: text/plain' . "\r\n";
 									}
 
-									$attachments = $objMem->selectRowsbyField( $table_name_emails_attachments, "IDEMAIL", $thread_id, "and AttachType='ATTACHMENT'" );
+
+									$args = array(
+										'numberposts' => - 1,
+										'post_parent' => $thread_id,
+										'post_status' => null,
+										'post_type'   => 'attachment',
+									);
+
+									$attachments = get_children( $args );
 
 									$attachment_send = array();
 
 									foreach ( $attachments as $attachment ) {
-										$attachment_send[] = $attachment->Filedir;
+										if ( get_post_meta( $attachment->ID, '_wp_attachment_image_alt', true ) === 'ATTACHMENT' ) {
+											$fullsize_path = get_attached_file( $attachment->ID );
+											$attachment_send[] = $fullsize_path;
+										}
 									}
 
 									$wp_sent = wp_mail( $to, $subject, $body, $headers, $attachment_send );

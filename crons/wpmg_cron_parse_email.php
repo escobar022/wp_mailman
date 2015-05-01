@@ -54,6 +54,9 @@ function wpmg_cron_parse_email() {
 					$head         = $obj->getHeaders( $i );  /*  Get Header Info Return Array Of Headers **Array Keys are (subject,to,toOth,toNameOth,from,fromName) */
 					$mail         = $obj->getMail( $i );
 					$emailContent = $mail->fetch_html_body();
+					if(empty($emailContent)){
+						$emailContent= nl2br($mail->textPlain);
+					}
 
 					preg_match( '#\[(.*)\]#', $mail->references, $match );
 					$parent_ID = $match[1];

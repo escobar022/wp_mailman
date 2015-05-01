@@ -1165,4 +1165,62 @@ table.widefat {
 	padding-top: 10px;
 }
 
+/*Thread Styling*/
+#mg_group_thread_fields div {
+	margin-bottom: 10px;
+}
 
+#mg_group_thread_fields label {
+	display: block;
+	font-weight: bold;
+	margin-bottom: 5px;
+}
+
+/*description_block*/
+#mg_group_thread_fields .description_block code {
+	padding: 0;
+	margin: 0;
+}
+
+/*Checkbox*/
+#mg_group_thread_fields .checkbox input {
+	display: inline-block;
+	margin-right: 10px;
+}
+
+#mg_group_thread_fields .checkbox p.checkbox {
+	display: inline-block;
+}
+
+/*radio*/
+#mg_group_thread_fields .radio input {
+	display: inline-block;
+	margin-right: 5px;
+}
+
+#mg_group_thread_fields .radio label.radio {
+	display: inline-block;
+	margin-right: 10px;
+}
+
+/*Header Type*/
+#mg_group_thread_fields .header {
+	display: block;
+}
+#mg_group_thread_fields .header h3 {
+	padding: 0 10% 0 0;
+	font-size: 18px;
+	display: inline-block;
+	border-bottom: solid 3px #a0a5aa;;
+}
+#mg_group_thread_fields .emailContain{
+	min-width: 400px;
+	width: 40%;
+	padding: 1em;
+	box-shadow: 0 1px 2px rgba(0,0,0,.05);
+	border: 1px solid #e5e5e5;
+}
+#mg_group_thread_fields .emailContain .MsoNormal img{
+	max-width: 80%;
+	height: auto;
+}

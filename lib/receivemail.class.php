@@ -255,7 +255,6 @@ class receiveMail {
 		}
 	}
 
-
 	protected function convertStringEncoding( $string, $fromEncoding, $toEncoding ) {
 		$convertedString = false;
 		if ( $string && $fromEncoding !== $toEncoding ) {
