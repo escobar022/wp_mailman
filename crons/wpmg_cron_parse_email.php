@@ -9,11 +9,13 @@ defined( 'ABSPATH' ) or die( "Cannot access pages directly." );
 
 function wpmg_cron_parse_email() {
 	global $obj;
+/*TODO:debug */
 
 	$args  = array(
 		'post_type'   => 'mg_groups',
 		'post_status' => 'publish',
-		'perm'        => 'readable',
+		'meta_key'  => 'mg_group_status',
+		'meta_value' => '3'
 	);
 	$query = new WP_Query( $args );
 

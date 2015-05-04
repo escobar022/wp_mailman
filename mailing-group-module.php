@@ -338,12 +338,16 @@ This message was sent to <b>{%name%}</b> at <b>{%email%}</b> by the <a href="{%s
 			'type'    => 'select',
 			'options' => array(
 				'one' => array(
-					'label' => 'Inactive',
+					'label' => 'Select Status',
 					'value' => 0
 				),
 				'two' => array(
-					'label' => 'Active',
+					'label' => 'Inactive',
 					'value' => 1
+				),
+				'three' => array(
+					'label' => 'Active',
+					'value' => 2
 				)
 			)
 		),
@@ -569,8 +573,6 @@ function save_custom_meta( $post_id, $post ) {
 		}
 	} // end foreach
 }
-
-
 
 add_filter( 'cron_schedules', 'cron_add_weekly' );
 function cron_add_weekly( $schedules ) {
@@ -1285,8 +1287,17 @@ function wpmg_sendmessage_callback() {
 }
 
 function wpmg_checkusername_callback() {
-	global $wpdb, $objMem;
-	include "template/mg_memberadd.php";
+	$username   = sanitize_text_field( $_REQUEST['username']);
+	$username_e = username_exists( $username );
+	$email_e    = email_exists( $username );
+	if ( $username_e || $email_e ) {
+		$available =  "no";
+	} else {
+		$available =  "yes";
+	}
+
+	echo $available;
+	wp_die();
 }
 
 /* callback function for above ajax requests */
@@ -1691,11 +1702,11 @@ function wpmg_check_user_activation_link( $template ) {
 			if ( $user_status == '2' ) {
 				$user_id = $result[0]->ID;
 				$wpdb->query( "UPDATE $wpdb->users SET user_status = 0 WHERE ID =" . $user_id );
-				update_user_meta( $user_id, "User_status", 1 );
+				update_user_meta( $user_id, "mg_user_status", 1 );
 				$random_password = wp_generate_password( 12, false );
 				wp_set_password( $random_password, $user_id );
 				wp_new_user_notification( $user_id, $random_password );
-				$gropArray   = get_user_meta( $user_id, "Group_subscribed", true );
+				$gropArray   = get_user_meta( $user_id, "mg_user_group_subscribed", true );
 				$arrayString = unserialize( $gropArray );
 				wpmg_sendGroupConfirmationtoMember( $user_id, $arrayString );
 				$error->add( 'verified_success', __( "<div align='center'>Thank you for your subscription.<br>Please check your email for your account login credentials, so you can update your preferences and profile.</div>", 'mailing-group-module' ) );
@@ -1713,10 +1724,10 @@ function wpmg_check_user_activation_link( $template ) {
 		}
 	} else if ( $unsubscribe == '1' && $userid != '' && $group != '' ) {
 		extract( $_GET );
-		$group_arr_old = unserialize( get_user_meta( $userid, "Group_subscribed", true ) );
+		$group_arr_old = unserialize( get_user_meta( $userid, "mg_user_group_subscribed", true ) );
 		unset( $group_arr_old[ $group ] );
 		$grpserial = serialize( $group_arr_old );
-		update_user_meta( $userid, "Group_subscribed", $grpserial );
+		update_user_meta( $userid, "mg_user_group_subscribed", $grpserial );
 		$objMem->updUserGroupTaxonomy( $table_name_user_taxonomy, $userid, $group_arr_old );
 		$error->add( 'success_unsubscribe', __( "<div align='center'><strong>Success</strong>: You are successfully unsubscribed from the selected group.</div>", 'mailing-group-module' ) );
 		echo $error->get_error_message( "success_unsubscribe" );

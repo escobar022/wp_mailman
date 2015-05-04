@@ -41,9 +41,9 @@ if($_POST['Save'] && is_array($_POST['selectusers'])) {
 						/* //echo "<br>---".$user_id; */
 						wp_new_user_notification($user_id, $random_password);
 						add_user_meta( $user_id, "Plugin", "groupmailing" );
-						add_user_meta( $user_id, "User_status", $status );
+						add_user_meta( $user_id, "mg_user_status", $status );
 						$gropArray = array($gid=>$group_name[$gid]);
-						add_user_meta( $user_id, "Group_subscribed", serialize($gropArray) );
+						add_user_meta( $user_id, "mg_user_group_subscribed", serialize($gropArray) );
 						$objMem->addUserGroupTaxonomy($table_name_user_taxonomy, $user_id, $gropArray);
 						if(count($group_name)>1) {
 							 $objMem->deleteUserGroup($table_name_requestmanager_taxonomy,$gid,$UpdId);
@@ -59,12 +59,12 @@ if($_POST['Save'] && is_array($_POST['selectusers'])) {
 					if($username_e || $email_e) {
 						$userId = (is_numeric($username_e)?$username_e:$email_e);
 						if(is_numeric($userId)) {
-							$usergroupnames = get_user_meta($userId, "Group_subscribed", true);
+							$usergroupnames = get_user_meta($userId, "mg_user_group_subscribed", true);
 							$group_name_new = unserialize($usergroupnames);
 							if(!in_array($gid, $group_name_new)) {
 								$group_name_new[$gid] = $group_name[$gid];
 							}
-							update_user_meta( $userId, "Group_subscribed", serialize($group_name_new) );
+							update_user_meta( $userId, "mg_user_group_subscribed", serialize($group_name_new) );
 							$objMem->updUserGroupTaxonomy($table_name_user_taxonomy, $userId, $group_name_new);
 							if(count($group_name)>1) {
 								$objMem->deleteUserGroup($table_name_requestmanager_taxonomy,$gid,$UpdId);
@@ -123,9 +123,9 @@ if($actreq=='app') {
 				/* //echo "<br>---".$user_id; */
 				wp_new_user_notification($user_id, $random_password);
 				add_user_meta( $user_id, "Plugin", "groupmailing" );
-				add_user_meta( $user_id, "User_status", $status );
+				add_user_meta( $user_id, "mg_user_status", $status );
 				$gropArray = array($gid=>$group_name[$gid]);
-				add_user_meta( $user_id, "Group_subscribed", serialize($gropArray) );
+				add_user_meta( $user_id, "mg_user_group_subscribed", serialize($gropArray) );
 				$objMem->addUserGroupTaxonomy($table_name_user_taxonomy, $user_id, $gropArray);
 				if(count($group_name)>1) {
 					/* //echo "<br> in delete---"; */
@@ -149,12 +149,12 @@ if($actreq=='app') {
 			if($username_e || $email_e) {
 				$userId = (is_numeric($username_e)?$username_e:$email_e);
 				if(is_numeric($userId)) {
-					$usergroupnames = get_user_meta($userId, "Group_subscribed", true);
+					$usergroupnames = get_user_meta($userId, "mg_user_group_subscribed", true);
 					$group_name_new = unserialize($usergroupnames);
 					if(!in_array($gid, $group_name_new)) {
 						$group_name_new[$gid] = $group_name[$gid];
 					}
-					update_user_meta( $userId, "Group_subscribed", serialize($group_name_new) );
+					update_user_meta( $userId, "mg_user_group_subscribed", serialize($group_name_new) );
 					$objMem->updUserGroupTaxonomy($table_name_user_taxonomy, $userId, $group_name_new);
 					if(count($group_name)>1) {
 						$objMem->deleteUserGroup($table_name_requestmanager_taxonomy,$gid,$UpdId);

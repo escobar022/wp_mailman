@@ -49,7 +49,7 @@ function wpmg_cron_send_email() {
 
 							$sentUserDetails = $objMem->selectRows( $table_name_users, "", " where ID='$sendtouserId'" );
 
-							$Ustatus = $objMem->selectRows( $table_name_usermeta, "", " where meta_key='User_status' and user_id='$sendtouserId'" );
+							$Ustatus = $objMem->selectRows( $table_name_usermeta, "", " where meta_key='mg_user_status' and user_id='$sendtouserId'" );
 
 							$Ustatus     = $Ustatus[0]->meta_value;
 							$sendToName  = $sentUserDetails[0]->display_name;

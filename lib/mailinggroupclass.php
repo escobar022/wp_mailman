@@ -173,7 +173,7 @@ class mailinggroupClass {
 	}
 
 	function getGroupSerialized( $grpinfo ) {
-		global $wpdb;
+		$arrresult = array();
 		if ( count( $grpinfo['group_name'] ) > 0 ) {
 			foreach ( $grpinfo['group_name'] as $key => $group_id ) {
 				$emailformat            = $grpinfo[ 'email_format_' . $group_id ];

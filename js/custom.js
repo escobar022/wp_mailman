@@ -316,6 +316,7 @@ jQuery(document).ready(function () {
 	});
 });
 
+//Mailing Group Admin Section
 jQuery(function ($) {
 	$('#mg_group_mail_usernameContain,#mg_group_mail_passwordContain,#mg_group_pop_sslContain').hide();
 
@@ -426,3 +427,51 @@ jQuery(function ($) {
 	});
 
 });
+
+//Mailing Add User Section
+jQuery(function ($) {
+	$('#auto_generate').click(function () {
+		if ($('#auto_generate').is(':checked')) {
+			$("#gen_username").hide();
+		} else {
+			$("#gen_username").show();
+		}
+	});
+	$("#check_username").click(function () {
+		if (trim($("#username").val()) == "") {
+			alert("Please enter username to check.");
+			$("#username").focus();
+			return false;
+		}
+		var thisUsername = trim($("#username").val());
+
+		var data = {
+			action  : 'wpmg_checkusername',
+			page    : 'wpmg_mailinggroup_memberadd',
+			username: thisUsername
+		};
+		$.post(ajaxurl, data, function (response) {
+
+			if (trim(response) == 'yes') {
+				alert("Username is available.");
+				$("#username").val(thisUsername);
+				return true;
+			} else {
+				alert("Username is not available, please try again.");
+				$("#username").val(thisUsername);
+				return true;
+			}
+		});
+	});
+	$('#memberaddedit').dataTable({
+		"aoColumnDefs": [
+			{
+				"bSortable": false,
+				"aTargets" : [0, 1, 2]
+			}
+		],
+		"bPaginate"   : false,
+		"bFilter"     : false
+	});
+});
+

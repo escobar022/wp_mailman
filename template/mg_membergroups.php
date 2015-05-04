@@ -10,16 +10,16 @@ if($recid!='') {
 	$result = get_userdata( $recid );
 	if ($result) {		
 		$id = $result->ID;
-		get_user_meta($id, "Group_subscribed", true);
-		$group_name  = unserialize(get_user_meta($id, "Group_subscribed", true));
+		get_user_meta($id, "mg_user_group_subscribed", true);
+		$group_name  = unserialize(get_user_meta($id, "mg_user_group_subscribed", true));
 		$btn = __("Update", 'mailing-group-module');
 		$hidval = 2;
 	}
 } else if($act=="uns" && $unsid!='') {
-	$group_arr_old = unserialize(get_user_meta($recid, "Group_subscribed", true));
+	$group_arr_old = unserialize(get_user_meta($recid, "mg_user_group_subscribed", true));
 	unset($group_arr_old[$unsid]);
 	$grpserial = serialize($group_arr_old);
-	update_user_meta( $recid, "Group_subscribed", $grpserial );
+	update_user_meta( $recid, "mg_user_group_subscribed", $grpserial );
 	$objMem->updUserGroupTaxonomy($table_name_user_taxonomy, $recid, $group_arr_old);
 	wpmg_redirectTo("wpmg_mailinggroup_membergroups&info=uns");
 	exit;
@@ -27,7 +27,7 @@ if($recid!='') {
 if($addme==2) {
 	$grpsArray = $objMem->getGroupSerialized($_POST);
 	$grpserial = serialize($grpsArray);
-	update_user_meta( $recid, "Group_subscribed", $grpserial );
+	update_user_meta( $recid, "mg_user_group_subscribed", $grpserial );
 	$objMem->updUserGroupTaxonomy($table_name_user_taxonomy, $recid, $grpsArray);
 	wpmg_redirectTo("wpmg_mailinggroup_membergroups&info=upd");
 }

@@ -17,8 +17,8 @@ if(isset($_POST) && isset($_POST['importuserbtn'])) {
 		foreach($_POST['selectusers'] as $key => $val) {
 			$userId = $val;
 			update_user_meta( $userId, "Plugin", "groupmailing" );
-			update_user_meta( $userId, "User_status", "1" );
-			update_user_meta( $userId, "Group_subscribed", serialize($arrInsert) );
+			update_user_meta( $userId, "mg_user_status", "1" );
+			update_user_meta( $userId, "mg_user_group_subscribed", serialize($arrInsert) );
 			$objMem->addUserGroupTaxonomy($table_name_user_taxonomy, $userId, $arrInsert);
 		}
 		wpmg_redirectTo("wpmg_mailinggroup_importuser&info=suc");
@@ -140,7 +140,7 @@ if($info=="suc") {
 }
 $websiteurl = $WPMG_SETTINGS["MG_WEBSITE_URL"];
 $result_groups = $objMem->selectRows($table_name_group, "", " order by id asc");
-$result = get_users(array("Group_subscribed",""));
+$result = get_users(array("mg_user_group_subscribed",""));
 $totcount = count($result);
 ?>
 <script type="text/javascript">
@@ -180,7 +180,7 @@ $totcount = count($result);
 			$cntr = 0;
 			foreach ($result as $row) {
 				$id = $row->ID;
-				$group_subscribed = get_user_meta($id, "Group_subscribed", true);
+				$group_subscribed = get_user_meta($id, "mg_user_group_subscribed", true);
 				$unSeriGroup = unserialize($group_subscribed);
 
 				if(is_array($unSeriGroup)>0) {

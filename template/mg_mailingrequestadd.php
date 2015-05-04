@@ -49,8 +49,8 @@ if($group_name=="") {
 <div xmlns="http://www.w3.org/1999/xhtml" class="wrap nosubsub">
 	<h2 class="nav-tab-wrapper">
         <a href="admin.php?page=wpmg_mailinggroup_requestmanagerlist" title="<?php _e("Subscription Request Manager", 'mailing-group-module'); ?>" class="nav-tab"><?php _e("Subscription Request Manager", 'mailing-group-module'); ?></a>
-        <a href="admin.php?page=wpmg_mailinggroup_requestmanageradd&act=add" class="nav-tab nav-tab-active" title="<?php _e("Add New Subscriber", 'mailing-group-module'); ?>"><?php _e("Add New Subscriber", 'mailing-group-module'); ?></a>
-        <a href="admin.php?page=wpmg_mailinggroup_importuser" class="nav-tab" title="<?php _e("Import Users", 'mailing-group-module'); ?>"><?php _e("Import Users", 'mailing-group-module'); ?></a>
+        <a href="admin.php?page=wpmg_mailinggroup_requestmanageradd&act=add" class="nav-tab nav-tab-active" title="<?php _e("Add New Subscriber/User", 'mailing-group-module'); ?>"><?php _e("Add New Subscriber/User", 'mailing-group-module'); ?></a>
+        <a href="admin.php?page=wpmg_mailinggroup_importuser" class="nav-tab" title="<?php _e("Import from Existing Users", 'mailing-group-module'); ?>"><?php _e("Import from Existing Users", 'mailing-group-module'); ?></a>
     </h2>
     <div id="col-left">
         <div class="col-wrap">
