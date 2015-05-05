@@ -923,7 +923,6 @@ function wpmg_mailinggroup_Menu() {
 			add_submenu_page( 'null', __( 'Add Admin Message', 'mailing-group-module' ), __( 'Add Admin Message', 'mailing-group-module' ), $admin_level, 'wpmg_mailinggroup_adminmessageadd', 'wpmg_mailinggroup_adminmessageadd' );
 			add_submenu_page( 'null', __( 'Archived Messages', 'mailing-group-module' ), __( 'Archived Messages', 'mailing-group-module' ), $admin_level, 'wpmg_mailinggroup_adminarchive', 'wpmg_mailinggroup_adminarchive' );
 			add_submenu_page( 'null', __( 'Import User', 'mailing-group-module' ), __( 'Import User', 'mailing-group-module' ), $admin_level, 'wpmg_mailinggroup_importuser', 'wpmg_mailinggroup_importuser' );
-			add_submenu_page( 'null', __( 'View Message', 'mailing-group-module' ), __( 'View Message', 'mailing-group-module' ), $admin_level, 'wpmg_mailinggroup_viewmessage', 'wpmg_mailinggroup_viewmessage' );
 			add_submenu_page( 'null', __( 'Style Manager', 'mailing-group-module' ), __( 'Style Manager', 'mailing-group-module' ), $admin_level, 'wpmg_mailinggroup_style', 'wpmg_mailinggroup_style' );
 			add_submenu_page( 'null', __( 'Contact Info', 'mailing-group-module' ), __( 'Contact Info', 'mailing-group-module' ), $admin_level, 'wpmg_mailinggroup_contact', 'wpmg_mailinggroup_contact' );
 			add_submenu_page( 'null', __( 'Help', 'mailing-group-module' ), __( 'Help', 'mailing-group-module' ), $admin_level, 'wpmg_mailinggroup_help', 'wpmg_mailinggroup_help' );
@@ -931,8 +930,7 @@ function wpmg_mailinggroup_Menu() {
 
 		} else {
 			add_menu_page( __( 'Mailing Groups', 'mailing-group-module' ), __( 'Mailing Groups', 'mailing-group-module' ), $user_level, 'wpmg_mailinggroup_membergroups', 'wpmg_mailinggroup_membergroups' );
-			add_submenu_page( 'wpmg_mailinggroup_membergroups', __( 'Archived Messages', 'mailing-group-module' ), __( 'Archived Messages', 'mailing-group-module' ), $user_level, 'wpmg_mailinggroup_memberarchive', 'wpmg_mailinggroup_memberarchive' );
-			add_submenu_page( 'null', __( 'View Message', 'mailing-group-module' ), __( 'View Message', 'mailing-group-module' ), $user_level, 'wpmg_mailinggroup_viewmessage', 'wpmg_mailinggroup_viewmessage' );
+
 		}
 
 	wp_register_style( 'demo_table.css', plugin_dir_url( __FILE__ ) . 'css/demo_table.css' );
@@ -1046,16 +1044,6 @@ function wpmg_mailinggroup_membergroups() {
 function wpmg_mailinggroup_adminarchive() {
 	global $wpdb, $objMem, $table_name_sent_emails, $table_name_parsed_emails, $table_name_emails_attachments, $table_name_group;
 	include "template/mg_adminarchived.php";
-}
-
-function wpmg_mailinggroup_memberarchive() {
-	global $wpdb, $objMem, $table_name_group, $table_name_sent_emails, $table_name_parsed_emails, $table_name_emails_attachments, $table_name_user_taxonomy;
-	include "template/mg_memberarchived.php";
-}
-
-function wpmg_mailinggroup_viewmessage() {
-	global $wpdb, $objMem, $table_name_parsed_emails, $table_name_emails_attachments;
-	include "template/mg_viewmessage.php";
 }
 
 function wpmg_mailinggroup_adminmessagelist() {
@@ -1185,84 +1173,11 @@ function wpmg_parse_vcards( &$lines ) {
 
 /* general function */
 /* ajax requests */
-add_action( 'wp_ajax_wpmg_mailinggrouplisting', 'wpmg_mailinggrouplisting_callback' );
 add_action( 'wp_ajax_wpmg_sendmessage', 'wpmg_sendmessage_callback' );
 add_action( 'wp_ajax_wpmg_checkusername', 'wpmg_checkusername_callback' );
-add_action( 'wp_ajax_wpmg_viewmessage', 'wpmg_viewmessage_callback' );
 /* Short codes for ajax requests */
 /* callback function for above ajax requests */
 
-function wpmg_viewmessage_callback() {
-	global $wpdb, $objMem, $table_name_parsed_emails, $table_name_emails_attachments;
-	include "template/mg_viewmessageajax.php";
-	die();  /* this is required to return a proper result */
-}
-
-function wpmg_mailinggrouplisting_callback() {
-	global $wpdb, $objMem, $table_name_group;
-	include "template/mg_mailinggrouplist.php";
-	die(); /*   this is required to return a proper result */
-}
-
-function wpmg_addmailgroupsetting_callback() {
-	global $wpdb, $objMem, $_POST, $table_name_group;
-	$_POST         = stripslashes_deep( $_POST );
-	$addme         = sanitize_text_field( $_POST["addme"] );
-	$WPMG_SETTINGS = get_option( "WPMG_SETTINGS" );
-	$plugintype    = $WPMG_SETTINGS["MG_PLUGIN_TYPE"];
-	if ( $plugintype == 'FREE' ) {
-		$result = $objMem->selectRows( $table_name_group, "", " order by id desc" );
-		if ( count( $result ) > 0 && $addme != 2 ) {
-			echo "free";
-			exit;
-		}
-	}
-	$myFields = array(
-		"id",
-		"title",
-		"use_in_subject",
-		"email",
-		"password",
-		"pop_server_type",
-		"smtp_server",
-		"pop_server",
-		"smtp_port",
-		"pop_port",
-		"smtp_username",
-		"smtp_password",
-		"pop_ssl",
-		"pop_username",
-		"pop_password",
-		"archive_message",
-		"auto_delete",
-		"auto_delete_limit",
-		"footer_text",
-		"sender_name",
-		"sender_email",
-		"status",
-		"visibility",
-		"mail_type"
-	);
-	if ( $addme == 1 ) {
-		if ( ! $objMem->checkRowExists( $table_name_group, "title", $_POST, "" ) ) {
-			$objMem->addNewRow( $table_name_group, $_POST, $myFields );
-			echo "added";
-			exit;
-		} else {
-			echo "exists";
-			exit;
-		}
-	} else if ( $addme == 2 ) {
-		if ( ! $objMem->checkRowExists( $table_name_group, "title", $_POST, "idCheck" ) ) {
-			$objMem->updRow( $table_name_group, $_POST, $myFields );
-			echo "updated";
-			exit;
-		} else {
-			echo "exists";
-			exit;
-		}
-	}
-}
 
 function wpmg_sendmessage_callback() {
 	global $wpdb, $objMem, $table_name_group, $table_name_message;
@@ -1800,7 +1715,6 @@ function wpmg_custom_menu_hack() {
 		"wpmg_mailinggroup_messageadd",
 		"wpmg_mailinggroup_importuser",
 		"wpmg_mailinggroup_adminarchive",
-		"wpmg_mailinggroup_viewmessage",
 		"wpmg_mailinggroup_style",
 		"wpmg_mailinggroup_contact"
 	);
