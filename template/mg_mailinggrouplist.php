@@ -33,7 +33,9 @@
 
 		$groups = $query->get_posts();
 
-		if ($groups > 0){
+        $groups_count = count($groups);
+
+		if ($groups_count > 0) {
 
 			foreach ( $groups as $row ) {
 				$id              = $row->ID;
@@ -54,8 +56,9 @@
 						<a class="edit_record" title="<?php _e( "Edit", 'mailing-group-module' ); ?>" name="<?php echo $id; ?>" href="/wp-admin/post.php?post=<?php echo $id; ?>&action=edit"></a>
 					</td>
 				</tr>
-			<?php }
-		} else { ?>
+			<?php   }
+
+		} else {?>
 		<tr>
 			<td colspan="3" align="center"><?php _e( "Click 'Add New Mailing Group' to get started", 'mailing-group-module' ); ?></td>
 		<tr>

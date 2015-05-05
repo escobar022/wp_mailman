@@ -1,6 +1,4 @@
 <?php
-$status = get_option( 'wpmg_mailing_license_status' );	
-if($status == 'invalid'){die();}
 $WPMG_SETTINGS  = get_option("WPMG_SETTINGS");
 $websiteurl     = $WPMG_SETTINGS["MG_WEBSITE_URL"];
 $contactaddress = $WPMG_SETTINGS["MG_CONTACT_ADDRESS"];
@@ -24,7 +22,6 @@ $plugintype     = $WPMG_SETTINGS["MG_PLUGIN_TYPE"];
     	<h3><?php _e("<i>WordPress Mailing Group</i> &rsaquo; Premium Support", 'mailing-group-module'); ?></h3>
     </div>
 	<div>
-    	<?php /* echo sprintf( __('<p>If you encounter any problems with the installation or configuration of the WordPress Mailing Group Premium plugin, please visit <a target="_blank" href="%s">www.wordpressmailinggroup.com</a> and check the FAQ section.<br><br>If you should NOT find the answer to your question there, please visit: <a target="_blank" href="%s">www.wordpressmailinggroup.com/ticket</a> and log your enquiry there, with as many details about the issue as you can provide.<br>Please ensure you provide your plugin serial number in the Serial Number text field, so that support can be given, as the support ticket system is exclusively for Premium plugin users.<br><br>We will get back to you as soon as possible. <br><br><b>NB: Please ensure you have the latest version of the plugin installed.</b></p>', 'mailing-group-module'), $websiteurl, $websiteurl."/ticket" ); */ ?>
     	<p>
 		<?php _e("If you encounter any problems with the installation or configuration of the WordPress Mailing Group Premium plugin, please visit", 'mailing-group-module'); ?> <a target="_blank" href="<?php echo $websiteurl; ?>">www.wordpressmailinggroup.com</a> 
 		<?php _e("and check the FAQ section.", 'mailing-group-module'); ?><br><br>

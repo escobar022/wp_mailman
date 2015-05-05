@@ -1,6 +1,5 @@
 <?php
-$status = get_option( 'wpmg_mailing_license_status' );	
-if($status == 'invalid'){die();}
+
 $WPMG_SETTINGS = get_option("WPMG_SETTINGS");
 if(isset($_POST) and $_POST['submit']) {
 	$WPMG_SETTINGS["MG_SUBSCRIPTION_REQUEST_CHECK"] = !sanitize_text_field($_POST['alert_on_subscription'])?"0":"1";

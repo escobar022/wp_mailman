@@ -30,9 +30,7 @@ $result_groups = $query->get_posts();
 
 /* get all variables */
  if ( $act == "upd" ) {
-	echo "update";
 	$result = get_userdata( $recid );
-
 	if ( $result ) {
 		$id            = $result->ID;
 		$name          = $result->first_name;
@@ -97,6 +95,7 @@ if ( $addme == 1 ) {
 				$grpserial = serialize( $grpsArray );
 				add_user_meta( $user_id, "mg_user_status", $status );
 				add_user_meta( $user_id, "mg_user_group_subscribed", $grpserial );
+                add_user_meta( $user_id, "mg_user_group_sub_arr", $_POST['group_name'] );
 			}
 			if ( $confirmation_email ) {
 				wpmg_sendConfirmationtoMember( $user_id, $grpsArray );
@@ -127,6 +126,8 @@ if ( $addme == 1 ) {
 		$grpserial = serialize( $grpsArray );
 
 		update_user_meta( $recid, "mg_user_group_subscribed", $grpserial );
+		update_user_meta( $recid, "mg_user_group_sub_arr", $_POST['group_name'] );
+
 		wpmg_redirectTo( "wpmg_mailinggroup_memberlist&info=upd&gid=" . $gid );
 		
 		exit;

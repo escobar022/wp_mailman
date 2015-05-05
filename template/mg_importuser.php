@@ -1,6 +1,4 @@
 <?php
-$status = get_option( 'wpmg_mailing_license_status' );	
-if($status == 'invalid'){die();}
 $WPMG_SETTINGS = get_option("WPMG_SETTINGS");
 /* get all variables */
 $info = sanitize_text_field($_REQUEST["info"]);
@@ -8,6 +6,7 @@ $gid = sanitize_text_field($_REQUEST["gid"]);
 $actreq = sanitize_text_field($_REQUEST["act"]);
 $id = sanitize_text_field($_REQUEST["id"]);
 $delid = sanitize_text_field($_GET["did"]);
+
 /* get all variables */
 if(isset($_POST) && isset($_POST['importuserbtn'])) {
 	if(count($_POST['selectusers'])>0) {
@@ -19,7 +18,7 @@ if(isset($_POST) && isset($_POST['importuserbtn'])) {
 			update_user_meta( $userId, "Plugin", "groupmailing" );
 			update_user_meta( $userId, "mg_user_status", "1" );
 			update_user_meta( $userId, "mg_user_group_subscribed", serialize($arrInsert) );
-			$objMem->addUserGroupTaxonomy($table_name_user_taxonomy, $userId, $arrInsert);
+//			$objMem->addUserGroupTaxonomy($table_name_user_taxonomy, $userId, $arrInsert);
 		}
 		wpmg_redirectTo("wpmg_mailinggroup_importuser&info=suc");
 		exit;
@@ -139,7 +138,17 @@ if($info=="suc") {
 	wpmg_showmessages("updated", __( "Member(s) have been successfully added to selected groups.", 'mailing-group-module' ));
 }
 $websiteurl = $WPMG_SETTINGS["MG_WEBSITE_URL"];
-$result_groups = $objMem->selectRows($table_name_group, "", " order by id asc");
+
+
+$args  = array(
+    'post_type'   => 'mg_groups',
+    'post_status' => 'publish',
+    'perm'        => 'readable',
+);
+$query = new WP_Query( $args );
+
+$result_groups = $query->get_posts();
+
 $result = get_users(array("mg_user_group_subscribed",""));
 $totcount = count($result);
 ?>
@@ -224,7 +233,7 @@ $totcount = count($result);
                 <div class="check_div_fir"></div>
                 <div class="check_div_imp">
                 <?php foreach($result_groups as $group) { ?>
-                    <p class="inner_check_imp"><input type="checkbox" name="group_name[]" id="selectorgroup" value="<?php echo $group->id; ?>" />&nbsp;<?php echo $group->title; ?></p>
+                    <p class="inner_check_imp"><input type="checkbox" name="group_name[]" id="selectorgroup" value="<?php echo $group->ID; ?>" />&nbsp;<?php echo $group->post_title; ?></p>
                 <?php } ?>
                 </div>
             </div>

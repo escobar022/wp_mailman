@@ -36,24 +36,42 @@ function wpmg_cron_send_email() {
 					/* get other users from the sender user group */
 					$membersGroup = $objMem->selectRows( $table_name_user_taxonomy, "", " where group_id = '" . $group_id . "' order by id desc" );
 
-					if ( count( $membersGroup ) > 0 ) {
-						foreach ( $membersGroup as $key => $memberstoSent ) {
+                    $args       = array(
+                        'meta_query' => array(
+                            array(
+                                'key'     => 'mg_user_group_sub_arr',
+                                'value'   => '"'.$group_id.'"',
+                                'compare' => 'LIKE'
+                            )
+                        )
+                    );
+
+                    $user_query= new WP_User_Query( $args );
+                    $totcount= $user_query->total_users;
+
+
+                    if ( count( $totcount ) > 0 ) {
+						foreach ( $user_query->results as $memberstoSent ) {
 
 							$footerText            = wpmg_nl2brformat( wpmg_dbStripslashes( get_post_meta( $group_id, 'mg_group_footer_text', true ) ) );
 							$groupTitle            = get_the_title( $group_id );
 							$groupEmail            = get_post_meta( $group_id, 'mg_group_email', true );
 							$useinSubject          = get_post_meta( $group_id, 'mg_group_use_in_subject', true );
 							$mail_type             = get_post_meta( $group_id, 'mg_group_mail_type', true );
-							$sendtouserId          = $memberstoSent->user_id;
-							$sendtouserEmailFormat = $memberstoSent->group_email_format;
+                            $sendtouserId          = $memberstoSent->ID;
+                            $group_name_serial   = get_user_meta( $sendtouserId, "mg_user_group_subscribed", true );
+                            $groups_unserialized = unserialize( $group_name_serial );
 
-							$sentUserDetails = $objMem->selectRows( $table_name_users, "", " where ID='$sendtouserId'" );
+                            foreach ( $groups_unserialized as $group_id_user => $email_format ) {
+                                if ( $group_id_user == $group_id ) {
+                                    $sendtouserEmailFormat = $email_format;
+                                }
+                            }
 
-							$Ustatus = $objMem->selectRows( $table_name_usermeta, "", " where meta_key='mg_user_status' and user_id='$sendtouserId'" );
-
-							$Ustatus     = $Ustatus[0]->meta_value;
-							$sendToName  = $sentUserDetails[0]->display_name;
-							$sendToEmail = $sentUserDetails[0]->user_email;
+							$Ustatus     = get_user_meta( $sendtouserId, "mg_user_status", true );
+                            $Userrow = get_user_by( "id", $sendtouserId );
+							$sendToName  = $Userrow->display_name;
+							$sendToEmail = $Userrow->user_email;
 
 							if ( $Ustatus == 1 ) {
 								$body = get_post_meta( $thread_id, 'mg_thread_email_content', true );

@@ -159,7 +159,7 @@ function add_custom_meta_box() {
 	);
 }
 
-//Custom Fields
+//Group Custom Fields
 function mg_group_custom_meta_fields() {
 	$prefix             = 'mg_group_';
 	$custom_meta_fields = array(
@@ -376,7 +376,7 @@ This message was sent to <b>{%name%}</b> at <b>{%email%}</b> by the <a href="{%s
 
 }
 
-//Custom Fields Threads
+//Threads Custom Fields
 function mg_thread_custom_meta_fields() {
 	$prefix             = 'mg_thread_';
 	$custom_meta_fields = array(
@@ -904,9 +904,6 @@ add_action( 'wp_login', 'wpmg_myEndSession' );
 function wpmg_mailinggroup_Menu() {
 	$admin_level = 10;
 	$user_level  = 0;
-	$status      = get_option( 'wpmg_mailing_license_status' );
-
-	if ( $status == 'valid' ) {
 		/* Adding menus */
 		if ( current_user_can( 'manage_options' ) ) {
 			add_menu_page( __( 'Mailing Group Manager', 'mailing-group-module' ), __( 'Mailing Group Manager', 'mailing-group-module' ), $admin_level, 'wpmg_mailinggroup_intro', 'wpmg_mailinggroup_intro' );
@@ -931,16 +928,13 @@ function wpmg_mailinggroup_Menu() {
 			add_submenu_page( 'null', __( 'Contact Info', 'mailing-group-module' ), __( 'Contact Info', 'mailing-group-module' ), $admin_level, 'wpmg_mailinggroup_contact', 'wpmg_mailinggroup_contact' );
 			add_submenu_page( 'null', __( 'Help', 'mailing-group-module' ), __( 'Help', 'mailing-group-module' ), $admin_level, 'wpmg_mailinggroup_help', 'wpmg_mailinggroup_help' );
 			add_submenu_page( 'null', __( 'Add Message', 'mailing-group-module' ), __( 'Add Message', 'mailing-group-module' ), $admin_level, 'wpmg_mailinggroup_membergroups', 'wpmg_mailinggroup_membergroups' );
-			add_submenu_page( 'wpmg_mailinggroup_intro', __( 'License', 'mailing-group-module' ), __( 'License', 'mailing-group-module' ), $admin_level, 'wpmg_mailinggroup_license', 'wpmg_activate_license_page' );
+
 		} else {
 			add_menu_page( __( 'Mailing Groups', 'mailing-group-module' ), __( 'Mailing Groups', 'mailing-group-module' ), $user_level, 'wpmg_mailinggroup_membergroups', 'wpmg_mailinggroup_membergroups' );
 			add_submenu_page( 'wpmg_mailinggroup_membergroups', __( 'Archived Messages', 'mailing-group-module' ), __( 'Archived Messages', 'mailing-group-module' ), $user_level, 'wpmg_mailinggroup_memberarchive', 'wpmg_mailinggroup_memberarchive' );
 			add_submenu_page( 'null', __( 'View Message', 'mailing-group-module' ), __( 'View Message', 'mailing-group-module' ), $user_level, 'wpmg_mailinggroup_viewmessage', 'wpmg_mailinggroup_viewmessage' );
 		}
-	} else {
-		add_menu_page( __( 'Mailing Group Manager', 'mailing-group-module' ), __( 'Mailing Group Manager', 'mailing-group-module' ), $user_level, 'wpmg_mailinggroup_license', 'wpmg_activate_license_page' );
-		add_submenu_page( 'wpmg_activate_license_page', __( 'License', 'mailing-group-module' ), __( 'License', 'mailing-group-module' ), $admin_level, 'wpmg_mailinggroup_license', 'wpmg_activate_license_page' );
-	}
+
 	wp_register_style( 'demo_table.css', plugin_dir_url( __FILE__ ) . 'css/demo_table.css' );
 	wp_enqueue_style( 'demo_table.css' );
 	wp_register_script( 'jquery.dataTables.js', plugin_dir_url( __FILE__ ) . 'js/jquery.dataTables.js', array(
@@ -1885,104 +1879,8 @@ require_once( "crons/wpmg_cron_parse_email.php" );
 add_action( 'wpmg_cron_task_bounced_email', 'wpmg_cron_bounced_email' );
 require_once( "crons/wpmg_cron_bounced_email.php" );
 
-function wpmg_activate_license_page() {
-	$license = get_option( 'wpmg_mailing_license_key' );
-	$status  = get_option( 'wpmg_mailing_license_status' );
-	?>
-	<div class="wrap">
-	<h2><?php _e( 'WP Mailing Group License Options', 'mailing-group-module' ); ?></h2>
 
-	<form method="post" action="options.php">
 
-		<?php settings_fields( 'wpmg_mailing_license' ); ?>
 
-		<table class="form-table">
-			<tbody>
-			<tr valign="top">
-				<th scope="row" valign="top">
-					<?php _e( 'License Key', 'mailing-group-module' ); ?>
-				</th>
-				<td>
-					<input id="wpmg_mailing_license_key" name="wpmg_mailing_license_key" type="text" class="regular-text" value="<?php esc_attr_e( $license ); ?>" />
-					<label class="description" for="wpmg_mailing_license_key"><?php _e( 'Enter your license key', 'mailing-group-module' ); ?></label>
-				</td>
-			</tr>
-			<?php if ( false !== $license ) { ?>
-				<tr valign="top">
-					<th scope="row" valign="top">
-						<?php _e( 'Activate License', 'mailing-group-module' ); ?>
-					</th>
-					<td>
-						<?php if ( $status !== false && $status == 'valid' ) { ?>
-							<span style="color:green;"><?php _e( 'active', 'mailing-group-module' ); ?></span>
-						<?php } else {
-							wp_nonce_field( 'wpmg_mailing_nonce', 'wpmg_mailing_nonce' ); ?>
-							<input type="submit" class="button-secondary" name="wpmg_license_activate" value="<?php _e( 'Activate License', 'mailing-group-module' ); ?>" />
-						<?php } ?>
-					</td>
-				</tr>
-			<?php } ?>
-			</tbody>
-		</table>
-		<?php submit_button(); ?>
 
-	</form>
-<?php
-}
 
-function wpmg_mailing_register_option() {
-	register_setting( 'wpmg_mailing_license', 'wpmg_mailing_license_key', 'wpmg_sanitize_license' );
-}
-
-add_action( 'admin_init', 'wpmg_mailing_register_option' );
-
-function wpmg_sanitize_license( $new ) {
-	$old = get_option( 'wpmg_mailing_license_key' );
-	if ( $old && $old != $new ) {
-		delete_option( 'wpmg_mailing_license_status' );
-	}
-
-	return $new;
-}
-
-function wpmg_mailing_activate_license() {
-	if ( isset( $_POST['wpmg_license_activate'] ) ) {
-		if ( ! check_admin_referer( 'wpmg_mailing_nonce', 'wpmg_mailing_nonce' ) ) {
-			return;
-		}
-		$license = trim( get_option( 'wpmg_mailing_license_key' ) );
-
-		$api_params = array(
-			'edd_action' => 'activate_license',
-			'license'    => $license,
-			'item_name'  => urlencode( WPMG_PRODUCT_ITEM_NAME ),
-			'url'        => home_url()
-		);
-
-		$response = wp_remote_get( add_query_arg( $api_params, WPMG_STORE_URL ) );
-
-		if ( is_wp_error( $response ) ) {
-			return false;
-		}
-
-		$license_data = json_decode( wp_remote_retrieve_body( $response ) );
-		update_option( 'wpmg_mailing_license_status', $license_data->license );
-	}
-}
-
-add_action( 'admin_init', 'wpmg_mailing_activate_license' );
-
-if ( ! class_exists( 'wpmg_module_updater' ) ) {
-	include( dirname( __FILE__ ) . '/lib/wpmg_module_updater.php' );
-}
-
-$license_key = trim( get_option( 'wpmg_mailing_license_key' ) );
-
-$edd_updater = new wpmg_module_updater( WPMG_STORE_URL, __FILE__, array(
-		'version'   => $WPMG_SETTINGS['MG_VERSION_NO'],
-		'license'   => $license_key,
-		'item_name' => WPMG_PRODUCT_ITEM_NAME,
-		'author'    => 'Marcus Sorensen & NetForce Labs',
-		'url'       => home_url()
-	)
-);

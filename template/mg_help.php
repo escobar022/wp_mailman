@@ -1,6 +1,5 @@
 <?php
-$status = get_option( 'wpmg_mailing_license_status' );	
-if($status == 'invalid'){die();}
+
 $WPMG_SETTINGS = get_option("WPMG_SETTINGS");
 $versionno     = $WPMG_SETTINGS["MG_VERSION_NO"];
 $plugintype    = $WPMG_SETTINGS["MG_PLUGIN_TYPE"];

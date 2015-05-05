@@ -1,6 +1,5 @@
 <?php
-$status = get_option( 'wpmg_mailing_license_status' );	
-if($status == 'invalid'){die();}
+
 /* get all variables */
 $actreq  = wpmg_trimVal($_REQUEST["act"]);
 $info    = wpmg_trimVal($_REQUEST["info"]);
