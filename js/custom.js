@@ -463,7 +463,7 @@ jQuery(function ($) {
 			}
 		});
 	});
-	$('#memberaddedit').dataTable({
+	/*$('#memberaddedit').dataTable({
 		"aoColumnDefs": [
 			{
 				"bSortable": false,
@@ -472,6 +472,6 @@ jQuery(function ($) {
 		],
 		"bPaginate"   : false,
 		"bFilter"     : false
-	});
+	});*/
 });
 

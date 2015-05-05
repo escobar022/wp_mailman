@@ -607,6 +607,13 @@ function cron_add_weekly( $schedules ) {
 	return $schedules;
 }
 
+
+add_action('init', 'do_output_buffer');
+function do_output_buffer() {
+	ob_start();
+}
+
+
 function wpmg_add_mailing_group_plugin() {
 
 	global $wpdb, $table_name_group, $table_name_message, $table_name_requestmanager, $table_name_requestmanager_taxonomy, $table_name_user_taxonomy, $table_name_parsed_emails, $table_name_emails_attachments, $table_name_sent_emails, $table_name_users, $table_name_usermeta;
@@ -1223,8 +1230,12 @@ function wpmg_sendmessagetoSubscriber( $gid, $id, $info ) {
 /* New subscription arrived message to admin specified email */
 function wpmg_sendmessagetoAdmin( $name, $email, $grpsel ) {
 	add_filter( 'wp_mail_content_type', 'wpmg_set_content_type' );
-	global $wpdb, $objMem, $table_name_group, $table_name_message, $table_name_requestmanager;
+
+	global $wpdb, $objMem, $table_name_group, $table_name_message, $table_name_requestmanager,$WPMG_SETTINGS;
+
 	$subscriptioncheck = $WPMG_SETTINGS["MG_SUBSCRIPTION_REQUEST_CHECK"];
+	$group_selected = '';
+
 	if ( $subscriptioncheck ) {
 		$subscriptionemail = $WPMG_SETTINGS["MG_SUBSCRIPTION_REQUEST_ALERT_EMAIL"];
 		$get_group         = $objMem->selectRows( $table_name_group, "", " where id IN ($grpsel)" );

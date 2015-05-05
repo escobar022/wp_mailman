@@ -51,7 +51,6 @@ $result_groups = $query->get_posts();
 		$hidval = 2;
 	}
 } else if ( $act == "uns" && $unsid != '' ) {
-	echo "uns";
 	$group_arr_old = unserialize( get_user_meta( $recid, "mg_user_group_subscribed", true ) );
 	unset( $group_arr_old[ $unsid ] );
 	$grpserial = serialize( $group_arr_old );
