@@ -54,7 +54,7 @@ if ($totcount>0) {
 			],
 			"aoColumnDefs": [ 
 			  { "bSortable": true,
-			  	"aTargets": [ 0,1,2,3,4,5,6,7 ],
+			  	"aTargets": [ 0,1,2,3,4,5,6,7 ]
 			  }
 			],
 			"fnDrawCallback":function(){
@@ -69,7 +69,6 @@ if ($totcount>0) {
 		//jQuery('body').on('click', '.quick_view', function() {
 		jQuery('body').on('click', '.quick_view', function() { jQuery('#archivelist > tbody  > tr').each(function() { jQuery(this).closest('tr').css("background-color","#F9F9F9"); }); jQuery(this).closest('tr').css("background-color","#FEA03D"); var thisId = this.name; var data = { action: 'wpmg_viewmessage', page: 'wpmg_mailinggroup_viewmessage',id:thisId}; jQuery.post(ajaxurl, data, function(response) {/* alert(response); */jQuery("#ajaxContent").html(response); jQuery("#ajaxstart").focus(); });});
 
-		//jQuery('.quick_view').click(function(){ jQuery('#archivelist > tbody  > tr').each(function() { jQuery(this).closest('tr').css("background-color","#F9F9F9"); }); jQuery(this).closest('tr').css("background-color","#FEA03D"); var thisId = this.name; var data = { action: 'wpmg_viewmessage', page: 'mailinggroup_viewmessage',id:thisId}; jQuery.post(ajaxurl, data, function(response) {/* alert(response); */jQuery("#ajaxContent").html(response); jQuery("#ajaxstart").focus(); });});
 		
 		jQuery("#toplevel_page_mailinggroup_intro").removeClass('wp-not-current-submenu');
 		jQuery("#toplevel_page_mailinggroup_intro").addClass('wp-has-current-submenu');
@@ -80,6 +79,8 @@ if ($totcount>0) {
 <?php } ?>
 <?php
 $resultgp = $objMem->selectRows($table_name_group, "",  " where id='".$gid."'");
+
+
 if (count($resultgp)>0) {
 	foreach ($resultgp as $rowgp) {
 		$groupName = $rowgp->title;

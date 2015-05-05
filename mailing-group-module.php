@@ -909,7 +909,7 @@ function wpmg_mailinggroup_Menu() {
 			add_menu_page( __( 'Mailing Group Manager', 'mailing-group-module' ), __( 'Mailing Group Manager', 'mailing-group-module' ), $admin_level, 'wpmg_mailinggroup_intro', 'wpmg_mailinggroup_intro' );
 			add_submenu_page( 'wpmg_mailinggroup_intro', __( 'General Settings', 'mailing-group-module' ), __( 'General Settings', 'mailing-group-module' ), $admin_level, 'wpmg_mailinggroup_intro', 'wpmg_mailinggroup_intro' );
 			add_submenu_page( 'wpmg_mailinggroup_intro', __( 'Mailing Groups', 'mailing-group-module' ), __( 'Mailing Groups', 'mailing-group-module' ), $admin_level, 'wpmg_mailinggroup_list', 'wpmg_mailinggroup_list' );
-			add_submenu_page( 'null', __( 'Add Mailing Group', 'mailing-group-module' ), __( 'Add Mailing Group', 'mailing-group-module' ), $admin_level, 'wpmg_mailinggroup_add', 'wpmg_mailinggroup_add' );
+
 			add_submenu_page( 'null', __( 'Member Manager', 'mailing-group-module' ), __( 'Member Manager', 'mailing-group-module' ), $admin_level, 'wpmg_mailinggroup_memberlist', 'wpmg_mailinggroup_memberlist' );
 			add_submenu_page( 'null', __( 'Add Member', 'mailing-group-module' ), __( 'Add Member', 'mailing-group-module' ), $admin_level, 'wpmg_mailinggroup_memberadd', 'wpmg_mailinggroup_memberadd' );
 			add_submenu_page( 'wpmg_mailinggroup_intro', __( 'Add Subscribers', 'mailing-group-module' ), __( 'Add Subscribers', 'mailing-group-module' ), $admin_level, 'wpmg_mailinggroup_requestmanageradd', 'wpmg_mailinggroup_requestmanageradd' );
@@ -994,10 +994,7 @@ function wpmg_mailinggroup_list() {
 	include "template/mg_mailinggrouplist.php";
 }
 
-function wpmg_mailinggroup_add() {
-	global $wpdb, $objMem, $table_name_group;
-	include "template/mg_mailinggroupadd.php";
-}
+
 
 function wpmg_mailinggroup_messagelist() {
 	global $wpdb, $objMem, $table_name_message;
@@ -1188,24 +1185,17 @@ function wpmg_parse_vcards( &$lines ) {
 
 /* general function */
 /* ajax requests */
-add_action( 'wp_ajax_wpmg_addeditmailinggroup', 'wpmg_addeditmailinggroup_callback' );
-add_action( 'wp_ajax_wpmg_addmailgroupsetting', 'wpmg_addmailgroupsetting_callback' );
 add_action( 'wp_ajax_wpmg_mailinggrouplisting', 'wpmg_mailinggrouplisting_callback' );
 add_action( 'wp_ajax_wpmg_sendmessage', 'wpmg_sendmessage_callback' );
 add_action( 'wp_ajax_wpmg_checkusername', 'wpmg_checkusername_callback' );
 add_action( 'wp_ajax_wpmg_viewmessage', 'wpmg_viewmessage_callback' );
 /* Short codes for ajax requests */
 /* callback function for above ajax requests */
+
 function wpmg_viewmessage_callback() {
 	global $wpdb, $objMem, $table_name_parsed_emails, $table_name_emails_attachments;
 	include "template/mg_viewmessageajax.php";
 	die();  /* this is required to return a proper result */
-}
-
-function wpmg_addeditmailinggroup_callback() {
-	global $wpdb, $objMem, $table_name_group;
-	include "template/mg_mailinggroupadd.php";
-	die(); /*  this is required to return a proper result */
 }
 
 function wpmg_mailinggrouplisting_callback() {
@@ -1799,7 +1789,6 @@ function wpmg_custom_menu_hack() {
 	$pagename  = sanitize_text_field( $_GET['page'] );
 	$pageArray = array(
 		"wpmg_mailinggroup_list",
-		"wpmg_mailinggroup_add",
 		"wpmg_mailinggroup_adminmessagelist",
 		"wpmg_mailinggroup_memberlist",
 		"wpmg_mailinggroup_memberadd",
@@ -1845,13 +1834,9 @@ function wpmg_add_menu_icons_styles() {
 	?>
 
 	<style>
-
 		#adminmenu .toplevel_page_mailinggroup_intro div.wp-menu-image:before {
-
 			content: '\f237';
-
 		}
-
 	</style>
 <?php
 }
@@ -1860,7 +1845,7 @@ add_action( 'admin_head', 'wpmg_add_menu_icons_styles' );
 add_filter( 'authenticate', 'wpmg_bainternet_allow_email_login', 20, 3 );
 function wpmg_bainternet_allow_email_login( $user, $username, $password ) {
 	if ( is_email( $username ) ) {
-		$user = get_user_by_email( $username );
+		$user =  get_user_by('email', $username);
 		if ( $user ) {
 			$username = $user->user_login;
 		}
