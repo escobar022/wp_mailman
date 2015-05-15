@@ -26,10 +26,26 @@ jQuery(function ($) {
 	});
 
 	$(".cancel_request").click(function () {
+
+		var user_id = $("#user_id").val();
+		var email = $("#email").val();
 		var group_id = $(this).data("group_id");
+		var request_id = $(this).data("request_id");
 
+		var data = {
+			action      : 'wpmg_remove_request',
+			user_id     : user_id,
+			email       : email,
+			group_id    : group_id,
+			request_id    : request_id,
+			nextNonce   : PT_Ajax.nextNonce
+		};
 
-		console.log(group_id);
+		$.post(PT_Ajax.ajaxurl, data, function (response) {
+			console.log(response);
+			return true;
+		});
+
 
 	});
 

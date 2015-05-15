@@ -26,26 +26,23 @@ if ( is_user_logged_in() ) {
 	$recid        = $current_user->ID;
 
 	if ( $current_user ) {
-		$fname             = $current_user->user_firstname;
-		$lname             = $current_user->user_lastname;
-		$email             = $current_user->user_email;
+		$fname = $current_user->user_firstname;
+		$lname = $current_user->user_lastname;
+		$email = $current_user->user_email;
 
 		$requested_groups = get_user_meta( $recid, "mg_user_requested_groups", true );
 
 
-		foreach ( $requested_groups as $request_id => $request_info ) {
+		/*foreach ( $requested_groups as $request_id => $request_info ) {
 			$request_ids[] = $request_id;
 			$groups_requested[] = $request_info['group_id'];
-		}
+		}*/
 
-		error_log(print_r($request_ids,true));
-		error_log(print_r($groups_requested,true));
-
-
+		/*error_log(print_r($request_ids,true));
+		error_log(print_r($groups_requested,true));*/
 
 
-
-		$group_name_serial = get_user_meta( $recid, "mg_user_group_subscribed", true );
+		$group_name_serial   = get_user_meta( $recid, "mg_user_group_subscribed", true );
 		$groups_unserialized = unserialize( $group_name_serial );
 
 		if ( count( $groups_unserialized ) > 0 ) {
@@ -100,9 +97,9 @@ if ( is_user_logged_in() ) {
 										<?php
 
 										foreach ( $result_groups as $group ) {
-											$checkSelected = false;
+											$subscribed = false;
 											if ( array_key_exists( $group->ID, $group_name ) ) {
-												$checkSelected = true;
+												$subscribed = true;
 											}
 											?>
 											<tr>
@@ -110,18 +107,18 @@ if ( is_user_logged_in() ) {
 													<?php echo $group->post_title; ?>
 												</td>
 												<td>
-													<?php if ( $checkSelected ) {
+													<?php if ( $subscribed ) {
 														?>
 														<p>Yes</p>
 														<input type="button" class="remove_group" value="Leave Group" data-group_id="<?php echo $group->ID; ?>" />
 													<?php
 													} else {
-
-														if(in_array($group->ID,$groups_requested)){?>
+														if ( array_key_exists( $group->ID, $requested_groups ) ) {
+															?>
 															<p>Pending</p>
-															<input type="button" class="cancel_request" value="Cancel Request" data-group_id="<?php echo $group->ID; ?>" />
+															<input type="button" class="cancel_request" value="Cancel Request" data-group_id="<?php echo $group->ID; ?>" data-request_id="<?php echo $requested_groups[ $group->ID ]['request_id']; ?>" />
 														<?php
-														}else{ ?>
+														} else { ?>
 															<p>No</p>
 															<input type="button" class="request_group" value="Request" data-group_id="<?php echo $group->ID; ?>" />
 														<?php

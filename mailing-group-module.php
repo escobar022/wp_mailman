@@ -1184,6 +1184,7 @@ function wpmg_parse_vcards( &$lines ) {
 add_action( 'wp_ajax_wpmg_sendmessage', 'wpmg_sendmessage_callback' );
 add_action( 'wp_ajax_wpmg_checkusername', 'wpmg_checkusername_callback' );
 add_action( 'wp_ajax_wpmg_request_group', 'wpmg_request_group_callback' );
+add_action( 'wp_ajax_wpmg_remove_request', 'wpmg_remove_request_callback' );
 
 
 /* Short codes for ajax requests */
@@ -1232,13 +1233,14 @@ function wpmg_request_group_callback() {
 	$new_request= array('group_format'=>$group_format,'request_id'=>$request_id );
 
 	$old_request = get_user_meta( $user_id, 'mg_user_requested_groups', true );
+
 	if ( empty( $old_request ) ) {
 		$requested_groups[$group_id] = $new_request;
-		add_user_meta( $user_id, 'mg_user_requested_groups', $requested_groups);
+		update_user_meta( $user_id, 'mg_user_requested_groups', $requested_groups);
 	} else {
 		$requested_groups   = $old_request;
 		$requested_groups[$group_id] = $new_request;
-		update_user_meta( $user_id, 'mg_user_requested_groups', $requested_groups,$old_request);
+		update_user_meta( $user_id, 'mg_user_requested_groups', $requested_groups);
 	}
 	error_log(print_r($requested_groups,true));
 	/*	DELETE REQUEST
@@ -1246,9 +1248,7 @@ function wpmg_request_group_callback() {
 		{
 			if ($value['request_id']=== 832){
 				unset($combined[$key]);
-
 			}
-
 		}*/
 
 	add_post_meta( $request_id, 'mg_request_user_id', $user_id, true );
@@ -1277,6 +1277,48 @@ function wpmg_request_group_callback() {
 
 	wp_die();
 }
+
+function wpmg_remove_request_callback() {
+	// check nonce
+	$nonce = $_POST['nextNonce'];
+
+	if ( ! wp_verify_nonce( $nonce, 'myajax-next-nonce' ) ) {
+		die ( 'Busted!' );
+	}
+
+	$user_id         = $_POST['user_id'];
+	$group_id = $_POST['group_id'];
+	$request_id = $_POST['request_id'];
+
+
+	$deleted_request = wp_delete_post( $request_id, true );
+
+	if ($deleted_request){
+
+		$old_request = get_user_meta( $user_id, 'mg_user_requested_groups', true );
+
+		if ( empty( $old_request ) ) {
+			error_log(print_r('does not exist',true));
+		} else {
+			$requested_groups   = $old_request;
+
+			unset($requested_groups[$group_id]);
+
+			update_user_meta( $user_id, 'mg_user_requested_groups', $requested_groups,$old_request);
+		}
+
+	}else{
+		error_log(print_r('does not exist',true));
+	}
+
+	$response = json_encode( $_POST );
+	// response output
+	header( "Content-Type: application/json" );
+	echo $response;
+
+	wp_die();
+}
+
 
 /* callback function for above ajax requests */
 /* mail function used in plugin */
