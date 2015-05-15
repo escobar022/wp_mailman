@@ -1180,12 +1180,14 @@ function wpmg_parse_vcards( &$lines ) {
 
 /* general function */
 /* ajax requests */
+
 add_action( 'wp_ajax_wpmg_sendmessage', 'wpmg_sendmessage_callback' );
 add_action( 'wp_ajax_wpmg_checkusername', 'wpmg_checkusername_callback' );
+add_action( 'wp_ajax_wpmg_request_group', 'wpmg_request_group_callback' );
+
+
 /* Short codes for ajax requests */
 /* callback function for above ajax requests */
-
-
 function wpmg_sendmessage_callback() {
 	global $wpdb, $objMem, $table_name_group, $table_name_message;
 	include "template/mg_sendmessage.php";
@@ -1203,6 +1205,76 @@ function wpmg_checkusername_callback() {
 	}
 
 	echo $available;
+	wp_die();
+}
+
+function wpmg_request_group_callback() {
+	// check nonce
+	$nonce = $_POST['nextNonce'];
+
+	if ( ! wp_verify_nonce( $nonce, 'myajax-next-nonce' ) ) {
+		die ( 'Busted!' );
+	}
+
+	$recid         = $_POST['user_id'];
+	$email         = $_POST['email'];
+	$new_request = $_POST['user_requested_groups'];
+
+	$request = array(
+		'post_title'  => $email . '-' . $new_request['group_id'],
+		'post_type'   => 'mg_requests',
+		'post_status' => 'publish'
+	);
+
+	$pid = wp_insert_post( $request );
+
+
+	$old_request = get_user_meta( $recid, 'mg_user_requested_groups', true );
+
+
+	if ( empty( $old_request ) ) {
+		$combined[$pid] = $new_request;
+	} else {
+		$combined   = $old_request;
+		$combined[$pid] = $new_request;
+		error_log(print_r($combined,true));
+	}
+
+	/*	DELETE REQUEST
+
+	foreach($combined as $key => $value)
+		{
+			if ($value['request_id']=== 832){
+				unset($combined[$key]);
+
+			}
+
+		}*/
+
+	add_post_meta( $pid, 'mg_request_user_id', $recid, true );
+	add_post_meta( $pid, 'mg_request_email', $email, true );
+	update_user_meta( $recid, 'mg_user_requested_groups', $combined );
+
+	/*$wp_sent = wp_mail( 'aescobar@isda.org', 'New Subscribtion Request', 'A user has requested to update their subscription' );
+
+	if ( $wp_sent ) {
+		wpmg_showmessages( "error", __( "Your request is being processed", 'mailing-group-module' ) );
+		exit;
+	} else {
+		wpmg_showmessages( "error", __( "Your request is being processed, please confirm with the admin as the email of the request was unable to send", 'mailing-group-module' ) );
+	}*/
+
+
+	/*	if ( $pid ) {
+			$response = $pid;
+		} else {
+			$response = json_encode( $_POST );
+		}*/
+	$response = json_encode( $_POST );
+	// response output
+	header( "Content-Type: application/json" );
+	echo $response;
+
 	wp_die();
 }
 
@@ -1575,23 +1647,22 @@ function wpmg_activation_url( $user_id, $user_reg = "" ) {
 }
 
 /* frontend shortcode call */
-function wpmg_mailing_group_form_func( $atts ) {
+function wpmg_mailing_group_form_func() {
 	//Updated Shortcode to properly display on front end and default to 'Public'
-	$atts = shortcode_atts( array(
-		'visibility' => 'Public'
-	), $atts );
 	ob_start();
-	global $wpdb, $objMem, $table_name_requestmanager_taxonomy, $table_name_user_taxonomy, $table_name_group, $table_name_requestmanager;
-	global $visibilityArray;
-	if ( ! is_admin() ) {
-		wp_register_style( 'demo_table.css', plugin_dir_url( __FILE__ ) . 'css/demo_table.css' );
-		wp_enqueue_style( 'demo_table.css' );
-		wp_register_script( 'custom.js', plugin_dir_url( __FILE__ ) . 'js/custom.js', array(
-			'jquery'
-		) );
-		wp_enqueue_script( 'custom.js' );
-		include "template/mg_user_form.php";
-	}
+	wp_register_style( 'demo_table.css', plugin_dir_url( __FILE__ ) . 'css/demo_table.css' );
+	wp_enqueue_style( 'demo_table.css' );
+	wp_register_script( 'user_form.js', plugin_dir_url( __FILE__ ) . 'js/user_form.js', array(
+		'jquery'
+	) );
+	wp_enqueue_script( 'user_form.js' );
+
+	wp_localize_script( 'user_form.js', 'PT_Ajax', array(
+			'ajaxurl'   => admin_url( 'admin-ajax.php' ),
+			'nextNonce' => wp_create_nonce( 'myajax-next-nonce' )
+		)
+	);
+	include "template/mg_user_form.php";
 
 	return ob_get_clean();
 }

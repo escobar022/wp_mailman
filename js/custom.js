@@ -454,7 +454,8 @@ jQuery(function ($) {
 
 			if (trim(response) == 'yes') {
 				alert("Username is available.");
-				$("#username").val(thisUsername);
+				$("#username").val(thisUsername)
+				console.log(ajaxurl);
 				return true;
 			} else {
 				alert("Username is not available, please try again.");
