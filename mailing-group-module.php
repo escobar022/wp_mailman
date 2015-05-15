@@ -1216,32 +1216,32 @@ function wpmg_request_group_callback() {
 		die ( 'Busted!' );
 	}
 
-	$recid         = $_POST['user_id'];
+	$user_id         = $_POST['user_id'];
 	$email         = $_POST['email'];
-	$new_request = $_POST['user_requested_groups'];
+	$group_id = $_POST['group_id'];
+	$group_format = $_POST['group_format'];
 
 	$request = array(
-		'post_title'  => $email . '-' . $new_request['group_id'],
+		'post_title'  => $email . '-' . $group_id,
 		'post_type'   => 'mg_requests',
 		'post_status' => 'publish'
 	);
 
-	$pid = wp_insert_post( $request );
+	$request_id = wp_insert_post( $request );
 
+	$new_request= array('group_format'=>$group_format,'request_id'=>$request_id );
 
-	$old_request = get_user_meta( $recid, 'mg_user_requested_groups', true );
-
-
+	$old_request = get_user_meta( $user_id, 'mg_user_requested_groups', true );
 	if ( empty( $old_request ) ) {
-		$combined[$pid] = $new_request;
+		$requested_groups[$group_id] = $new_request;
+		add_user_meta( $user_id, 'mg_user_requested_groups', $requested_groups);
 	} else {
-		$combined   = $old_request;
-		$combined[$pid] = $new_request;
-		error_log(print_r($combined,true));
+		$requested_groups   = $old_request;
+		$requested_groups[$group_id] = $new_request;
+		update_user_meta( $user_id, 'mg_user_requested_groups', $requested_groups,$old_request);
 	}
-
+	error_log(print_r($requested_groups,true));
 	/*	DELETE REQUEST
-
 	foreach($combined as $key => $value)
 		{
 			if ($value['request_id']=== 832){
@@ -1251,9 +1251,9 @@ function wpmg_request_group_callback() {
 
 		}*/
 
-	add_post_meta( $pid, 'mg_request_user_id', $recid, true );
-	add_post_meta( $pid, 'mg_request_email', $email, true );
-	update_user_meta( $recid, 'mg_user_requested_groups', $combined );
+	add_post_meta( $request_id, 'mg_request_user_id', $user_id, true );
+	add_post_meta( $request_id, 'mg_request_email', $email, true );
+
 
 	/*$wp_sent = wp_mail( 'aescobar@isda.org', 'New Subscribtion Request', 'A user has requested to update their subscription' );
 

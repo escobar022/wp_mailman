@@ -1,10 +1,5 @@
 <?php
 if ( is_user_logged_in() ) {
-	$addme = sanitize_text_field( $_POST["addme"] );
-	$_POST = stripslashes_deep( $_POST );
-
-	$add    = "";
-	$hidval = 2;
 
 	$args = array(
 		'post_type'   => 'mg_groups',
@@ -34,12 +29,23 @@ if ( is_user_logged_in() ) {
 		$fname             = $current_user->user_firstname;
 		$lname             = $current_user->user_lastname;
 		$email             = $current_user->user_email;
-		$username          = $result->user_login;
-		$status            = get_user_meta( $recid, "mg_user_status", true );
+
+		$requested_groups = get_user_meta( $recid, "mg_user_requested_groups", true );
+
+
+		foreach ( $requested_groups as $request_id => $request_info ) {
+			$request_ids[] = $request_id;
+			$groups_requested[] = $request_info['group_id'];
+		}
+
+		error_log(print_r($request_ids,true));
+		error_log(print_r($groups_requested,true));
+
+
+
+
+
 		$group_name_serial = get_user_meta( $recid, "mg_user_group_subscribed", true );
-
-
-
 		$groups_unserialized = unserialize( $group_name_serial );
 
 		if ( count( $groups_unserialized ) > 0 ) {
@@ -51,63 +57,10 @@ if ( is_user_logged_in() ) {
 			$btn        = __( "Subcribe to Mailing Groups", 'mailing-group-module' );
 			$group_name = array();
 		}
-
-		$hidval = 2;
 	}
 
-	if ( $addme == 2 ) {
 
-		$recid  = sanitize_text_field( $_POST['id'] );
-		$fname  = sanitize_text_field( $_POST['fname'] );
-		$lname  = sanitize_text_field( $_POST['lname'] );
-		$status = sanitize_text_field( $_POST['status'] );
-		$email  = sanitize_email( $_POST['email'] );
-
-		$subs_old     = get_user_meta( $recid, "mg_user_group_subscribed", true );
-		$subs_arr_old = get_user_meta( $recid, "mg_user_group_sub_arr", true );
-
-		if ( $subs_arr_old != $_POST['group_name'] ) {
-
-			if ( ! get_page_by_title( $email, 'OBJECT', 'mg_requests' ) ) {
-
-				$request = array(
-					'post_title'  => $email,
-					'post_type'   => 'mg_requests',
-					'post_status' => 'publish'
-				);
-
-				$pid = wp_insert_post( $request );
-
-				$grpsArray = $objMem->getGroupSerialized( $_POST );
-				$grpserial = serialize( $grpsArray );
-
-				add_post_meta( $pid, 'mg_request_user_id', $recid, true );
-				add_post_meta( $pid, 'mg_request_user_first_name_new', $fname, true );
-				add_post_meta( $pid, 'mg_request_user_last_name_new', $lname, true );
-
-				add_post_meta( $pid, 'mg_request_user_id', $recid, true );
-				add_post_meta( $pid, 'mg_request_email', $email, true );
-				add_post_meta( $pid, "mg_user_group_subscribed_old", $subs_old );
-				add_post_meta( $pid, "mg_user_group_sub_arr_old", $subs_arr_old );
-
-				add_post_meta( $pid, "mg_user_group_subscribed_new", $grpserial );
-				add_post_meta( $pid, "mg_user_group_sub_arr_new", $_POST['group_name'] );
-				add_post_meta( $pid, 'mg_request_status', 0, true );
-				add_post_meta( $pid, 'mg_request_message_sent', 0, true );
-
-
-				wpmg_showmessages( "error", __( "Your request is being processed", 'mailing-group-module' ) );
-				exit;
-
-			} else {
-				wpmg_showmessages( "error", __( "User request with email address already exists, please allow previous request to be processed.", 'mailing-group-module' ) );
-
-			}
-
-		} else {
-			wpmg_showmessages( "error", __( "You are currently subscribed to these groups.", 'mailing-group-module' ) );
-		}
-	}
+	/*	wpmg_showmessages( "error", __( "User request with email address already exists, please allow previous request to be processed.", 'mailing-group-module' ) );*/
 
 	?>
 
@@ -146,7 +99,6 @@ if ( is_user_logged_in() ) {
 										<tbody>
 										<?php
 
-										$requested_groups  = get_user_meta( $recid, "mg_user_requested_groups", true );
 										foreach ( $result_groups as $group ) {
 											$checkSelected = false;
 											if ( array_key_exists( $group->ID, $group_name ) ) {
@@ -161,29 +113,20 @@ if ( is_user_logged_in() ) {
 													<?php if ( $checkSelected ) {
 														?>
 														<p>Yes</p>
-														<input type="button" class="button_form" value="Leave Group" id="remove_group" name="remove_group" />
+														<input type="button" class="remove_group" value="Leave Group" data-group_id="<?php echo $group->ID; ?>" />
 													<?php
 													} else {
-														?>
 
-														<?php
-
-														if ( in_array( $group->ID, $requested_groups ) ) { ?>
+														if(in_array($group->ID,$groups_requested)){?>
 															<p>Pending</p>
-															<input type="button" class="button_form" value="Cancel Request" id="cancel_request" name="cancel_request" />
+															<input type="button" class="cancel_request" value="Cancel Request" data-group_id="<?php echo $group->ID; ?>" />
 														<?php
-														} else { ?>
+														}else{ ?>
 															<p>No</p>
-															<input type="button" class="button_form" value="Request" id="request_group" name="request_group" />
+															<input type="button" class="request_group" value="Request" data-group_id="<?php echo $group->ID; ?>" />
 														<?php
 														}
-
-														?>
-
-
-													<?php
 													} ?>
-													<input type="hidden" name="group_name" id="group_name" value="<?php echo $group->ID; ?>" />
 												</td>
 												<td>
 													<div class="check_div">
@@ -199,14 +142,7 @@ if ( is_user_logged_in() ) {
 								</div>
 							</div>
 							<div class="form-field">
-
-							</div>
-							<div class="form-field">
-								<p class="submit">
-									<input type="hidden" name="addme" value="<?php echo $hidval; ?>">
-									<input type="hidden" id="user_id" name="user_id" value="<?php echo $recid; ?>">
-									<input type="hidden" name="status" value="0">
-								</p>
+								<input type="hidden" id="user_id" name="user_id" value="<?php echo $recid; ?>">
 							</div>
 							<div class="clearbth"></div>
 						</form>
