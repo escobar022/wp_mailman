@@ -23,40 +23,13 @@ if ( is_user_logged_in() ) {
 	$result_groups = $query->get_posts();
 
 	$current_user = wp_get_current_user();
-	$recid        = $current_user->ID;
+	$user_id      = $current_user->ID;
 
-	if ( $current_user ) {
-		$fname = $current_user->user_firstname;
-		$lname = $current_user->user_lastname;
-		$email = $current_user->user_email;
-
-		$requested_groups = get_user_meta( $recid, "mg_user_requested_groups", true );
-
-		/*foreach ( $requested_groups as $request_id => $request_info ) {
-			$request_ids[] = $request_id;
-			$groups_requested[] = $request_info['group_id'];
-		}*/
-
-		/*error_log(print_r($request_ids,true));
-		error_log(print_r($groups_requested,true));*/
-
-
-		$group_name_serial   = get_user_meta( $recid, "mg_user_group_subscribed", true );
-		$groups_unserialized = unserialize( $group_name_serial );
-
-		if ( count( $groups_unserialized ) > 0 ) {
-			foreach ( $groups_unserialized as $group_id => $email_format ) {
-				$group_name[ $group_id ] = $email_format;
-			}
-			$btn = __( "Update Subscribtions", 'mailing-group-module' );
-		} else {
-			$btn        = __( "Subcribe to Mailing Groups", 'mailing-group-module' );
-			$group_name = array();
-		}
-	}
-
-
-	/*	wpmg_showmessages( "error", __( "User request with email address already exists, please allow previous request to be processed.", 'mailing-group-module' ) );*/
+	$fname             = $current_user->user_firstname;
+	$lname             = $current_user->user_lastname;
+	$email             = $current_user->user_email;
+	$requested_groups  = get_user_meta( $user_id, 'mg_user_requested_groups', true );
+	$groups_subscribed = get_user_meta( $user_id, 'mg_user_group_subscribed', true );
 
 	?>
 
@@ -97,7 +70,7 @@ if ( is_user_logged_in() ) {
 
 										foreach ( $result_groups as $group ) {
 											$subscribed = false;
-											if ( array_key_exists( $group->ID, $group_name ) ) {
+											if ( array_key_exists( $group->ID, $groups_subscribed ) ) {
 												$subscribed = true;
 											}
 											?>
@@ -141,7 +114,7 @@ if ( is_user_logged_in() ) {
 								</div>
 							</div>
 							<div class="form-field">
-								<input type="hidden" id="user_id" name="user_id" value="<?php echo $recid; ?>">
+								<input type="hidden" id="user_id" name="user_id" value="<?php echo $user_id; ?>">
 							</div>
 							<div class="clearbth"></div>
 						</form>

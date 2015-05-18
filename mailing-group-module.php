@@ -1243,7 +1243,7 @@ function wpmg_request_group_callback() {
 		$requested_groups[$group_id] = $new_request;
 		update_user_meta( $user_id, 'mg_user_requested_groups', $requested_groups);
 	}
-	error_log(print_r($requested_groups,true));
+
 	/*	DELETE REQUEST
 	foreach($combined as $key => $value)
 		{
@@ -1330,25 +1330,27 @@ function wpmg_leave_group_callback() {
 
 	$user_id         = $_POST['user_id'];
 	$group_id = $_POST['group_id'];
-	$request_id = $_POST['request_id'];
 
-	$group_name_serial   = get_user_meta( $user_id, "mg_user_group_subscribed", true );
-	$groups_unserialized = unserialize( $group_name_serial );
+	$groups_subscribed   = get_user_meta( $user_id, 'mg_user_group_subscribed', true );
 
-	if ( count( $groups_unserialized ) > 0 ) {
-		foreach ( $groups_unserialized as $group_id => $email_format ) {
-			$group_name[ $group_id ] = $email_format;
-		}
-	} else{
+	if(array_key_exists($group_id,$groups_subscribed)){
+
+		error_log(print_r($groups_subscribed,true));
+
+
+		unset($groups_subscribed[$group_id]);
+
+		$new_subscribtions = $groups_subscribed;
+
+//		update_user_meta( $user_id, 'mg_user_requested_groups', $new_subscribtions,$groups_subscribed);
+
+
+		error_log(print_r($new_subscribtions,true));
+
+	}else{
+		error_log(print_r('removedidnt work, not in array',true));
 
 	}
-
-
-
-
-
-
-
 
 
 	$response = json_encode( $_POST );
