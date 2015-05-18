@@ -109,12 +109,15 @@ if ( is_user_logged_in() ) {
 												<td>
 													<?php if ( $subscribed ) {
 														?>
-														<p>Yes</p>
-														<input type="button" class="remove_group" value="Leave Group" data-group_id="<?php echo $group->ID; ?>" />
+														<p class="current_status" data-group_id="<?php echo $group->ID; ?>">Yes</p>
+														<input type="button" class="req_leave_group" value="Leave Group" data-group_id="<?php echo $group->ID; ?>" />
+														<p class="confirm_message" data-group_id="<?php echo $group->ID; ?>">You will have to request to be added back into the mailing group, are you sure you want to continue?</p>
+														<input type="button" class="confirm_leave_group" value="Confrim" data-group_id="<?php echo $group->ID; ?>" />
+														<input type="button" class="cancel_leave_group" value="Cancel" data-group_id="<?php echo $group->ID; ?>" />
+
 													<?php
 													} else {
-														if ( array_key_exists( $group->ID, $requested_groups ) ) {
-															?>
+														if ( array_key_exists( $group->ID, $requested_groups ) ) { ?>
 															<p>Pending</p>
 															<input type="button" class="cancel_request" value="Cancel Request" data-group_id="<?php echo $group->ID; ?>" data-request_id="<?php echo $requested_groups[ $group->ID ]['request_id']; ?>" />
 														<?php
@@ -127,9 +130,9 @@ if ( is_user_logged_in() ) {
 												</td>
 												<td>
 													<div class="check_div">
-														<input type="radio" name="email_format_<?php echo $group->ID; ?>" <?php echo( $group_name[ $group->ID ] == '1' ? "checked" : "" ) ?> value="1" />&nbsp;<?php _e( "HTML", 'mailing-group-module' ); ?>
+														<input type="radio" name="email_format_<?php echo $group->ID; ?>" <?php echo( $group_name[ $group->ID ] == '1' ? "checked" : "" ) ?> value="1" /><?php _e( "HTML", 'mailing-group-module' ); ?>
 														<br />
-														<input type="radio" <?php echo( $group_name[ $group->ID ] == '2' ? "checked" : ( count( $group_name ) == '0' ? "checked" : ( ! isset( $group_name[ $group->ID ] ) ? "checked" : "" ) ) ) ?> name="email_format_<?php echo $group->ID; ?>" value="2" />&nbsp;<?php _e( "Plain Text", 'mailing-group-module' ); ?>
+														<input type="radio" <?php echo( $group_name[ $group->ID ] == '2' ? "checked" : ( count( $group_name ) == '0' ? "checked" : ( ! isset( $group_name[ $group->ID ] ) ? "checked" : "" ) ) ) ?> name="email_format_<?php echo $group->ID; ?>" value="2" /><?php _e( "Plain Text", 'mailing-group-module' ); ?>
 													</div>
 												</td>
 											</tr>

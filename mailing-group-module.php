@@ -1184,7 +1184,8 @@ function wpmg_parse_vcards( &$lines ) {
 add_action( 'wp_ajax_wpmg_sendmessage', 'wpmg_sendmessage_callback' );
 add_action( 'wp_ajax_wpmg_checkusername', 'wpmg_checkusername_callback' );
 add_action( 'wp_ajax_wpmg_request_group', 'wpmg_request_group_callback' );
-add_action( 'wp_ajax_wpmg_remove_request', 'wpmg_remove_request_callback' );
+add_action( 'wp_ajax_wpmg_cancel_request', 'wpmg_cancel_request_callback' );
+add_action( 'wp_ajax_wpmg_leave_group', 'wpmg_leave_group_callback' );
 
 
 /* Short codes for ajax requests */
@@ -1278,7 +1279,7 @@ function wpmg_request_group_callback() {
 	wp_die();
 }
 
-function wpmg_remove_request_callback() {
+function wpmg_cancel_request_callback() {
 	// check nonce
 	$nonce = $_POST['nextNonce'];
 
@@ -1310,6 +1311,32 @@ function wpmg_remove_request_callback() {
 	}else{
 		error_log(print_r('does not exist',true));
 	}
+
+	$response = json_encode( $_POST );
+	// response output
+	header( "Content-Type: application/json" );
+	echo $response;
+
+	wp_die();
+}
+
+function wpmg_leave_group_callback() {
+	// check nonce
+	$nonce = $_POST['nextNonce'];
+
+	if ( ! wp_verify_nonce( $nonce, 'myajax-next-nonce' ) ) {
+		die ( 'Busted!' );
+	}
+
+	$user_id         = $_POST['user_id'];
+	$group_id = $_POST['group_id'];
+	$request_id = $_POST['request_id'];
+
+
+
+
+
+
 
 	$response = json_encode( $_POST );
 	// response output
