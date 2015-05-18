@@ -227,28 +227,7 @@ $query         = new WP_Query( $args );
 $result_groups = $query->get_posts();
 $totcount      = count( $result_groups );
 
-if ( $totcount > 0 ) {
-	?>
-	<script type="text/javascript">
-		/* <![CDATA[ */
-		/*jQuery(document).ready(function () {
-		 jQuery('#mailingrequestmanager').dataTable({
-		 "aoColumnDefs"  : [{
-		 "bSortable": false,
-		 "aTargets" : [0, 3, 4]
-		 }],
-		 "fnDrawCallback": function () {
-		 if ('<?php echo $totcount; ?>' <= 5) {
-		 document.getElementById('mailingrequestmanager_paginate').style.display = "none";
-		 } else {
-		 document.getElementById('mailingrequestmanager_paginate').style.display = "block";
-		 }
-		 }
-		 });
-		 });*/
-		/* ]]> */
-	</script>
-<?php } ?>
+?>
 	<div class="wrap">
 		<h2 class="nav-tab-wrapper">
 			<a href="admin.php?page=wpmg_mailinggroup_requestmanagerlist" title="<?php _e( "Subscription Request Manager", 'mailing-group-module' ); ?>" class="nav-tab nav-tab-active"><?php _e( "Subscription Request Manager", 'mailing-group-module' ); ?></a>
@@ -256,7 +235,9 @@ if ( $totcount > 0 ) {
 			<a href="admin.php?page=wpmg_mailinggroup_importuser" class="nav-tab" title="<?php _e( "Import Users", 'mailing-group-module' ); ?>"><?php _e( "Import Users", 'mailing-group-module' ); ?></a>
 		</h2>
 
-		<div style="padding-top:20px; padding-bottom:25px;"><?php _e( "Any new subscriber requests submitted via your website, or via the Add New Subscriber panel, will appear below. You need to use the plugin’s shortcode to display the subscription request form on your website - see the Help tab in the General Settings for more information.", 'mailing-group-module' ); ?></div>
+		<div class="description">
+			<h4><?php _e( "Any new subscriber requests submitted via your website, or via the Add New Subscriber panel, will appear below. You need to use the plugin’s shortcode to display the subscription request form on your website - see the Help tab in the General Settings for more information.", 'mailing-group-module' ); ?></h4>
+		</div>
 		<form name="approvedeleterequest" id="approvedeleterequest" method="post">
 			<div class="tablenav top">
 				<div class="alignleft actions">
@@ -272,72 +253,71 @@ if ( $totcount > 0 ) {
 			<table class="wp-list-table widefat fixed" id="mailingrequestmanager">
 				<thead>
 				<tr role="row" class="topRow">
-
 					<th width="25%" class="sort" style="cursor:pointer;">
-						<a href="#"><?php _e( "User Name", 'mailing-group-module' ); ?></a></th>
+						<a href="#"><?php _e( "User Name", 'mailing-group-module' ); ?></a>
+					</th>
 					<th><?php _e( "Current Groups", 'mailing-group-module' ); ?></th>
 					<th><?php _e( "Requested Groups", 'mailing-group-module' ); ?></th>
 					<th width="10%"><?php _e( "Actions", 'mailing-group-module' ); ?></th>
-
 				</tr>
 				</thead>
 				<tbody>
 				<?php
 				if ($totcount > 0){
 					foreach ( $result_groups as $row ) {
-						$id               = $row->ID;
-						$username         = get_post_meta( $id, 'mg_request_email', true );
-						$message_sent     = get_post_meta( $id, 'mg_request_message_sent', true );
-						$current_groups   = get_post_meta( $id, 'mg_user_group_sub_arr_old', true );
-						$requested_groups = get_post_meta( $id, 'mg_user_group_sub_arr_new', true );
-						$status           = get_post_meta( $id, 'mg_request_status', true );
-						$act              = "hid";
-						$lablestatus      = __( "Visible", 'mailing-group-module' );
-						if ( $status == 0 ) {
-							$act         = "vis";
-							$lablestatus = __( "Hidden", 'mailing-group-module' );
-						}
+						$id        = $row->ID;
+						$user_id   = get_post_meta( $id, 'mg_request_user_id', true );
+						$user_info = get_userdata( $user_id );
+						$username  = $user_info->user_login;
+
+						$current_groups     = get_user_meta( $user_id, 'mg_user_group_subscribed', true );
+						$requested_groups   = get_user_meta( $user_id, 'mg_user_requested_groups', true );
+						$group_requested_id = get_post_meta( $id, 'mg_request_group_id', true );
+
 						?>
 						<tr>
 							<td width="25%"><?php echo $username; ?></td>
 							<td>
 								<?php
 								if ( ! empty( $current_groups ) ) {
-									foreach ( $current_groups as $groups ) {
-										echo get_the_title( $groups ) . "<br>";
+									foreach ( $current_groups as $group => $group_format ) { ?>
+										<p><?php echo get_the_title( $group ) ?></p>
+									<?php
 									}
+								} else {
+									?>
+									<p>No Current Groups</p>
+								<?php
 								}
 								?>
 							</td>
 							<td>
 								<?php
 								if ( ! empty( $requested_groups ) ) {
-									foreach ( $requested_groups as $groups ) {
-										echo get_the_title( $groups ) . "<br>";
-									}
+									?>
+									<p><?php echo get_the_title( $group_requested_id ) ?></p>
+								<?php
+
+								} else { ?>
+									<p>Error in request</p>
+								<?php
 								}
 								?>
 							</td>
 							<td width="25%" class="last">
 								<?php
-/*								if ( count( $requested_groups ) > 0 ) { */?><!--
-
-									<a class="approve_record" title="<?php /*_e( "Approve", 'mailing-group-module' ); */?>" href="admin.php?page=wpmg_mailinggroup_requestmanagerlist&act=app&id=<?php /*echo $id; */?>&gid=<?php /*echo $groups; */?>" onclick="return confirm('<?php /*_e( "Are you sure you want to approve this subscription request?", 'mailing-group-module' ); */?>');"></a>|
-									<a href="admin.php?page=wpmg_mailinggroup_requestmanagerlist&act=del&did=<?php /*echo $id; */?>&gid=<?php /*echo $groups; */?>" onclick="return confirm('<?php /*_e( "Are you sure you want to reject this subscription request?", 'mailing-group-module' ); */?>');" title="<?php /*_e( "Reject", 'mailing-group-module' ); */?>" class="reject_record"></a>
-								--><?php /*} */?>
-
-								<?php
 								if ( ! empty( $requested_groups ) ) {
-									foreach ( $requested_groups as $groups ) {
-										?>
-										<div><a class="approve_record" title="<?php _e( "Approve", 'mailing-group-module' ); ?>" href="admin.php?page=wpmg_mailinggroup_requestmanagerlist&act=app&id=<?php echo $id; ?>&gid=<?php echo $groups; ?>" onclick="return confirm('<?php _e( "Are you sure you want to approve this subscription request?", 'mailing-group-module' ); ?>');"></a>|
-										<a href="admin.php?page=wpmg_mailinggroup_requestmanagerlist&act=del&did=<?php echo $id; ?>&gid=<?php echo $groups; ?>" onclick="return confirm('<?php _e( "Are you sure you want to reject this subscription request?", 'mailing-group-module' ); ?>');" title="<?php _e( "Reject", 'mailing-group-module' ); ?>" class="reject_record"></a></div>
-									<?php
-
-									}
+									?>
+									<div>
+										<a class="approve_record" data-request_id="<?php echo $id; ?>" data-user_id="<?php echo $user_id; ?>"></a>
+										|<a class="reject_record"></a>
+									</div>
+								<?php
+								} else { ?>
+									<p>Error in request</p>
+								<?php
 								}
 								?>
-
 							</td>
 						</tr>
 					<?php }

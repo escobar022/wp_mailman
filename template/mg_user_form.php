@@ -28,8 +28,8 @@ if ( is_user_logged_in() ) {
 	$fname             = $current_user->user_firstname;
 	$lname             = $current_user->user_lastname;
 	$email             = $current_user->user_email;
-	$requested_groups  = get_user_meta( $user_id, 'mg_user_requested_groups', true );
 	$groups_subscribed = get_user_meta( $user_id, 'mg_user_group_subscribed', true );
+	$requested_groups  = get_user_meta( $user_id, 'mg_user_requested_groups', true );
 
 	?>
 

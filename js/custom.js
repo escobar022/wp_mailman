@@ -464,15 +464,35 @@ jQuery(function ($) {
 			}
 		});
 	});
-	/*$('#memberaddedit').dataTable({
-		"aoColumnDefs": [
-			{
-				"bSortable": false,
-				"aTargets" : [0, 1, 2]
-			}
-		],
-		"bPaginate"   : false,
-		"bFilter"     : false
-	});*/
+	
+	
+	//Request Manager
+
+	$(".approve_record").click(function () {
+
+		var request_id = $(this).data("request_id");
+		var user_id = $(this).data("user_id");
+
+		var data = {
+			action      : 'wpmg_approve_group_request',
+			request_id     : request_id,
+			user_id       : user_id,
+			nextNonce   : PT_Ajax.nextNonce
+		};
+
+		$.post(PT_Ajax.ajaxurl, data, function (response) {
+			console.log(response);
+			return true;
+		});
+
+
+
+
+
+	});
+	
+	
+	
+	
 });
 
