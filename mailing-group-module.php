@@ -1332,6 +1332,19 @@ function wpmg_leave_group_callback() {
 	$group_id = $_POST['group_id'];
 	$request_id = $_POST['request_id'];
 
+	$group_name_serial   = get_user_meta( $user_id, "mg_user_group_subscribed", true );
+	$groups_unserialized = unserialize( $group_name_serial );
+
+	if ( count( $groups_unserialized ) > 0 ) {
+		foreach ( $groups_unserialized as $group_id => $email_format ) {
+			$group_name[ $group_id ] = $email_format;
+		}
+	} else{
+
+	}
+
+
+
 
 
 

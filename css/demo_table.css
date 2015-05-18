@@ -1232,6 +1232,7 @@ table.widefat {
 .form-field input[type="button"]  {
 	width:         auto;
 	font-size:     12px;
+	padding: 10px;
 }
 .confirm_message,.confirm_leave_group,.cancel_leave_group{
 	display: none;

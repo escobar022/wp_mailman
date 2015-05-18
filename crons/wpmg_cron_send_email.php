@@ -34,7 +34,6 @@ function wpmg_cron_send_email() {
 
 				if ( is_numeric( $senderUserId ) ) {
 					/* get other users from the sender user group */
-					$membersGroup = $objMem->selectRows( $table_name_user_taxonomy, "", " where group_id = '" . $group_id . "' order by id desc" );
 
                     $args       = array(
                         'meta_query' => array(

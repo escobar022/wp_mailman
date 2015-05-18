@@ -32,7 +32,6 @@ if ( is_user_logged_in() ) {
 
 		$requested_groups = get_user_meta( $recid, "mg_user_requested_groups", true );
 
-
 		/*foreach ( $requested_groups as $request_id => $request_info ) {
 			$request_ids[] = $request_id;
 			$groups_requested[] = $request_info['group_id'];
