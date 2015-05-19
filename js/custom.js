@@ -468,7 +468,7 @@ jQuery(function ($) {
 	
 	//Request Manager
 
-	$(".approve_record").click(function () {
+	$(".approve_request").click(function () {
 
 		var request_id = $(this).data("request_id");
 		var user_id = $(this).data("user_id");
@@ -480,17 +480,31 @@ jQuery(function ($) {
 			nextNonce   : PT_Ajax.nextNonce
 		};
 
-		$.post(PT_Ajax.ajaxurl, data, function (response) {
-			console.log(response);
+		$.post(PT_Ajax.ajaxurl, data, function () {
+            location.reload();
 			return true;
 		});
 
+	});
+	$(".deny_request").click(function () {
 
+		var request_id = $(this).data("request_id");
+		var user_id = $(this).data("user_id");
 
+		var data = {
+			action      : 'wpmg_deny_group_request',
+			request_id     : request_id,
+			user_id       : user_id,
+			nextNonce   : PT_Ajax.nextNonce
+		};
 
+		$.post(PT_Ajax.ajaxurl, data, function () {
+            location.reload();
+			return true;
+		});
 
 	});
-	
+
 	
 	
 	

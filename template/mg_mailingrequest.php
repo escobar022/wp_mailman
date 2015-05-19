@@ -273,6 +273,7 @@ $totcount      = count( $result_groups );
 						$current_groups     = get_user_meta( $user_id, 'mg_user_group_subscribed', true );
 						$requested_groups   = get_user_meta( $user_id, 'mg_user_requested_groups', true );
 						$group_requested_id = get_post_meta( $id, 'mg_request_group_id', true );
+                        $denied_request = get_post_meta( $id, 'mg_requested_denied', true );
 
 						?>
 						<tr>
@@ -305,18 +306,21 @@ $totcount      = count( $result_groups );
 								?>
 							</td>
 							<td width="25%" class="last">
+
+
 								<?php
-								if ( ! empty( $requested_groups ) ) {
+
+                                if ( ! empty( $requested_groups ) /*&& empty($denied_request) */) {
 									?>
 									<div>
-										<a class="approve_record" data-request_id="<?php echo $id; ?>" data-user_id="<?php echo $user_id; ?>"></a>
-										|<a class="reject_record"></a>
+                                        <input type="button" class="approve_request" data-request_id="<?php echo $id; ?>" data-user_id="<?php echo $user_id; ?>"  value="Approve"/>
+                                        <input type="button" class="deny_request" data-request_id="<?php echo $id; ?>" data-user_id="<?php echo $user_id; ?>"  value="Deny"/>
 									</div>
 								<?php
-								} else { ?>
-									<p>Error in request</p>
-								<?php
-								}
+								} else {
+                                    ?>
+                                    <p>Request is denied.</p>
+                                <?php }
 								?>
 							</td>
 						</tr>

@@ -18,8 +18,8 @@ jQuery(function ($) {
 			nextNonce   : PT_Ajax.nextNonce
 		};
 
-		$.post(PT_Ajax.ajaxurl, data, function (response) {
-			console.log(response);
+		$.post(PT_Ajax.ajaxurl, data, function () {
+            location.reload();
 			return true;
 		});
 	});
@@ -40,16 +40,10 @@ jQuery(function ($) {
 			nextNonce : PT_Ajax.nextNonce
 		};
 
-		$.post(PT_Ajax.ajaxurl, data, function (response) {
-			console.log(response);
+		$.post(PT_Ajax.ajaxurl, data, function () {
+            location.reload();
 			return true;
 		});
-	});
-
-	$(".remove_group").click(function () {
-		var group_id = $(this).data("role");
-		console.log('hehe' + group_id);
-
 	});
 
 	$(".req_leave_group").click(function () {
@@ -80,8 +74,8 @@ jQuery(function ($) {
 				nextNonce : PT_Ajax.nextNonce
 			};
 
-			$.post(PT_Ajax.ajaxurl, data, function (response) {
-				console.log(response);
+			$.post(PT_Ajax.ajaxurl, data, function () {
+                location.reload();
 				return true;
 			});
 		});

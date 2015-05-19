@@ -1196,6 +1196,7 @@ add_action( 'wp_ajax_wpmg_leave_group', 'wpmg_leave_group_callback' );
 
 //Request Manager
 add_action( 'wp_ajax_wpmg_approve_group_request', 'wpmg_approve_group_request_callback' );
+add_action( 'wp_ajax_wpmg_deny_group_request', 'wpmg_deny_group_request_callback' );
 
 /* Short codes for ajax requests */
 /* callback function for above ajax requests */
@@ -1259,7 +1260,9 @@ function wpmg_request_group_callback() {
 	/*$wp_sent = wp_mail( 'aescobar@isda.org', 'New Subscribtion Request', 'A user has requested to update their subscription' );
 
 	if ( $wp_sent ) {
-		wpmg_showmessages( "error", __( "Your request is being processed", 'mailing-group-module' ) );
+		wpmg_showmessages(
+"error", __( "Your request is being processed", 'mail
+ing-group-module' ) );
 		exit;
 	} else {
 		wpmg_showmessages( "error", __( "Your request is being processed, please confirm with the admin as the email of the request was unable to send", 'mailing-group-module' ) );
@@ -1335,20 +1338,15 @@ function wpmg_leave_group_callback() {
 
 	if ( array_key_exists( $group_id, $groups_subscribed ) ) {
 
-		error_log( print_r( $groups_subscribed, true ) );
-
-
 		unset( $groups_subscribed[ $group_id ] );
 
 		$new_subscribtions = $groups_subscribed;
 
-//		update_user_meta( $user_id, 'mg_user_requested_groups', $new_subscribtions,$groups_subscribed);
+		update_user_meta( $user_id, 'mg_user_group_subscribed', $new_subscribtions,$groups_subscribed);
 
-
-		error_log( print_r( $new_subscribtions, true ) );
 
 	} else {
-		error_log( print_r( 'removedidnt work, not in array', true ) );
+		error_log( print_r( 'Remove did not work, not in array', true ) );
 
 	}
 
@@ -1391,11 +1389,66 @@ function wpmg_approve_group_request_callback() {
 
 		wp_delete_post( $request_id, true );
 
+	} else {
+		error_log( 'Group already subscrbed' );
+	}
+
+
+	$response = json_encode( $_POST );
+	// response output
+	header( "Content-Type: application/json" );
+	echo $response;
+
+	wp_die();
+}
+function wpmg_deny_group_request_callback() {
+	// check nonce
+	$nonce = $_POST['nextNonce'];
+
+	if ( ! wp_verify_nonce( $nonce, 'myajax-next-nonce' ) ) {
+		die ( 'Busted!' );
+	}
+
+	$request_id = $_POST['request_id'];
+	$user_id    = $_POST['user_id'];
+
+	$groups_subscribed    = get_user_meta( $user_id, 'mg_user_group_subscribed', true );
+	$groups_requested_arr = get_user_meta( $user_id, 'mg_user_requested_groups', true );
+	$group_requested_id      = get_post_meta( $request_id, 'mg_request_group_id', true );
+    $denied_requests = get_user_meta( $user_id, 'mg_user_group_subscribed', true );
+
+	if ( ! array_key_exists( $group_requested_id, $groups_subscribed ) ) {
+
+		$updated_requested_groups = $groups_requested_arr;
+		unset( $updated_requested_groups[ $group_requested_id ] );
+
+//		update_user_meta( $user_id, 'mg_user_requested_groups', $updated_requested_groups,$groups_requested_arr);
+
+//        update_post_meta($request_id,'mg_requested_denied','denied');
+
+//		wp_delete_post( $request_id, true );
 
 	} else {
 		error_log( 'Group already subscrbed' );
-
 	}
+
+
+        if(empty($denied_requests)){
+            $denied_requests = array();
+            $denied_requests[] = $group_requested_id;
+//            update_user_meta( $user_id, 'mg_user_denied_request', $denied_requests );
+            error_log(print_r($denied_requests,true));
+
+        }else{
+            $updated_denied_request = $denied_requests;
+            $updated_denied_request[] = $group_requested_id;
+//            update_user_meta( $user_id, 'mg_user_denied_request', $updated_denied_request );
+            error_log(print_r($updated_denied_request,true));
+        }
+
+
+
+
 
 
 	$response = json_encode( $_POST );

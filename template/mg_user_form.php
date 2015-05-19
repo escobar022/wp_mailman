@@ -29,7 +29,15 @@ if ( is_user_logged_in() ) {
 	$lname             = $current_user->user_lastname;
 	$email             = $current_user->user_email;
 	$groups_subscribed = get_user_meta( $user_id, 'mg_user_group_subscribed', true );
+    if(empty($groups_subscribed)){
+        $groups_subscribed = array();
+    }
+
 	$requested_groups  = get_user_meta( $user_id, 'mg_user_requested_groups', true );
+
+    $denied_requests  = get_user_meta( $user_id, 'mg_user_denied_request', true );
+
+
 
 	?>
 
@@ -89,9 +97,11 @@ if ( is_user_logged_in() ) {
 
 													<?php
 													} else {
-														if ( array_key_exists( $group->ID, $requested_groups ) ) { ?>
+														if ( array_key_exists( $group->ID, $requested_groups ) ) {
+                                                            $request_id=$requested_groups[ $group->ID ]['request_id'];
+                                                            ?>
 															<p>Pending</p>
-															<input type="button" class="cancel_request" value="Cancel Request" data-group_id="<?php echo $group->ID; ?>" data-request_id="<?php echo $requested_groups[ $group->ID ]['request_id']; ?>" />
+															<input type="button" class="cancel_request" value="Cancel Request" data-group_id="<?php echo $group->ID; ?>" data-request_id="<?php echo $request_id; ?>" />
 														<?php
 														} else { ?>
 															<p>No</p>
