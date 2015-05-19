@@ -33,6 +33,26 @@ $hidval     = 1;
 if ( $group_name == "" ) {
 	$group_name = array();
 }
+
+$args = array(
+	'post_type'   => 'mg_groups',
+	'post_status' => 'publish',
+	'order_by'    => 'title',
+	'order'       => 'DESC',
+	'meta_query'  => array(
+		'relation' => 'AND',
+		array(
+			'key'   => 'mg_group_status',
+			'value' => '2'
+		)
+	)
+);
+
+$query         = new WP_Query( $args );
+$result_groups = $query->get_posts();
+
+
+
 ?>
 <style>
 	.dataTables_info {
@@ -96,7 +116,7 @@ if ( $group_name == "" ) {
 									<?php foreach ( $result_groups as $group ) { ?>
 										<tr>
 											<td>
-												<input type="checkbox" name="group_name[]" id="selector" value="<?php echo $group->id; ?>" <?php echo( in_array( $group->id, $group_name ) ? "checked" : ( $gid == $group->id ? "checked" : "" ) ) ?> />&nbsp;<?php echo $group->title; ?>
+												<input type="checkbox" name="group_name[]" id="selector" value="<?php echo $group->ID; ?>" <?php echo( in_array( $group->id, $group_name ) ? "checked" : ( $gid == $group->id ? "checked" : "" ) ) ?> />&nbsp;<?php echo $group->post_title; ?>
 											</td>
 											<td>
 												<div class="check_div">
