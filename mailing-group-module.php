@@ -1189,16 +1189,6 @@ function wpmg_parse_vcards( &$lines ) {
 add_action( 'wp_ajax_wpmg_sendmessage', 'wpmg_sendmessage_callback' );
 add_action( 'wp_ajax_wpmg_checkusername', 'wpmg_checkusername_callback' );
 
-//User requests fro groups
-add_action( 'wp_ajax_wpmg_request_group', 'wpmg_request_group_callback' );
-add_action( 'wp_ajax_wpmg_cancel_request', 'wpmg_cancel_request_callback' );
-add_action( 'wp_ajax_wpmg_leave_group', 'wpmg_leave_group_callback' );
-add_action( 'wp_ajax_wpmg_update_group_format', 'wpmg_update_group_format_callback' );
-
-//Request Manager
-add_action( 'wp_ajax_wpmg_approve_group_request', 'wpmg_approve_group_request_callback' );
-add_action( 'wp_ajax_wpmg_deny_group_request', 'wpmg_deny_group_request_callback' );
-
 /* Short codes for ajax requests */
 /* callback function for above ajax requests */
 function wpmg_sendmessage_callback() {
@@ -1221,6 +1211,11 @@ function wpmg_checkusername_callback() {
 	wp_die();
 }
 
+//User requests fro groups
+add_action( 'wp_ajax_wpmg_request_group', 'wpmg_request_group_callback' );
+add_action( 'wp_ajax_wpmg_cancel_request', 'wpmg_cancel_request_callback' );
+add_action( 'wp_ajax_wpmg_leave_group', 'wpmg_leave_group_callback' );
+add_action( 'wp_ajax_wpmg_update_group_format', 'wpmg_update_group_format_callback' );
 function wpmg_request_group_callback() {
 	// check nonce
 	$nonce = $_POST['nextNonce'];
@@ -1395,6 +1390,9 @@ function wpmg_update_group_format_callback() {
 	wp_die();
 }
 
+//Request Manager
+add_action( 'wp_ajax_wpmg_approve_group_request', 'wpmg_approve_group_request_callback' );
+add_action( 'wp_ajax_wpmg_deny_group_request', 'wpmg_deny_group_request_callback' );
 
 function wpmg_approve_group_request_callback() {
 	// check nonce
