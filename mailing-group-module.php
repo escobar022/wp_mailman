@@ -1193,6 +1193,7 @@ add_action( 'wp_ajax_wpmg_checkusername', 'wpmg_checkusername_callback' );
 add_action( 'wp_ajax_wpmg_request_group', 'wpmg_request_group_callback' );
 add_action( 'wp_ajax_wpmg_cancel_request', 'wpmg_cancel_request_callback' );
 add_action( 'wp_ajax_wpmg_leave_group', 'wpmg_leave_group_callback' );
+add_action( 'wp_ajax_wpmg_update_group_format', 'wpmg_update_group_format_callback' );
 
 //Request Manager
 add_action( 'wp_ajax_wpmg_approve_group_request', 'wpmg_approve_group_request_callback' );
@@ -1268,12 +1269,6 @@ ing-group-module' ) );
 		wpmg_showmessages( "error", __( "Your request is being processed, please confirm with the admin as the email of the request was unable to send", 'mailing-group-module' ) );
 	}*/
 
-
-	/*	if ( $pid ) {
-			$response = $pid;
-		} else {
-			$response = json_encode( $_POST );
-		}*/
 	$response = json_encode( $_POST );
 	// response output
 	header( "Content-Type: application/json" );
@@ -1337,16 +1332,57 @@ function wpmg_leave_group_callback() {
 	$groups_subscribed = get_user_meta( $user_id, 'mg_user_group_subscribed', true );
 
 	if ( array_key_exists( $group_id, $groups_subscribed ) ) {
-
 		unset( $groups_subscribed[ $group_id ] );
-
 		$new_subscribtions = $groups_subscribed;
 
-		update_user_meta( $user_id, 'mg_user_group_subscribed', $new_subscribtions,$groups_subscribed);
-
+		update_user_meta( $user_id, 'mg_user_group_subscribed', $new_subscribtions );
 
 	} else {
 		error_log( print_r( 'Remove did not work, not in array', true ) );
+
+	}
+
+	$response = json_encode( $_POST );
+	// response output
+	header( "Content-Type: application/json" );
+	echo $response;
+
+	wp_die();
+}
+
+function wpmg_update_group_format_callback() {
+	// check nonce
+	$nonce = $_POST['nextNonce'];
+
+	if ( ! wp_verify_nonce( $nonce, 'myajax-next-nonce' ) ) {
+		die ( 'Busted!' );
+	}
+
+	$user_id          = $_POST['user_id'];
+	$group_id         = $_POST['group_id'];
+	$new_group_format = $_POST['new_group_format'];
+	$request_id       = $_POST['request_id'];
+
+	if ( empty( $request_id ) ) {
+		$groups_subscribed = get_user_meta( $user_id, 'mg_user_group_subscribed', true );
+		$group_changed     = array( $group_id => $new_group_format );
+		$updated_groups    = array_replace( $groups_subscribed, $group_changed );
+		update_user_meta( $user_id, 'mg_user_group_subscribed', $updated_groups, $groups_subscribed );
+	} else {
+
+
+		$groups_requested = get_user_meta( $user_id, 'mg_user_requested_groups', true );
+
+		$group_sub_changed = array(
+			$group_id => array(
+				'group_format' => $new_group_format,
+				'request_id'   => $request_id
+			)
+		);
+
+		$updated_req_groups = array_replace( $groups_requested, $group_sub_changed );
+
+		update_user_meta( $user_id, 'mg_user_requested_groups', $updated_req_groups, $groups_requested );
 
 	}
 
@@ -1373,19 +1409,23 @@ function wpmg_approve_group_request_callback() {
 
 	$groups_subscribed    = get_user_meta( $user_id, 'mg_user_group_subscribed', true );
 	$groups_requested_arr = get_user_meta( $user_id, 'mg_user_requested_groups', true );
-	$group_requested_id      = get_post_meta( $request_id, 'mg_request_group_id', true );
+	$group_requested_id   = get_post_meta( $request_id, 'mg_request_group_id', true );
+
+	if ( empty( $groups_subscribed ) ) {
+		$groups_subscribed = array();
+	}
 
 	if ( ! array_key_exists( $group_requested_id, $groups_subscribed ) ) {
 
-		$new_groups_subscribed                     = $groups_subscribed;
+		$new_groups_subscribed                        = $groups_subscribed;
 		$new_groups_subscribed[ $group_requested_id ] = $groups_requested_arr[ $group_requested_id ]['group_format'];
 
-		update_user_meta( $user_id, 'mg_user_group_subscribed', $new_groups_subscribed,$groups_subscribed);
+		update_user_meta( $user_id, 'mg_user_group_subscribed', $new_groups_subscribed, $groups_subscribed );
 
 		$updated_requested_groups = $groups_requested_arr;
 		unset( $updated_requested_groups[ $group_requested_id ] );
 
-		update_user_meta( $user_id, 'mg_user_requested_groups', $updated_requested_groups,$groups_requested_arr);
+		update_user_meta( $user_id, 'mg_user_requested_groups', $updated_requested_groups, $groups_requested_arr );
 
 		wp_delete_post( $request_id, true );
 
@@ -1401,6 +1441,7 @@ function wpmg_approve_group_request_callback() {
 
 	wp_die();
 }
+
 function wpmg_deny_group_request_callback() {
 	// check nonce
 	$nonce = $_POST['nextNonce'];
@@ -1409,46 +1450,39 @@ function wpmg_deny_group_request_callback() {
 		die ( 'Busted!' );
 	}
 
-	$request_id = $_POST['request_id'];
-	$user_id    = $_POST['user_id'];
-
+	$request_id           = $_POST['request_id'];
+	$user_id              = $_POST['user_id'];
 	$groups_subscribed    = get_user_meta( $user_id, 'mg_user_group_subscribed', true );
 	$groups_requested_arr = get_user_meta( $user_id, 'mg_user_requested_groups', true );
-	$group_requested_id      = get_post_meta( $request_id, 'mg_request_group_id', true );
-    $denied_requests = get_user_meta( $user_id, 'mg_user_group_subscribed', true );
+	$group_requested_id   = get_post_meta( $request_id, 'mg_request_group_id', true );
+//	$denied_requests      = get_user_meta( $user_id, 'mg_user_group_subscribed', true );
 
 	if ( ! array_key_exists( $group_requested_id, $groups_subscribed ) ) {
 
 		$updated_requested_groups = $groups_requested_arr;
 		unset( $updated_requested_groups[ $group_requested_id ] );
 
-//		update_user_meta( $user_id, 'mg_user_requested_groups', $updated_requested_groups,$groups_requested_arr);
-
+		update_user_meta( $user_id, 'mg_user_requested_groups', $updated_requested_groups, $groups_requested_arr );
+		wp_delete_post( $request_id, true );
 //        update_post_meta($request_id,'mg_requested_denied','denied');
-
-//		wp_delete_post( $request_id, true );
 
 	} else {
 		error_log( 'Group already subscrbed' );
 	}
 
 
-        if(empty($denied_requests)){
-            $denied_requests = array();
-            $denied_requests[] = $group_requested_id;
-//            update_user_meta( $user_id, 'mg_user_denied_request', $denied_requests );
-            error_log(print_r($denied_requests,true));
+	/*	if ( empty( $denied_requests ) ) {
+			$denied_requests   = array();
+			$denied_requests[] = $group_requested_id;
+			update_user_meta( $user_id, 'mg_user_denied_request', $denied_requests );
+			error_log( print_r( $denied_requests, true ) );
 
-        }else{
-            $updated_denied_request = $denied_requests;
-            $updated_denied_request[] = $group_requested_id;
-//            update_user_meta( $user_id, 'mg_user_denied_request', $updated_denied_request );
-            error_log(print_r($updated_denied_request,true));
-        }
-
-
-
-
+		} else {
+			$updated_denied_request   = $denied_requests;
+			$updated_denied_request[] = $group_requested_id;
+			update_user_meta( $user_id, 'mg_user_denied_request', $updated_denied_request );
+			error_log( print_r( $updated_denied_request, true ) );
+		}*/
 
 
 	$response = json_encode( $_POST );

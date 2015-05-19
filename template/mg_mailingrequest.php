@@ -273,7 +273,7 @@ $totcount      = count( $result_groups );
 						$current_groups     = get_user_meta( $user_id, 'mg_user_group_subscribed', true );
 						$requested_groups   = get_user_meta( $user_id, 'mg_user_requested_groups', true );
 						$group_requested_id = get_post_meta( $id, 'mg_request_group_id', true );
-                        $denied_request = get_post_meta( $id, 'mg_requested_denied', true );
+//						$denied_request     = get_post_meta( $id, 'mg_requested_denied', true );
 
 						?>
 						<tr>
@@ -298,7 +298,6 @@ $totcount      = count( $result_groups );
 									?>
 									<p><?php echo get_the_title( $group_requested_id ) ?></p>
 								<?php
-
 								} else { ?>
 									<p>Error in request</p>
 								<?php
@@ -306,21 +305,18 @@ $totcount      = count( $result_groups );
 								?>
 							</td>
 							<td width="25%" class="last">
-
-
 								<?php
-
-                                if ( ! empty( $requested_groups ) /*&& empty($denied_request) */) {
+								if ( ! empty( $requested_groups ) /*&& empty($denied_request) */ ) {
 									?>
 									<div>
-                                        <input type="button" class="approve_request" data-request_id="<?php echo $id; ?>" data-user_id="<?php echo $user_id; ?>"  value="Approve"/>
-                                        <input type="button" class="deny_request" data-request_id="<?php echo $id; ?>" data-user_id="<?php echo $user_id; ?>"  value="Deny"/>
+										<input type="button" class="approve_request" data-request_id="<?php echo $id; ?>" data-user_id="<?php echo $user_id; ?>" value="Approve" />
+										<input type="button" class="deny_request" data-request_id="<?php echo $id; ?>" data-user_id="<?php echo $user_id; ?>" value="Deny" />
 									</div>
 								<?php
 								} else {
-                                    ?>
-                                    <p>Request is denied.</p>
-                                <?php }
+									?>
+									<p>Request is already </p>
+								<?php }
 								?>
 							</td>
 						</tr>

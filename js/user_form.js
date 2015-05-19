@@ -19,7 +19,7 @@ jQuery(function ($) {
 		};
 
 		$.post(PT_Ajax.ajaxurl, data, function () {
-            location.reload();
+			location.reload();
 			return true;
 		});
 	});
@@ -41,7 +41,7 @@ jQuery(function ($) {
 		};
 
 		$.post(PT_Ajax.ajaxurl, data, function () {
-            location.reload();
+			location.reload();
 			return true;
 		});
 	});
@@ -67,15 +67,15 @@ jQuery(function ($) {
 			var group_id = $(this).data("group_id");
 
 			var data = {
-				action    : 'wpmg_leave_group',
-				user_id   : user_id,
-				email     : email,
-				group_id  : group_id,
-				nextNonce : PT_Ajax.nextNonce
+				action   : 'wpmg_leave_group',
+				user_id  : user_id,
+				email    : email,
+				group_id : group_id,
+				nextNonce: PT_Ajax.nextNonce
 			};
 
 			$.post(PT_Ajax.ajaxurl, data, function () {
-                location.reload();
+				location.reload();
 				return true;
 			});
 		});
@@ -89,5 +89,41 @@ jQuery(function ($) {
 		});
 
 	});
+
+	$('.email_format').change(function () {
+
+		var group_id = $(this).data("group_id");
+		var upd_button = $(".update_group_format[data-group_id=" + group_id + "]");
+		var current_format = $(".current_format[data-group_id=" + group_id + "]").val();
+		var new_group_format = $('input[name=email_format_' + group_id + ']:checked').val();
+
+		var user_id = $("#user_id").val();
+
+
+		if (current_format != new_group_format) {
+			$(upd_button).toggle(true);
+
+			$(".update_group_format").click(function () {
+				var request_id = $(this).data("request_id");
+
+				var data = {
+					action          : 'wpmg_update_group_format',
+					user_id         : user_id,
+					group_id        : group_id,
+					new_group_format: new_group_format,
+					request_id      : request_id,
+					nextNonce       : PT_Ajax.nextNonce
+				};
+
+				$.post(PT_Ajax.ajaxurl, data, function () {
+					location.reload();
+					return true;
+				});
+			});
+		} else {
+			$(upd_button).toggle(false);
+		}
+	});
+
 
 });

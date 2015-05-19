@@ -676,11 +676,7 @@ table.widefat {
 }
 
 .form-field input, .form-field textarea {
-	border-style:  solid;
-	border-width:  1px;
-	float:         left;
 	margin-bottom: 14px;
-	width:         50%;
 	text-align:    left;
 }
 
@@ -1234,7 +1230,11 @@ table.widefat {
 	font-size:     12px;
 	padding: 10px;
 }
-.confirm_message,.confirm_leave_group,.cancel_leave_group{
+.confirm_message,.confirm_leave_group,.cancel_leave_group,.update_group_format{
 	display: none;
+}
+
+#memberaddedit td{
+	vertical-align: top;
 }
 
