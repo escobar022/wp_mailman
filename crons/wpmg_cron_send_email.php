@@ -58,14 +58,9 @@ function wpmg_cron_send_email() {
 							$useinSubject          = get_post_meta( $group_id, 'mg_group_use_in_subject', true );
 							$mail_type             = get_post_meta( $group_id, 'mg_group_mail_type', true );
                             $sendtouserId          = $memberstoSent->ID;
-                            $group_name_serial   = get_user_meta( $sendtouserId, "mg_user_group_subscribed", true );
-                            $groups_unserialized = unserialize( $group_name_serial );
+                            $user_group_subscriptions   = get_user_meta( $sendtouserId, "mg_user_group_subscribed", true );
 
-                            foreach ( $groups_unserialized as $group_id_user => $email_format ) {
-                                if ( $group_id_user == $group_id ) {
-                                    $sendtouserEmailFormat = $email_format;
-                                }
-                            }
+							$sendtouserEmailFormat = $user_group_subscriptions[$group_id];
 
 							$Ustatus     = get_user_meta( $sendtouserId, "mg_user_status", true );
                             $Userrow = get_user_by( "id", $sendtouserId );

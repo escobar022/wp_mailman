@@ -1242,6 +1242,7 @@ function wpmg_request_group_callback() {
 
 	add_post_meta( $request_id, 'mg_request_user_id', $user_id, true );
 	add_post_meta( $request_id, 'mg_request_group_id', $group_id, true );
+	update_user_meta( $user_id, 'mg_user_status', 1 );
 
 	/*$wp_sent = wp_mail( 'aescobar@isda.org', 'New Subscribtion Request', 'A user has requested to update their subscription' );
 
@@ -1315,12 +1316,21 @@ function wpmg_leave_group_callback() {
 	$group_id = $_POST['group_id'];
 
 	$groups_subscribed = get_user_meta( $user_id, 'mg_user_group_subscribed', true );
+	$groups_array = array();
+
 
 	if ( array_key_exists( $group_id, $groups_subscribed ) ) {
+
 		unset( $groups_subscribed[ $group_id ] );
 		$new_subscribtions = $groups_subscribed;
 
+		foreach($new_subscribtions as $group =>$format){
+			$groups_array[] = (string)$group;
+		}
+
 		update_user_meta( $user_id, 'mg_user_group_subscribed', $new_subscribtions );
+		update_user_meta( $user_id, 'mg_user_group_sub_arr', $groups_array );
+
 
 	} else {
 		error_log( print_r( 'Remove did not work, not in array', true ) );
@@ -1398,6 +1408,7 @@ function wpmg_approve_group_request_callback() {
 	$groups_subscribed    = get_user_meta( $user_id, 'mg_user_group_subscribed', true );
 	$groups_requested_arr = get_user_meta( $user_id, 'mg_user_requested_groups', true );
 	$group_requested_id   = get_post_meta( $request_id, 'mg_request_group_id', true );
+	$groups_array = array();
 
 	if ( empty( $groups_subscribed ) ) {
 		$groups_subscribed = array();
@@ -1408,7 +1419,13 @@ function wpmg_approve_group_request_callback() {
 		$new_groups_subscribed                        = $groups_subscribed;
 		$new_groups_subscribed[ $group_requested_id ] = $groups_requested_arr[ $group_requested_id ]['group_format'];
 
+		$groups_subscribed_arr = $new_groups_subscribed;
+		foreach($groups_subscribed_arr as $group =>$format){
+			$groups_array[] = (string)$group;
+		}
+
 		update_user_meta( $user_id, 'mg_user_group_subscribed', $new_groups_subscribed, $groups_subscribed );
+		update_user_meta( $user_id, 'mg_user_group_sub_arr', $groups_array );
 
 		$updated_requested_groups = $groups_requested_arr;
 		unset( $updated_requested_groups[ $group_requested_id ] );
