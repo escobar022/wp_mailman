@@ -9,7 +9,7 @@ $result_groups = $query->get_posts();
 $totcount      = count( $result_groups );
 
 ?>
-	<div class="wrap">
+<div class="wrap">
 		<h2 class="nav-tab-wrapper">
 			<a href="admin.php?page=wpmg_mailinggroup_requestmanagerlist" title="<?php _e( "Subscription Request Manager", 'mailing-group-module' ); ?>" class="nav-tab nav-tab-active"><?php _e( "Subscription Request Manager", 'mailing-group-module' ); ?></a>
 			<a href="admin.php?page=wpmg_mailinggroup_requestmanageradd&act=add" class="nav-tab" title="<?php _e( "Add New Subscriber", 'mailing-group-module' ); ?>"><?php _e( "Add New Subscriber", 'mailing-group-module' ); ?></a>
@@ -24,9 +24,7 @@ $totcount      = count( $result_groups );
 			<table class="wp-list-table widefat fixed" id="mailingrequestmanager">
 				<thead>
 				<tr role="row" class="topRow">
-					<th width="25%" class="sort" style="cursor:pointer;">
-						<a href="#"><?php _e( "User Name", 'mailing-group-module' ); ?></a>
-					</th>
+					<th><?php _e( "User Name", 'mailing-group-module' ); ?></th>
 					<th><?php _e( "Current Groups", 'mailing-group-module' ); ?></th>
 					<th><?php _e( "Requested Groups", 'mailing-group-module' ); ?></th>
 					<th width="10%"><?php _e( "Actions", 'mailing-group-module' ); ?></th>
@@ -48,7 +46,7 @@ $totcount      = count( $result_groups );
 
 						?>
 						<tr>
-							<td width="25%"><?php echo $username; ?></td>
+							<td ><?php echo $username; ?></td>
 							<td>
 								<?php
 								if ( ! empty( $current_groups ) ) {
@@ -81,12 +79,13 @@ $totcount      = count( $result_groups );
 									?>
 									<div>
 										<input type="button" class="approve_request" data-request_id="<?php echo $id; ?>" data-user_id="<?php echo $user_id; ?>" value="Approve" />
-										<input type="button" class="deny_request" data-request_id="<?php echo $id; ?>" data-user_id="<?php echo $user_id; ?>" value="Deny" />
+                                        <input type="button" class="deny_request" data-request_id="<?php echo $id; ?>" data-user_id="<?php echo $user_id; ?>" value="Deny" />
+                                        <a href="admin.php?page=wpmg_mailinggroup_sendmessage&act=upd&id=<?php echo $id;?>&gid=<?php echo $groups->group_id;?>&TB_iframe=true&width=550&height=530" title="<?php _e("Send Message", 'mailing-group-module'); ?>" class="send_mail thickbox"></a>
 									</div>
 								<?php
 								} else {
 									?>
-									<p>Request is already </p>
+									<p>Request Has been Denied</p>
 								<?php }
 								?>
 							</td>
@@ -101,3 +100,5 @@ $totcount      = count( $result_groups );
 			</table>
 		</form>
 	</div>
+
+<?php add_thickbox(); ?>

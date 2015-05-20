@@ -21,10 +21,13 @@ $bouncecheckalertemail = $WPMG_SETTINGS["MG_BOUNCE_CHECK_ALERT_EMAIL"];
 $websiteurl            = $WPMG_SETTINGS["MG_WEBSITE_URL"];
 ?>
 <style>
+
 .form-table th, .form-wrap label {
 	width:200px !important;
 }
+
 </style>
+
 <div class="wrap">
 	<h2 class="nav-tab-wrapper">
         <a href="admin.php?page=wpmg_mailinggroup_intro" title="<?php _e("Introduction", 'mailing-group-module'); ?>" class="nav-tab nav-tab-active"><?php _e("Introduction", 'mailing-group-module'); ?></a>

@@ -24,8 +24,8 @@ if ( ! class_exists( 'E_Clean_Exit' ) ) {
 define( "WPMG_PLUGIN_URL", plugin_dir_url( __FILE__ ) );
 define( "WPMG_PRODUCT_ITEM_NAME", "WP MailingGroup Premium" );
 define( "WPMG_STORE_URL", "http://www.wordpressmailinggroup.com" );
-/* Class to be used in complete plugin for all db requests */
 
+/* Class to be used in complete plugin for all db requests */
 require_once( "lib/mailinggroupclass.php" );
 $objMem = new mailinggroupClass();
 global $objMem;
@@ -618,6 +618,7 @@ function do_output_buffer() {
 function wpmg_add_mailing_group_plugin() {
 
 	global $wpdb, $table_name_group, $table_name_message, $table_name_requestmanager, $table_name_requestmanager_taxonomy, $table_name_user_taxonomy, $table_name_parsed_emails, $table_name_emails_attachments, $table_name_sent_emails, $table_name_users, $table_name_usermeta;
+
 	/* ADD CONFIG OPTION TO OPTION TABLE*/
 
 	if ( ! wp_next_scheduled( 'wpmg_cron_task_send_email' ) ) {
@@ -724,21 +725,9 @@ function wpmg_add_mailing_group_plugin() {
 
 			) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;";
 		$sql2     = "INSERT INTO `$table_name_message` (id,title,description,status) VALUES ('','Credentials Check','Hello {%name%},
-
-
-
 Thank you for your subscription request to {%group_name%} at {%site_title%} ({%site_url%}).
-
-
-
 Could you please send supporting documents to confirm your credentials for joining this list?
-
-
-
 Thank you in advance.
-
-
-
 The List Admin.
 
 {%site_email%}','1')";
@@ -920,9 +909,9 @@ function wpmg_mailinggroup_Menu() {
 
 		add_submenu_page( 'null', __( 'Member Manager', 'mailing-group-module' ), __( 'Member Manager', 'mailing-group-module' ), $admin_level, 'wpmg_mailinggroup_memberlist', 'wpmg_mailinggroup_memberlist' );
 		add_submenu_page( 'null', __( 'Add Member', 'mailing-group-module' ), __( 'Add Member', 'mailing-group-module' ), $admin_level, 'wpmg_mailinggroup_memberadd', 'wpmg_mailinggroup_memberadd' );
+        add_submenu_page( 'wpmg_mailinggroup_intro', __( 'Subscription Requests', 'mailing-group-module' ), __( 'Subscription Requests', 'mailing-group-module' ), $admin_level, 'wpmg_mailinggroup_requestmanagerlist', 'wpmg_mailinggroup_requestmanagerlist' );
 		add_submenu_page( 'wpmg_mailinggroup_intro', __( 'Add Subscribers', 'mailing-group-module' ), __( 'Add Subscribers', 'mailing-group-module' ), $admin_level, 'wpmg_mailinggroup_requestmanageradd', 'wpmg_mailinggroup_requestmanageradd' );
 		add_submenu_page( 'wpmg_mailinggroup_intro', __( 'Import Users', 'mailing-group-module' ), __( 'Import Users', 'mailing-group-module' ), $admin_level, 'wpmg_mailinggroup_importuser', 'wpmg_mailinggroup_importuser' );
-		add_submenu_page( 'wpmg_mailinggroup_intro', __( 'Subscription Requests', 'mailing-group-module' ), __( 'Subscription Requests', 'mailing-group-module' ), $admin_level, 'wpmg_mailinggroup_requestmanagerlist', 'wpmg_mailinggroup_requestmanagerlist' );
 		add_submenu_page( 'null', __( 'Add Subscription Request', 'mailing-group-module' ), __( 'Add Subscription Request', 'mailing-group-module' ), $admin_level, 'wpmg_mailinggroup_requestmanageradd', 'wpmg_mailinggroup_requestmanageradd' );
 		add_submenu_page( 'null', __( 'Send Message', 'mailing-group-module' ), __( 'Send Message', 'mailing-group-module' ), $admin_level, 'wpmg_mailinggroup_sendmessage', 'wpmg_mailinggroup_sendmessage' );
 		add_submenu_page( 'null', __( 'Messages Manager', 'mailing-group-module' ), __( 'Messages Manager', 'mailing-group-module' ), $admin_level, 'wpmg_mailinggroup_messagelist', 'wpmg_mailinggroup_messagelist' );
@@ -1216,6 +1205,7 @@ add_action( 'wp_ajax_wpmg_request_group', 'wpmg_request_group_callback' );
 add_action( 'wp_ajax_wpmg_cancel_request', 'wpmg_cancel_request_callback' );
 add_action( 'wp_ajax_wpmg_leave_group', 'wpmg_leave_group_callback' );
 add_action( 'wp_ajax_wpmg_update_group_format', 'wpmg_update_group_format_callback' );
+
 function wpmg_request_group_callback() {
 	// check nonce
 	$nonce = $_POST['nextNonce'];
@@ -1978,7 +1968,6 @@ function wpmg_mailing_group_deactivate() {
 function wpmg_mailing_group_uninstall() {
 	global $wpdb, $table_name_group, $table_name_message, $table_name_requestmanager, $table_name_requestmanager_taxonomy, $table_name_user_taxonomy, $table_name_parsed_emails, $table_name_emails_attachments, $table_name_sent_emails;
 	$sql = "DROP TABLE `$table_name_group`, `$table_name_message`, `$table_name_requestmanager`, `$table_name_requestmanager_taxonomy`, `$table_name_user_taxonomy`, `$table_name_parsed_emails`,`$table_name_emails_attachments`, `$table_name_sent_emails`";
-	/* //$wpdb->query($sql); // comment this if you want to keep the database tables after installation */
 }
 
 /*uninstall and deactivate code*/

@@ -33,9 +33,7 @@ if ( $actreq == 'hold' ) {
 $args       = array(
     'meta_query' => array(
         array(
-            'key'     => 'mg_user_group_sub_arr',
-            'value'   => '"'.$gid.'"',
-            'compare' => 'LIKE'
+            'key'     => $gid
         )
     )
 );

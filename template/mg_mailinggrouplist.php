@@ -1,7 +1,6 @@
 <?php
-/* Page to Administrate groups and subscribers.
+/*Page to Administrate groups and subscribers.
  */
-
 ?>
 <div class="wrap" id="mail_listing">
 

@@ -1,6 +1,9 @@
 <?php
 if ( is_user_logged_in() ) {
 
+    $WPMG_SETTINGS = get_option("WPMG_SETTINGS");
+    $custom_style = $WPMG_SETTINGS["MG_CUSTOM_STYLESHEET"];
+
 	$args = array(
 		'post_type'   => 'mg_groups',
 		'post_status' => 'publish',
@@ -37,6 +40,10 @@ if ( is_user_logged_in() ) {
 	$denied_requests = get_user_meta( $user_id, 'mg_user_denied_request', true );
 
 	?>
+
+    <style>
+        <?php echo $custom_style; ?>
+    </style>
 
 	<div xmlns="http://www.w3.org/1999/xhtml" class="wrap nosubsub">
 		<div id="col-left">
