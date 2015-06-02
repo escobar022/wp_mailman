@@ -573,6 +573,8 @@ function save_custom_meta( $post_id, $post ) {
 			delete_post_meta( $post_id, $field['id'], $old );
 		}
 	} // end foreach
+
+	
 }
 
 add_filter( 'cron_schedules', 'cron_add_weekly' );
