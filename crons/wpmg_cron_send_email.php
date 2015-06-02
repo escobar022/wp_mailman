@@ -2,7 +2,6 @@
 defined( 'ABSPATH' ) or die( "Cannot access pages directly." );
 
 function wpmg_cron_send_email() {
-	global $objMem, $table_name_user_taxonomy, $table_name_emails_attachments, $table_name_users, $table_name_usermeta;
 
 	$args  = array(
 		'post_type'   => 'mg_threads',

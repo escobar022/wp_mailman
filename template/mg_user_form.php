@@ -1,8 +1,8 @@
 <?php
 if ( is_user_logged_in() ) {
 
-    $WPMG_SETTINGS = get_option("WPMG_SETTINGS");
-    $custom_style = $WPMG_SETTINGS["MG_CUSTOM_STYLESHEET"];
+	$WPMG_SETTINGS = get_option( "WPMG_SETTINGS" );
+	$custom_style  = $WPMG_SETTINGS["MG_CUSTOM_STYLESHEET"];
 
 	$args = array(
 		'post_type'   => 'mg_groups',
@@ -37,13 +37,13 @@ if ( is_user_logged_in() ) {
 	}
 
 	$requested_groups = get_user_meta( $user_id, 'mg_user_requested_groups', true );
-	$denied_requests = get_user_meta( $user_id, 'mg_user_denied_request', true );
+	$denied_requests  = get_user_meta( $user_id, 'mg_user_denied_request', true );
 
 	?>
 
-    <style>
-        <?php echo $custom_style; ?>
-    </style>
+	<style>
+		<?php echo $custom_style; ?>
+	</style>
 
 	<div xmlns="http://www.w3.org/1999/xhtml" class="wrap nosubsub">
 		<div id="col-left">
@@ -77,16 +77,16 @@ if ( is_user_logged_in() ) {
 									<?php
 
 									foreach ( $result_groups as $group ) {
-										$subscribed          = false;
-										$request_id          = false;
+										$subscribed   = false;
+										$request_id   = false;
 										$group_format = '1';
 										if ( array_key_exists( $group->ID, $groups_subscribed ) ) {
-											$subscribed          = true;
-											$group_format  = $groups_subscribed[$group->ID];
+											$subscribed   = true;
+											$group_format = $groups_subscribed[ $group->ID ];
 										}
 										if ( ! empty( $requested_groups ) && array_key_exists( $group->ID, $requested_groups ) ) {
-											$request_id          = $requested_groups[ $group->ID ]['request_id'];
-											$group_format  = $requested_groups[ $group->ID ]['group_format'];
+											$request_id   = $requested_groups[ $group->ID ]['request_id'];
+											$group_format = $requested_groups[ $group->ID ]['group_format'];
 										}
 
 										?>
@@ -118,18 +118,19 @@ if ( is_user_logged_in() ) {
 											</td>
 											<td>
 												<div class="check_div">
-													<input type="hidden" class="current_format" value="<?php echo $group_format; ?>" data-group_id="<?php echo $group->ID; ?>"  />
+													<input type="hidden" class="current_format" value="<?php echo $group_format; ?>" data-group_id="<?php echo $group->ID; ?>" />
+
 													<div class="select_format">
-														<input type="radio" class="email_format" name="email_format_<?php echo $group->ID; ?>"  data-group_id="<?php echo $group->ID; ?>" value="1" <?php echo( $group_format == '1' ? "checked" : "" ) ?>/><?php _e( "HTML", 'mailing-group-module' ); ?>
+														<input type="radio" class="email_format" name="email_format_<?php echo $group->ID; ?>" data-group_id="<?php echo $group->ID; ?>" value="1" <?php echo( $group_format == '1' ? "checked" : "" ) ?>/><?php _e( "HTML", 'mailing-group-module' ); ?>
 													</div>
 													<div class="select_format">
-														<input type="radio"  class="email_format" name="email_format_<?php echo $group->ID; ?>" data-group_id="<?php echo $group->ID; ?>"  value="2" <?php echo( $group_format == '2' ? "checked" : "" ) ?>/><?php _e( "Plain Text", 'mailing-group-module' ); ?>
+														<input type="radio" class="email_format" name="email_format_<?php echo $group->ID; ?>" data-group_id="<?php echo $group->ID; ?>" value="2" <?php echo( $group_format == '2' ? "checked" : "" ) ?>/><?php _e( "Plain Text", 'mailing-group-module' ); ?>
 													</div>
-													<?php if ( $subscribed OR $request_id) {
+													<?php if ( $subscribed OR $request_id ) {
 														?>
-														<input type="button" class="update_group_format" value="Update Format" data-group_id="<?php echo $group->ID; ?>"  data-request_id="<?php echo $request_id; ?>"/>
+														<input type="button" class="update_group_format" value="Update Format" data-group_id="<?php echo $group->ID; ?>" data-request_id="<?php echo $request_id; ?>" />
 													<?php
-													}?>
+													} ?>
 
 
 												</div>
@@ -151,5 +152,5 @@ if ( is_user_logged_in() ) {
 	</div>
 
 <?php } else {
-
+	wp_login_form();
 }
