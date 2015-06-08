@@ -91,10 +91,10 @@ if ( is_user_logged_in() ) {
 
 										?>
 										<tr>
-											<td>
+											<td width="30%">
 												<?php echo $group->post_title; ?>
 											</td>
-											<td>
+											<td width="40%">
 												<?php if ( $subscribed ) {
 													?>
 													<p class="current_status" data-group_id="<?php echo $group->ID; ?>">Yes</p>
@@ -116,7 +116,7 @@ if ( is_user_logged_in() ) {
 													}
 												} ?>
 											</td>
-											<td>
+											<td width="30%">
 												<div class="check_div">
 													<input type="hidden" class="current_format" value="<?php echo $group_format; ?>" data-group_id="<?php echo $group->ID; ?>" />
 

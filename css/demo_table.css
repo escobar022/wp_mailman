@@ -651,6 +651,7 @@ div.box {
 
 table.widefat {
 	margin-bottom: 10px;
+	width:         100%;
 }
 
 .col-wrap p.submit {
@@ -680,8 +681,6 @@ table.widefat {
 	text-align:    left;
 }
 
-
-
 .form-field input#auto_delete_no {
 	width: auto !important;
 	float: none !important;
@@ -707,12 +706,6 @@ table.widefat {
 	height: 0px !important;
 }
 
-.form-wrap .form-field {
-	margin:  0 0 0px;
-	padding: 0px 0;
-
-}
-
 .validate .form-field {
 
 	height: auto !important;
@@ -735,8 +728,6 @@ table.widefat {
 
 .check_div {
 	width: 100%;
-	float: left;
-	max-width: 700px;
 }
 
 .check_div .inner_check input {
@@ -1115,20 +1106,20 @@ table.widefat {
 }
 
 #mg_group_fields label {
-	display: block;
-	font-weight: bold;
+	display:       block;
+	font-weight:   bold;
 	margin-bottom: 5px;
 }
 
 /*description_block*/
 #mg_group_fields .description_block code {
 	padding: 0;
-	margin: 0;
+	margin:  0;
 }
 
 /*Checkbox*/
 #mg_group_fields .checkbox input {
-	display: inline-block;
+	display:      inline-block;
 	margin-right: 10px;
 }
 
@@ -1138,12 +1129,12 @@ table.widefat {
 
 /*radio*/
 #mg_group_fields .radio input {
-	display: inline-block;
+	display:      inline-block;
 	margin-right: 5px;
 }
 
 #mg_group_fields .radio label.radio {
-	display: inline-block;
+	display:      inline-block;
 	margin-right: 10px;
 }
 
@@ -1151,16 +1142,17 @@ table.widefat {
 #mg_group_fields .header {
 	display: block;
 }
+
 #mg_group_fields .header h3 {
-	padding: 0 10% 0 0;
-	font-size: 18px;
-	display: inline-block;
+	padding:       0 10% 0 0;
+	font-size:     18px;
+	display:       inline-block;
 	border-bottom: solid 3px #a0a5aa;;
 }
 
 /*Custom for Maling Group */
-#mg_group_server_typeContain,#mg_group_mail_typeContain,#mg_group_archiveContain,#mg_group_footer_textContain{
-	border-top: solid 3px #a0a5aa;
+#mg_group_server_typeContain, #mg_group_mail_typeContain, #mg_group_archiveContain, #mg_group_footer_textContain {
+	border-top:  solid 3px #a0a5aa;
 	padding-top: 10px;
 }
 
@@ -1170,20 +1162,20 @@ table.widefat {
 }
 
 #mg_group_thread_fields label {
-	display: block;
-	font-weight: bold;
+	display:       block;
+	font-weight:   bold;
 	margin-bottom: 5px;
 }
 
 /*description_block*/
 #mg_group_thread_fields .description_block code {
 	padding: 0;
-	margin: 0;
+	margin:  0;
 }
 
 /*Checkbox*/
 #mg_group_thread_fields .checkbox input {
-	display: inline-block;
+	display:      inline-block;
 	margin-right: 10px;
 }
 
@@ -1193,12 +1185,12 @@ table.widefat {
 
 /*radio*/
 #mg_group_thread_fields .radio input {
-	display: inline-block;
+	display:      inline-block;
 	margin-right: 5px;
 }
 
 #mg_group_thread_fields .radio label.radio {
-	display: inline-block;
+	display:      inline-block;
 	margin-right: 10px;
 }
 
@@ -1206,35 +1198,39 @@ table.widefat {
 #mg_group_thread_fields .header {
 	display: block;
 }
+
 #mg_group_thread_fields .header h3 {
-	padding: 0 10% 0 0;
-	font-size: 18px;
-	display: inline-block;
+	padding:       0 10% 0 0;
+	font-size:     18px;
+	display:       inline-block;
 	border-bottom: solid 3px #a0a5aa;;
 }
-#mg_group_thread_fields .emailContain{
-	min-width: 400px;
-	width: 40%;
-	padding: 1em;
-	box-shadow: 0 1px 2px rgba(0,0,0,.05);
-	border: 1px solid #e5e5e5;
+
+#mg_group_thread_fields .emailContain {
+	min-width:  400px;
+	width:      40%;
+	padding:    1em;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, .05);
+	border:     1px solid #e5e5e5;
 }
-#mg_group_thread_fields .emailContain .MsoNormal img{
+
+#mg_group_thread_fields .emailContain .MsoNormal img {
 	max-width: 80%;
-	height: auto;
+	height:    auto;
 }
 
 /*Request to Join*/
-.form-field input[type="button"]  {
-	width:         auto;
-	font-size:     12px;
-	padding: 10px;
+.form-field input[type="button"] {
+	width:     auto;
+	font-size: 12px;
+	padding:   10px;
 }
-.confirm_message,.confirm_leave_group,.cancel_leave_group,.update_group_format{
+
+.confirm_message, .confirm_leave_group, .cancel_leave_group, .update_group_format {
 	display: none;
 }
 
-#memberaddedit td{
+#memberaddedit td {
 	vertical-align: top;
 }
 
