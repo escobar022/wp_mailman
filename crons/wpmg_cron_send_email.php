@@ -67,10 +67,8 @@ function wpmg_cron_send_email() {
 							$sendToEmail = $Userrow->user_email;
 
 							if ( $Ustatus == 1 ) {
-								$body = get_post_meta( $thread_id, 'mg_thread_email_content', true );
-								if(empty($body)){
-									$body = get_post_meta( $thread_id, 'mg_thread_email_content_plain', true );
-								}
+								$body_pre = get_post_meta( $thread_id, 'mg_thread_email_content', true );
+								$body = preg_replace('/[^[:print:]]/', '', $body_pre);
 
 								$has_parent = get_post_meta( $thread_id, 'mg_thread_parent_id', true );
 
@@ -93,6 +91,8 @@ function wpmg_cron_send_email() {
 									}
 									$mail = new PHPMailer();
 									$mail->IsSMTP();
+
+
 									$mail->SMTPDebug = 0;
 									$mail->addCustomHeader( 'references', '[' . $thread_id . ']' );
 
@@ -119,12 +119,19 @@ function wpmg_cron_send_email() {
 									} else {
 										$mail->Subject = get_post_meta( $thread_id, 'mg_thread_email_subject', true );
 									}
+
+									$alt_body_pre = nl2br($mail->html2text($body_pre));
+									$alt_body = preg_replace('/[^[:print:]]/', '', $alt_body_pre);
+
 									if ( $sendtouserEmailFormat == '1' ) {
 										$mail->IsHTML( true );
+										$mail->MsgHTML( $body );
 									} else {
 										$mail->IsHTML( false );
+										$mail->MsgHTML( $alt_body );
 									}
-									$mail->MsgHTML( $body );
+
+									$mail->AltBody  =  $alt_body;
 									$mail->AddAddress( $sendToEmail, $sendToName );
 
 									$args = array(
