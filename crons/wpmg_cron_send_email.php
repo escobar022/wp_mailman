@@ -47,7 +47,6 @@ function wpmg_cron_send_email() {
                     $user_query= new WP_User_Query( $args );
                     $totcount= $user_query->total_users;
 
-
                     if ( count( $totcount ) > 0 ) {
 						foreach ( $user_query->results as $memberstoSent ) {
 
@@ -67,9 +66,7 @@ function wpmg_cron_send_email() {
 							$sendToEmail = $Userrow->user_email;
 
 							if ( $Ustatus == 1 ) {
-								$body_pre = get_post_meta( $thread_id, 'mg_thread_email_content', true );
-								$body = preg_replace('/[^[:print:]]/', '', $body_pre);
-
+								$body =  get_post_meta( $thread_id, 'mg_thread_email_content', true );
 								$has_parent = get_post_meta( $thread_id, 'mg_thread_parent_id', true );
 
 								if ( empty( $has_parent ) ) {
@@ -120,15 +117,14 @@ function wpmg_cron_send_email() {
 										$mail->Subject = get_post_meta( $thread_id, 'mg_thread_email_subject', true );
 									}
 
-									$alt_body_pre = nl2br($mail->html2text($body_pre));
-									$alt_body = preg_replace('/[^[:print:]]/', '', $alt_body_pre);
+									$alt_body = nl2br($mail->html2text($body));
 
 									if ( $sendtouserEmailFormat == '1' ) {
 										$mail->IsHTML( true );
 										$mail->MsgHTML( $body );
 									} else {
 										$mail->IsHTML( false );
-										$mail->MsgHTML( $alt_body );
+										$mail->Body = $alt_body;
 									}
 
 									$mail->AltBody  =  $alt_body;

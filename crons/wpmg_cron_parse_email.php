@@ -1,11 +1,6 @@
 <?php
 defined( 'ABSPATH' ) or die( "Cannot access pages directly." );
-/*
- * Description: cron to parse emails to db from various groups
- * Created: 8/2013
- * Author: Marcus Sorensen & netforcelabs.com
- * Website: http://www.wpmailinggroup.com
- */
+
 
 function wpmg_cron_parse_email() {
 	global $obj;
@@ -93,7 +88,7 @@ function wpmg_cron_parse_email() {
 					add_post_meta( $pid, 'mg_thread_email_to', $head['to'], true );
 					add_post_meta( $pid, 'mg_thread_email_to_name', $head['toName'], true );
 					add_post_meta( $pid, 'mg_thread_email_subject', $head['subject'], true );
-					add_post_meta( $pid, 'mg_thread_email_content', $emailContent, true );
+					add_post_meta( $pid, 'mg_thread_email_content', addslashes($emailContent), true );
 					add_post_meta( $pid, 'mg_thread_email_group_id', $id, true );
 					add_post_meta( $pid, 'mg_thread_email_status', 'Pending', true );
 					add_post_meta( $pid, 'mg_thread_date', $mail->date, true );
