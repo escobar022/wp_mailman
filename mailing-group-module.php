@@ -3,12 +3,11 @@
  * @version 1.0
  */
 /*
-Plugin Name: WP Mailing Group Premium 
-Plugin URI: http://www.wpmailinggroup.com
+Plugin Name: WP Mailing Groups
+Plugin URI: http://andres.codes
 Description: PREMIUM Version -- Connect yourselves with a mailing group run from your WordPress website! This is NOT a one-way mailing or announcement list from an administrator to a group, but a Group email list where all subscribers can exchange messages via one central email address. (NB: POP / IMAP email box required - Cron optional but recommended for low traffic websites)
-Author: Marcus Sorensen & NetForce Labs
+Author: Andres Escobar
 Version: 1.0
-Plugin URI: http://www.wpmailinggroup.com
 */
 if ( preg_match( '#' . basename( __FILE__ ) . '#', $_SERVER['PHP_SELF'] ) ) {
 	die( 'You are not allowed to call this page directly.' );

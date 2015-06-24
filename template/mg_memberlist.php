@@ -30,16 +30,18 @@ if ( $actreq == 'hold' ) {
 	exit;
 }
 
-$args       = array(
-    'meta_query' => array(
-        array(
-            'key'     => $gid
-        )
-    )
+$args = array(
+	'meta_query' => array(
+		array(
+			'key'     => 'mg_user_group_sub_arr',
+			'value'   => '"' . $gid . '"',
+			'compare' => 'LIKE'
+		)
+	)
 );
 
-$user_query= new WP_User_Query( $args );
-$totcount= $user_query->total_users;
+$user_query = new WP_User_Query( $args );
+$totcount   = $user_query->total_users;
 
 
 if ( $totcount > 0 ) {
@@ -51,7 +53,7 @@ if ( $totcount > 0 ) {
 			<?php if(count($totcount)>0) { ?>
 			jQuery('#memberlist').dataTable({
 				"aoColumnDefs"  : [
-					{"bSortable": false, "aTargets": [3, 4, 5]}
+					{"bSortable": false, "aTargets": [3, 4]}
 				],
 				"oLanguage"     : {
 					"sZeroRecords": "<?php _e("No members found.", 'mailing-group-module'); ?>"
@@ -92,7 +94,7 @@ $groupName = get_the_title( $gid );
 			<th class="sort topRow_messagelist"><a href="#"><?php _e( "Name", 'mailing-group-module' ); ?></a></th>
 			<th><a href="#"><?php _e( "Username", 'mailing-group-module' ); ?></a></th>
 			<th><a href="#"><?php _e( "Email Address", 'mailing-group-module' ); ?></a></th>
-			<th><?php _e( "No of Email Bounces", 'mailing-group-module' ); ?></th>
+			<th><?php _e( "Bounced Emails", 'mailing-group-module' ); ?></th>
 			<th><?php _e( "Status", 'mailing-group-module' ); ?></th>
 			<th width="10%"><?php _e( "Actions", 'mailing-group-module' ); ?></th>
 		</tr>
@@ -100,48 +102,47 @@ $groupName = get_the_title( $gid );
 		<tbody>
 		<?php
 		if ($totcount > 0) {
-
 			foreach ( $user_query->results as $row ) {
 
-				$userId = $row->ID;
-				$group_name_serial   = get_user_meta( $userId, "mg_user_group_subscribed", true );
-				$groups_unserialized = unserialize( $group_name_serial );
+				$userId            = $row->ID;
+				$group_name_serial = get_user_meta( $userId, 'mg_user_group_subscribed', true );
 
-				if ( count( $groups_unserialized ) > 0 ) {
-					foreach ( $groups_unserialized as $group_id => $email_format ) {
+				if ( count( $group_name_serial ) > 0 ) {
+					foreach ( $group_name_serial as $group_id => $email_format ) {
 						if ( $group_id == $gid ) {
-                            $Userrow = get_user_by( "id", $userId );
-                            $user_login   = $Userrow->user_login;
-                            $user_email   = $Userrow->user_email;
-                            $display_name = $Userrow->first_name;
-                            $status       = get_user_meta( $userId, "mg_user_status", true );
+							$Userrow      = get_user_by( "id", $userId );
+							$user_login   = $Userrow->user_login;
+							$user_email   = $Userrow->user_email;
+							$display_name = $Userrow->first_name;
+							$status       = get_user_meta( $userId, "mg_user_status", true );
 
-                            /*TODO: add email bounce table*/
+							/*TODO: add email bounce table*/
 //                          $mailbounceresult = $objMem->selectRows( $table_name_sent_emails, "", " where user_id = '" . $userId . "' and status='2'" );
-                            $mailbounceresult = "";
-                            $noofemailb       = 0 /*count( $mailbounceresult )*/;
+							$mailbounceresult = "";
+							$noofemailb       = 0 /*count( $mailbounceresult )*/
+							;
 
-                            $act = "hold";
-                            $lablestatus = __( "Active", 'mailing-group-module' );
-                            $labledetail = __( "click to put On Hold", 'mailing-group-module' );
-                            if ( $status == 0 ) {
-                                $act         = "active";
-                                $lablestatus = __( "On Hold", 'mailing-group-module' );
-                                $labledetail = __( "click to Activate", 'mailing-group-module' );
-                            }?>
-                            <tr>
-                                <td><?php echo $display_name; ?></td>
-                                <td><?php echo $user_login; ?></td>
-                                <td><?php echo $user_email; ?></td>
-                                <td><?php echo $noofemailb; ?></td>
-                                <td><?php echo $lablestatus; ?> (<a href="admin.php?page=wpmg_mailinggroup_memberlist&act=<?php echo $act; ?>&id=<?php echo $userId; ?>&gid=<?php echo $gid; ?>"><?php echo $labledetail; ?></a>)
-                                </td>
-                                <td width="20%" class="last">
-                                    <a href="admin.php?page=wpmg_mailinggroup_memberadd&act=upd&id=<?php echo $userId; ?>&gid=<?php echo $gid; ?>" class="edit_record" title="<?php _e( "Edit", 'mailing-group-module' ); ?>"></a><?php if ( $Userrow->roles[0] != 'administrator' ) { ?>|
-                                    <a href="admin.php?page=wpmg_mailinggroup_memberlist&info=del&did=<?php echo $userId; ?>&gid=<?php echo $gid; ?>" onclick="return confirm('<?php _e( "Are you sure you want to delete this member?", 'mailing-group-module' ); ?>');" class="delete_record" title="Delete"></a><?php } ?>|<a href="admin.php?page=wpmg_mailinggroup_adminarchive&uid=<?php echo $userId; ?>" class="archive_messages" title="<?php _e( "View Archived Messages", 'mailing-group-module' ); ?>"></a>
-                                </td>
-                            </tr>
-                        <?php }
+							$act         = "hold";
+							$lablestatus = __( "Active", 'mailing-group-module' );
+							$labledetail = __( "click to put On Hold", 'mailing-group-module' );
+							if ( $status == 0 ) {
+								$act         = "active";
+								$lablestatus = __( "On Hold", 'mailing-group-module' );
+								$labledetail = __( "click to Activate", 'mailing-group-module' );
+							} ?>
+							<tr>
+								<td><?php echo $display_name; ?></td>
+								<td><?php echo $user_login; ?></td>
+								<td><?php echo $user_email; ?></td>
+								<td><?php echo $noofemailb; ?></td>
+								<td><?php echo $lablestatus; ?> (<a href="admin.php?page=wpmg_mailinggroup_memberlist&act=<?php echo $act; ?>&id=<?php echo $userId; ?>&gid=<?php echo $gid; ?>"><?php echo $labledetail; ?></a>)
+								</td>
+								<td width="20%" class="last">
+									<a href="admin.php?page=wpmg_mailinggroup_memberadd&act=upd&id=<?php echo $userId; ?>&gid=<?php echo $gid; ?>" class="edit_record" title="<?php _e( "Edit", 'mailing-group-module' ); ?>"></a><?php if ( $Userrow->roles[0] != 'administrator' ) { ?>|
+									<a href="admin.php?page=wpmg_mailinggroup_memberlist&info=del&did=<?php echo $userId; ?>&gid=<?php echo $gid; ?>" onclick="return confirm('<?php _e( "Are you sure you want to delete this member?", 'mailing-group-module' ); ?>');" class="delete_record" title="Delete"></a><?php } ?>|<a href="admin.php?page=wpmg_mailinggroup_adminarchive&uid=<?php echo $userId; ?>" class="archive_messages" title="<?php _e( "View Archived Messages", 'mailing-group-module' ); ?>"></a>
+								</td>
+							</tr>
+						<?php }
 					}
 				}
 			}
