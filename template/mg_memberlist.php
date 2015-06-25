@@ -53,7 +53,7 @@ if ( $totcount > 0 ) {
 			<?php if(count($totcount)>0) { ?>
 			jQuery('#memberlist').dataTable({
 				"aoColumnDefs"  : [
-					{"bSortable": false, "aTargets": [3, 4]}
+					{"bSortable": false, "aTargets": [2, 3, 4]}
 				],
 				"oLanguage"     : {
 					"sZeroRecords": "<?php _e("No members found.", 'mailing-group-module'); ?>"
@@ -92,7 +92,7 @@ $groupName = get_the_title( $gid );
 		<thead>
 		<tr role="row" class="topRow" id="memberlistdata">
 			<th class="sort topRow_messagelist"><a href="#"><?php _e( "Name", 'mailing-group-module' ); ?></a></th>
-			<th><a href="#"><?php _e( "Username", 'mailing-group-module' ); ?></a></th>
+			<!--			<th><a href="#">--><?php //_e( "Username", 'mailing-group-module' ); ?><!--</a></th>-->
 			<th><a href="#"><?php _e( "Email Address", 'mailing-group-module' ); ?></a></th>
 			<th><?php _e( "Bounced Emails", 'mailing-group-module' ); ?></th>
 			<th><?php _e( "Status", 'mailing-group-module' ); ?></th>
@@ -119,8 +119,7 @@ $groupName = get_the_title( $gid );
 							/*TODO: add email bounce table*/
 //                          $mailbounceresult = $objMem->selectRows( $table_name_sent_emails, "", " where user_id = '" . $userId . "' and status='2'" );
 							$mailbounceresult = "";
-							$noofemailb       = 0 /*count( $mailbounceresult )*/
-							;
+							$noofemailb       = 0;/*count( $mailbounceresult )*/
 
 							$act         = "hold";
 							$lablestatus = __( "Active", 'mailing-group-module' );
@@ -132,7 +131,7 @@ $groupName = get_the_title( $gid );
 							} ?>
 							<tr>
 								<td><?php echo $display_name; ?></td>
-								<td><?php echo $user_login; ?></td>
+								<!--								<td>--><?php //echo $user_login; ?><!--</td>-->
 								<td><?php echo $user_email; ?></td>
 								<td><?php echo $noofemailb; ?></td>
 								<td><?php echo $lablestatus; ?> (<a href="admin.php?page=wpmg_mailinggroup_memberlist&act=<?php echo $act; ?>&id=<?php echo $userId; ?>&gid=<?php echo $gid; ?>"><?php echo $labledetail; ?></a>)

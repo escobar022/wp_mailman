@@ -8,8 +8,8 @@ function wpmg_cron_parse_email() {
 	$args  = array(
 		'post_type'   => 'mg_groups',
 		'post_status' => 'publish',
-		'meta_key'  => 'mg_group_status',
-		'meta_value' => '2'
+		'meta_key'    => 'mg_group_status',
+		'meta_value'  => '2'
 	);
 	$query = new WP_Query( $args );
 
@@ -18,15 +18,15 @@ function wpmg_cron_parse_email() {
 	if ( count( $groups ) > 0 ) {
 		foreach ( $groups as $row ) {
 
-			$id              = $row->ID;
-			$email           = get_post_meta( $id, 'mg_group_email', true );
-			$password        = get_post_meta( $id, 'mg_group_password', true );
-			$pop_server_type = get_post_meta( $id, 'mg_group_server_type', true );
-			$pop_server      = get_post_meta( $id, 'mg_group_server', true );
-			$pop_port        = get_post_meta( $id, 'mg_group_server_port', true );
-			$pop_ssl         = get_post_meta( $id, 'pop_ssl', true );
-			$pop_username    = get_post_meta( $id, 'mg_group_mail_username', true );
-			$pop_password    = get_post_meta( $id, 'mg_group_password', true );
+			$group_id        = $row->ID;
+			$email           = get_post_meta( $group_id, 'mg_group_email', true );
+			$password        = get_post_meta( $group_id, 'mg_group_password', true );
+			$pop_server_type = get_post_meta( $group_id, 'mg_group_server_type', true );
+			$pop_server      = get_post_meta( $group_id, 'mg_group_server', true );
+			$pop_port        = get_post_meta( $group_id, 'mg_group_server_port', true );
+			$pop_ssl         = get_post_meta( $group_id, 'mg_group_pop_ssl', true );
+			$pop_username    = get_post_meta( $group_id, 'mg_group_mail_username', true );
+			$pop_password    = get_post_meta( $group_id, 'mg_group_password', true );
 
 			if ( $pop_ssl != 'on' ) {
 				$ssl = false;
@@ -50,12 +50,23 @@ function wpmg_cron_parse_email() {
 					$head         = $obj->getHeaders( $i );  /*  Get Header Info Return Array Of Headers **Array Keys are (subject,to,toOth,toNameOth,from,fromName) */
 					$mail         = $obj->getMail( $i );
 					$emailContent = $mail->fetch_html_body();
-					if(empty($emailContent)){
-						$emailContent= nl2br($mail->textPlain);
+					if ( empty( $emailContent ) ) {
+						$emailContent = nl2br( $mail->textPlain );
 					}
 
 					preg_match( '#\[(.*)\]#', $mail->references, $match );
 					$parent_ID = $match[1];
+
+					if ( empty( $parent_ID ) ) {
+						$subject_head = "[" . get_the_title( $group_id ) . "] " . $head['subject'];
+					} else {
+						$subject_head = $head['subject'];
+					}
+
+					//use group as parent ( not working)
+//					if ( empty( $parent_ID ) ) {
+//						$parent_ID = $group_id;
+//					}
 
 					/* get bounced email if any */
 					$bounced_email = "";
@@ -65,10 +76,10 @@ function wpmg_cron_parse_email() {
 
 					// Create post object
 					$thread = array(
-						'post_title'  => $head['subject'],
+						'post_title'  => $subject_head,
 						'post_type'   => 'mg_threads',
 						'post_status' => 'publish',
-						'tags_input'  => get_the_title( $id ),
+						'tags_input'  => get_the_title( $group_id ),
 						'post_parent' => $parent_ID
 					);
 
@@ -87,9 +98,9 @@ function wpmg_cron_parse_email() {
 					add_post_meta( $pid, 'mg_thread_email_from_name', $head['fromName'], true );
 					add_post_meta( $pid, 'mg_thread_email_to', $head['to'], true );
 					add_post_meta( $pid, 'mg_thread_email_to_name', $head['toName'], true );
-					add_post_meta( $pid, 'mg_thread_email_subject', $head['subject'], true );
-					add_post_meta( $pid, 'mg_thread_email_content', addslashes($emailContent), true );
-					add_post_meta( $pid, 'mg_thread_email_group_id', $id, true );
+					add_post_meta( $pid, 'mg_thread_email_subject', $subject_head, true );
+					add_post_meta( $pid, 'mg_thread_email_content', addslashes( $emailContent ), true );
+					add_post_meta( $pid, 'mg_thread_email_group_id', $group_id, true );
 					add_post_meta( $pid, 'mg_thread_email_status', 'Pending', true );
 					add_post_meta( $pid, 'mg_thread_date', $mail->date, true );
 

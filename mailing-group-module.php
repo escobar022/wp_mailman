@@ -75,7 +75,7 @@ function Mailing_Groups() {
 		'update_item'        => __( 'Update Item', 'text_domain' ),
 		'search_items'       => __( 'Search Item', 'text_domain' ),
 		'not_found'          => __( 'Not found', 'text_domain' ),
-		'not_found_in_trash' => __( 'Not found in Trash', 'text_domain' ),
+		'not_found_in_trash' => __( 'Not found in Trash', 'text_domain' )
 	);
 	$args   = array(
 		'label'               => __( 'mg_groups', 'text_domain' ),
@@ -89,12 +89,12 @@ function Mailing_Groups() {
 		'show_in_menu'        => true,
 		'show_in_nav_menus'   => true,
 		'show_in_admin_bar'   => true,
-		'menu_position'       => 5,
+		'menu_position'       => 1,
 		'can_export'          => true,
 		'has_archive'         => true,
 		'exclude_from_search' => false,
-		'publicly_queryable'  => false,
-		'capability_type'     => 'page',
+		'publicly_queryable'  => true,
+		'capability_type'     => 'page'
 	);
 	register_post_type( 'mg_groups', $args );
 
@@ -111,7 +111,7 @@ function Mailing_Groups() {
 		'update_item'        => __( 'Update Item', 'text_domain' ),
 		'search_items'       => __( 'Search Item', 'text_domain' ),
 		'not_found'          => __( 'Not found', 'text_domain' ),
-		'not_found_in_trash' => __( 'Not found in Trash', 'text_domain' ),
+		'not_found_in_trash' => __( 'Not found in Trash', 'text_domain' )
 	);
 	$args   = array(
 		'label'               => __( 'mg_threads', 'text_domain' ),
@@ -125,11 +125,11 @@ function Mailing_Groups() {
 		'show_in_menu'        => true,
 		'show_in_nav_menus'   => true,
 		'show_in_admin_bar'   => true,
-		'menu_position'       => 6,
+		'menu_position'       => 1,
 		'can_export'          => true,
 		'has_archive'         => true,
 		'exclude_from_search' => false,
-		'publicly_queryable'  => false,
+		'publicly_queryable'  => true,
 		'capability_type'     => 'page',
 	);
 	register_post_type( 'mg_threads', $args );
@@ -573,7 +573,7 @@ function save_custom_meta( $post_id, $post ) {
 		}
 	} // end foreach
 
-	
+
 }
 
 add_filter( 'cron_schedules', 'cron_add_weekly' );
@@ -910,7 +910,7 @@ function wpmg_mailinggroup_Menu() {
 
 		add_submenu_page( 'null', __( 'Member Manager', 'mailing-group-module' ), __( 'Member Manager', 'mailing-group-module' ), $admin_level, 'wpmg_mailinggroup_memberlist', 'wpmg_mailinggroup_memberlist' );
 		add_submenu_page( 'null', __( 'Add Member', 'mailing-group-module' ), __( 'Add Member', 'mailing-group-module' ), $admin_level, 'wpmg_mailinggroup_memberadd', 'wpmg_mailinggroup_memberadd' );
-        add_submenu_page( 'wpmg_mailinggroup_intro', __( 'Subscription Requests', 'mailing-group-module' ), __( 'Subscription Requests', 'mailing-group-module' ), $admin_level, 'wpmg_mailinggroup_requestmanagerlist', 'wpmg_mailinggroup_requestmanagerlist' );
+		add_submenu_page( 'wpmg_mailinggroup_intro', __( 'Subscription Requests', 'mailing-group-module' ), __( 'Subscription Requests', 'mailing-group-module' ), $admin_level, 'wpmg_mailinggroup_requestmanagerlist', 'wpmg_mailinggroup_requestmanagerlist' );
 		add_submenu_page( 'wpmg_mailinggroup_intro', __( 'Add Subscribers', 'mailing-group-module' ), __( 'Add Subscribers', 'mailing-group-module' ), $admin_level, 'wpmg_mailinggroup_requestmanageradd', 'wpmg_mailinggroup_requestmanageradd' );
 		add_submenu_page( 'wpmg_mailinggroup_intro', __( 'Import Users', 'mailing-group-module' ), __( 'Import Users', 'mailing-group-module' ), $admin_level, 'wpmg_mailinggroup_importuser', 'wpmg_mailinggroup_importuser' );
 		add_submenu_page( 'null', __( 'Add Subscription Request', 'mailing-group-module' ), __( 'Add Subscription Request', 'mailing-group-module' ), $admin_level, 'wpmg_mailinggroup_requestmanageradd', 'wpmg_mailinggroup_requestmanageradd' );
@@ -955,6 +955,10 @@ function wpmg_mailinggroup_Menu() {
 		)
 	);
 }
+
+wp_register_style( 'mg_frontend.css', plugin_dir_url( __FILE__ ) . 'css/mg_frontend.css' );
+wp_enqueue_style( 'mg_frontend.css' );
+
 
 /* initialize menu */
 add_action( 'admin_menu', 'wpmg_mailinggroup_Menu' );
@@ -1317,7 +1321,7 @@ function wpmg_leave_group_callback() {
 	$group_id = $_POST['group_id'];
 
 	$groups_subscribed = get_user_meta( $user_id, 'mg_user_group_subscribed', true );
-	$groups_array = array();
+	$groups_array      = array();
 
 
 	if ( array_key_exists( $group_id, $groups_subscribed ) ) {
@@ -1325,8 +1329,8 @@ function wpmg_leave_group_callback() {
 		unset( $groups_subscribed[ $group_id ] );
 		$new_subscribtions = $groups_subscribed;
 
-		foreach($new_subscribtions as $group =>$format){
-			$groups_array[] = (string)$group;
+		foreach ( $new_subscribtions as $group => $format ) {
+			$groups_array[] = (string) $group;
 		}
 
 		update_user_meta( $user_id, 'mg_user_group_subscribed', $new_subscribtions );
@@ -1409,7 +1413,7 @@ function wpmg_approve_group_request_callback() {
 	$groups_subscribed    = get_user_meta( $user_id, 'mg_user_group_subscribed', true );
 	$groups_requested_arr = get_user_meta( $user_id, 'mg_user_requested_groups', true );
 	$group_requested_id   = get_post_meta( $request_id, 'mg_request_group_id', true );
-	$groups_array = array();
+	$groups_array         = array();
 
 	if ( empty( $groups_subscribed ) ) {
 		$groups_subscribed = array();
@@ -1421,8 +1425,8 @@ function wpmg_approve_group_request_callback() {
 		$new_groups_subscribed[ $group_requested_id ] = $groups_requested_arr[ $group_requested_id ]['group_format'];
 
 		$groups_subscribed_arr = $new_groups_subscribed;
-		foreach($groups_subscribed_arr as $group =>$format){
-			$groups_array[] = (string)$group;
+		foreach ( $groups_subscribed_arr as $group => $format ) {
+			$groups_array[] = (string) $group;
 		}
 
 		update_user_meta( $user_id, 'mg_user_group_subscribed', $new_groups_subscribed, $groups_subscribed );

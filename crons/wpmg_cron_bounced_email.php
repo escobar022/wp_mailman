@@ -8,9 +8,7 @@ defined('ABSPATH') or die("Cannot access pages directly.");
  */
 function wpmg_cron_bounced_email() {
 global $objMem,$table_name_parsed_emails, $table_name_sent_emails, $table_name_users;
- 
-require_once(WPMG_PLUGIN_URL.'lib/mailinggroupclass.php');
-$objMem = new mailinggroupClass();
+
 
 $WPMG_SETTINGS = get_option("WPMG_SETTINGS");
 $mailresult = $objMem->selectRows($table_name_parsed_emails, "",  " where status = '0' and type='bounced' order by id desc limit 0, 1");
