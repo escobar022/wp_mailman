@@ -59,7 +59,7 @@ function wpmg_cron_send_email() {
 							$footerText               = wpmg_nl2brformat( wpmg_dbStripslashes( get_post_meta( $group_id, 'mg_group_footer_text', true ) ) );
 							$groupTitle               = get_the_title( $group_id );
 							$groupEmail               = get_post_meta( $group_id, 'mg_group_email', true );
-							$useinSubject             = get_post_meta( $group_id, 'mg_group_use_in_subject', true );
+//							$useinSubject             = get_post_meta( $group_id, 'mg_group_use_in_subject', true );
 							$mail_type                = get_post_meta( $group_id, 'mg_group_mail_type', true );
 							$sendtouserId             = $memberstoSent->ID;
 							$user_group_subscriptions = get_user_meta( $sendtouserId, "mg_user_group_subscribed", true );
