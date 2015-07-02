@@ -63,6 +63,8 @@ function wpmg_cron_parse_email() {
 						$subject_head = $head['subject'];
 					}
 
+					$hashed_title = hash('crc32b',$subject_head);
+
 					//use group as parent ( not working)
 //					if ( empty( $parent_ID ) ) {
 //						$parent_ID = $group_id;
@@ -80,7 +82,8 @@ function wpmg_cron_parse_email() {
 						'post_type'   => 'mg_threads',
 						'post_status' => 'publish',
 						'tags_input'  => get_the_title( $group_id ),
-						'post_parent' => $parent_ID
+						'post_parent' => $parent_ID,
+						'post_name'      => $hashed_title
 					);
 
 					// Insert the post into the database

@@ -91,7 +91,7 @@ function Mailing_Groups() {
 		'show_in_admin_bar'   => true,
 		'menu_position'       => 1,
 		'can_export'          => true,
-		'has_archive'         => true,
+		'has_archive'         => false,
 		'exclude_from_search' => false,
 		'publicly_queryable'  => true,
 		'capability_type'     => 'page'
@@ -127,7 +127,7 @@ function Mailing_Groups() {
 		'show_in_admin_bar'   => true,
 		'menu_position'       => 1,
 		'can_export'          => true,
-		'has_archive'         => true,
+		'has_archive'         => false,
 		'exclude_from_search' => false,
 		'publicly_queryable'  => true,
 		'capability_type'     => 'page',
@@ -368,6 +368,11 @@ This message was sent to <b>{%name%}</b> at <b>{%email%}</b> by the <a href="{%s
 					'value' => 3
 				)
 			)
+		),
+		array(
+			'label'   => 'Old Archived URL:',
+			'id'      => $prefix . 'old_archive_url',
+			'type'    => 'text'
 		)
 	);
 
