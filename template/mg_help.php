@@ -26,7 +26,7 @@ $websiteurl    = $WPMG_SETTINGS["MG_WEBSITE_URL"];
 		<a href="admin.php?page=wpmg_mailinggroup_adminmessagelist" class="nav-tab" title="<?php _e("Admin Messages", 'mailing-group-module'); ?>"><?php _e("Admin Messages", 'mailing-group-module'); ?></a>
         <a href="admin.php?page=wpmg_mailinggroup_style" class="nav-tab" title="<?php _e("Stylesheet", 'mailing-group-module'); ?>"><?php _e("Stylesheet", 'mailing-group-module'); ?></a>
         <?php if($plugintype=='PAID') { ?>
-        	<a href="admin.php?page=wpmg_mailinggroup_contact" class="nav-tab" title="<?php _e("Contact", 'mailing-group-module'); ?>"><?php _e("Premium Support", 'mailing-group-module'); ?></a>
+        	<a href="admin.php?page=wpmg_mailinggroup_contact" class="nav-tab" title="<?php _e("Contact", 'mailing-group-module'); ?>"><?php _e("Support", 'mailing-group-module'); ?></a>
         <?php } ?>
         <a href="admin.php?page=wpmg_mailinggroup_help" class="nav-tab nav-tab-active" title="<?php _e("Help", 'mailing-group-module'); ?>"><?php _e("Help", 'mailing-group-module'); ?></a>
     </h2>
@@ -39,17 +39,16 @@ $websiteurl    = $WPMG_SETTINGS["MG_WEBSITE_URL"];
 			<li><a href="#quickstart"><?php _e("Quick Start", 'mailing-group-module'); ?></a></li>
 			<li><a href="#registration"><?php _e("Registration Form Shortcode", 'mailing-group-module'); ?></a></li>
 			<li><a href="#installation"><?php _e("Cron Scripts / Scheduled Tasks", 'mailing-group-module'); ?></a></li>
-			<li><a href="#upgrading"><?php _e("Access to Premium Support", 'mailing-group-module'); ?></a></li>
+			<li><a href="#upgrading"><?php _e("Access to Support", 'mailing-group-module'); ?></a></li>
 		</ul>
 		<br>
 		<a name="quickstart"><h3><?php _e("Quick Start", 'mailing-group-module'); ?></h3></a>
-		<?php _e("For a quick start guide in just six steps, please refer to the FAQ here:", 'mailing-group-module'); ?> <a href="http://www.wpmailinggroup.com/faq/quick-start-in-6-steps/" target="_blank">www.wpmailinggroup.com/faq/quick-start-in-6-steps/</a><br><br>
+
 
 		<a name="registration"><h3><?php _e("Registration Form Shortcode", 'mailing-group-module'); ?></h3></a>
 		<?php _e("Insert the following registration form shortcode on a page or widget on your website to allow users to subscribe:", 'mailing-group-module'); ?><br />
 		<b>[mailing_group_form]</b><br /><br>
 		<?php _e("There is more information on attributes that can be used in the Shortcode here:", 'mailing-group-module'); ?><br>
-		<a href="http://www.wpmailinggroup.com/faq/shortcodes/" target="_blank">www.wpmailinggroup.com/faq/shortcodes/</a><br><br />
 
 		<?php _e("Style settings can be done from Mailing Group Manager -> General Settings -> Stylesheet", 'mailing-group-module'); ?><br />
 		<br>
@@ -89,12 +88,7 @@ $websiteurl    = $WPMG_SETTINGS["MG_WEBSITE_URL"];
 		<a href="#top"><?php _e("^Back to top", 'mailing-group-module'); ?></a><br>
 		<br>
 
-		<!-- echo __('<a name="upgrading"><h3>Upgrading to Premium version</h3></a>', 'mailing-group-module');
-        echo __('<p>Upgrading to the Premium plugin version adds many extra benefits. You can host unlimited Mailing Groups on your WordPress installation, keep searchable Archives of the messages, find messages by the individual member who posted them, and import members from external .VCF files.<br /><br />To upgrade, please deactivate and delete the Free plugin. Do not worry about your existing Mailing Group settings: all the data will be saved - only the unnecessary Free plugin files will be deleted. After uploading the Premium plugin and activating it, your existing Mailing Group will be ready and waiting for you on the list!</p>', 'mailing-group-module');
-		echo sprintf( __('<a href="%s" target="_blank">Upgrade Now ></a>', 'mailing-group-module') , $websiteurl ); -->
-		<a name="upgrading"><h3><?php _e("Access to Premium Support", 'mailing-group-module'); ?></h3></a>
-        <p><?php _e("Please click the Premium Support tab to gain access to the support ticket system which is reserved exclusively for Premium plugin users.", 'mailing-group-module'); ?></p>
-		
+		<a name="upgrading"><h3><?php _e("Access to Support", 'mailing-group-module'); ?></h3></a>
     <br><br><a href="#top"><?php _e("^Back to top", 'mailing-group-module'); ?></a><br>
     </div>
 </div>

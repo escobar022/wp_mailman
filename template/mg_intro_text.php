@@ -34,29 +34,16 @@ $websiteurl            = $WPMG_SETTINGS["MG_WEBSITE_URL"];
         <a href="admin.php?page=wpmg_mailinggroup_messagelist" class="nav-tab" title="<?php _e("Custom Messages", 'mailing-group-module'); ?>"><?php _e("Custom Messages", 'mailing-group-module'); ?></a>
 		<a href="admin.php?page=wpmg_mailinggroup_adminmessagelist" class="nav-tab" title="<?php _e("Admin Messages", 'mailing-group-module'); ?>"><?php _e("Admin Messages", 'mailing-group-module'); ?></a>
         <a href="admin.php?page=wpmg_mailinggroup_style" class="nav-tab" title="<?php _e("Stylesheet", 'mailing-group-module'); ?>"><?php _e("Stylesheet", 'mailing-group-module'); ?></a>
-        <?php if($plugintype=='PAID') { ?>
-        	<a href="admin.php?page=wpmg_mailinggroup_contact" class="nav-tab" title="<?php _e("Contact", 'mailing-group-module'); ?>"><?php _e("Premium Support", 'mailing-group-module'); ?></a>
-        <?php } ?>
+        <a href="admin.php?page=wpmg_mailinggroup_contact" class="nav-tab" title="<?php _e("Contact", 'mailing-group-module'); ?>"><?php _e("Support", 'mailing-group-module'); ?></a>
         <a href="admin.php?page=wpmg_mailinggroup_help" class="nav-tab" title="<?php _e("Help", 'mailing-group-module'); ?>"><?php _e("Help", 'mailing-group-module'); ?></a>
     </h2>
     <div>
-    	<h3><?php echo sprintf( __('WordPress Mailing Group - v.%s','mailing-group-module'), $versionno ); ?><i><br /><font size="2">- by Marcus Sorensen and <a href="http://netforcelabs.com" target="_blank">NetForce Labs</a></font></i></h3>
+    	<h3><?php echo sprintf( __('WordPress Mailing Group - v.%s','mailing-group-module'), $versionno ); ?><i><br /><font size="2">- <a href="http://andres.codes" target="_blank">Andre Escobar</a></font></i></h3>
     </div>
     <div class="div800">
     	<p><?php echo sprintf( __('The WP MailingGroup plugin allows you to run a Mailing Group, also known as a Listserv, right from your WordPress website. This means you can sign up your users, friends, neighbours, family and whoever else you want, directly from your WordPress administration area, and they can then all exchange emails via their favourite email software. This is a true Mailing Group, just like on Yahoo Groups or Google Groups, where there is an email address to send messages to, and everyone who is subscribed to the mailing group gets the message. They can then click Reply, and the whole list will receive their response.', 'mailing-group-module'), $websiteurl ); ?></p>
     </div>
-    <?php if($plugintype=='FREE') { ?>
-        <div class="div800">
-        	<?php
-             echo sprintf( __('<p>HOW GET STARTED? Check the FAQ here for a step-by-step tutorial: <a href="http://www.wpmailinggroup.com/faq/quick-start-in-6-steps/" target="_blank">www.wpmailinggroup.com/faq/quick-start-in-6-steps/</a></p>', 'mailing-group-module'), $websiteurl);
-			?>
-        </div>  
-        <div class="div800">
-        	<?php
-             echo sprintf( __('<p>You are using the FREE version of this plugin - enjoy! A Premium version is available with more features too. See <a target="_blank" href="%s">WPMailingGroup.com</a> for more.</p>', 'mailing-group-module'), $websiteurl);
-			?>
-        </div>   		
-    <?php } ?>
+
     <div id="col-left">
         <div class="col-wrap">
         	<h3><?php _e("Administrator Email Settings", 'mailing-group-module'); ?></h3>

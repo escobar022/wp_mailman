@@ -181,7 +181,7 @@ $result_groups = $query->get_posts();
             <div>
                 <p><?php _e( "To add a new Mailing Group subscriber, please fill in the form below. This will automatically create a basic user account on your WordPress site, which will enable the subscriber to log in and update their mailing preferences later on. They will not be able to make any changes to the rest of your website or settings.", 'mailing-group-module' ); ?></p>
 
-                <p><?php _e( "If the user you wish to add already exists on your WordPress site, please use the Import User page to add them to your Mailing Group. You can also import a list of names and email addresses from a CSV file (and VCF for Premium plugin users), or create a Subscription Request to add a new user to multiple Mailing Groups at the same time (multiple Mailing Groups available in Premium plugin only).", 'mailing-group-module' ); ?></p>
+                <p><?php _e( "If the user you wish to add already exists on your WordPress site, please use the Import User page to add them to your Mailing Group. You can also import a list of names and email addresses from a CSV file, or create a Subscription Request to add a new user to multiple Mailing Groups at the same time (multiple Mailing Groups available in plugin only).", 'mailing-group-module' ); ?></p>
 
                 <div class="form-wrap">
                     <form class="validate" action="" method="post" id="addmember">

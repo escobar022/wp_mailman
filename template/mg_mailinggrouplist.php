@@ -8,7 +8,7 @@
 		<a class="button add-new-h2" href="/wp-admin/edit.php?post_type=mg_groups"><?php _e( "Add New Mailing Group", 'mailing-group-module' ); ?></a>
 	</h2>
 
-	<p><?php _e( "Mailing Groups can be added and configured below. You can set up and configure as many as you wish in this Premium plugin version. Just click 'Add New Mailing Group' to get started.", 'mailing-group-module' ); ?></p>
+	<p><?php _e( "Mailing Groups can be added and configured below. You can set up and configure as many as you wish in this plugin version. Just click 'Add New Mailing Group' to get started.", 'mailing-group-module' ); ?></p>
 
 	<table class="wp-list-table widefat fixed" id="mailinggrouplist">
 		<thead>

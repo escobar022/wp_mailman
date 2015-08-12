@@ -5,7 +5,7 @@
 /*
 Plugin Name: WP Mailing Groups
 Plugin URI: http://andres.codes
-Description: PREMIUM Version -- Connect yourselves with a mailing group run from your WordPress website! This is NOT a one-way mailing or announcement list from an administrator to a group, but a Group email list where all subscribers can exchange messages via one central email address. (NB: POP / IMAP email box required - Cron optional but recommended for low traffic websites)
+Description:  WPMailman is a plugin for managing electronic mail discussion and discussion/workgroups groups. WP Mailman is integrated with the web, making it easy for users to manage their accounts and for list owners to administer their lists. WP Mailman supports built-in archiving, content filtering, and more.
 Author: Andres Escobar
 Version: 1.0
 */
@@ -21,8 +21,8 @@ if ( ! class_exists( 'E_Clean_Exit' ) ) {
 	}
 }
 define( "WPMG_PLUGIN_URL", plugin_dir_url( __FILE__ ) );
-define( "WPMG_PRODUCT_ITEM_NAME", "WP MailingGroup Premium" );
-define( "WPMG_STORE_URL", "http://www.wordpressmailinggroup.com" );
+define( "WPMG_PRODUCT_ITEM_NAME", "WP Mailman" );
+define( "WPMG_STORE_URL", "" );
 
 /* Class to be used in complete plugin for all db requests */
 require_once( "lib/mailinggroupclass.php" );
@@ -297,7 +297,7 @@ function mg_group_custom_meta_fields() {
 			'id'      => $prefix . 'footer_text',
 			'type'    => 'textarea',
 			'default' => '-- -- -- --
-This message was sent to <b>{%name%}</b> at <b>{%email%}</b> by the <a href="{%site_url%}">{%site_url%}</a> website using the <a href="http://WPMailingGroup.com">WPMailingGroup plugin</a>.
+This message was sent to <b>{%name%}</b> at <b>{%email%}</b> by the <a href="{%site_url%}">{%site_url%}</a> website using WP Mailman.
 {%archive_url%}
 <b><a href="{%unsubscribe_url%}">Unsubscribe</a></b> | <a href="{%profile_url%}">Update Profile</a>'
 		),
@@ -309,7 +309,6 @@ This message was sent to <b>{%name%}</b> at <b>{%email%}</b> by the <a href="{%s
 			{%email%} = Email of the receiving member<br>
 			{%site_url%} = Sites URL<br>
 			{%archive_url%} = Message Archive page URL<br>
-			(NB: Message Archive in Premium version only)<br>
 			{%profile_url%} = User profile URL<br>
 			{%unsubscribe_url%} = Unsubscribe URL</code>'
 		),
@@ -582,6 +581,7 @@ function save_custom_meta( $post_id, $post ) {
 }
 
 add_filter( 'cron_schedules', 'cron_add_weekly' );
+
 function cron_add_weekly( $schedules ) {
 	// Adds once weekly to the existing schedules.
 	/*$schedules['wpmg_two_minute']     = array(
@@ -636,7 +636,7 @@ function wpmg_add_mailing_group_plugin() {
 	}
 
 	$wpmg_setting = array(
-		"MG_WEBSITE_URL"                      => "http://www.wpmailinggroup.com",
+		"MG_WEBSITE_URL"                      => "andres.codes",
 		"MG_VERSION_NO"                       => "1.0",
 		"MG_PLUGIN_TYPE"                      => "PAID",
 		"MG_SUBSCRIPTION_REQUEST_CHECK"       => "1",
@@ -645,8 +645,8 @@ function wpmg_add_mailing_group_plugin() {
 		"MG_BOUNCE_CHECK_ALERT_TIMES"         => "2",
 		"MG_BOUNCE_CHECK_ALERT_EMAIL"         => "e.g. your-mail@example.com",
 		"MG_CUSTOM_STYLESHEET"                => "",
-		"MG_CONTACT_ADDRESS"                  => "Test1, first drive<br>Highway 1st<br>NSD 201345",
-		"MG_SUPPORT_EMAIL"                    => "marcus@wpmailinggroup.com",
+		"MG_CONTACT_ADDRESS"                  => "",
+		"MG_SUPPORT_EMAIL"                    => "",
 		"MG_SUPPORT_PHONE"                    => "1800-123-1234"
 	);
 
