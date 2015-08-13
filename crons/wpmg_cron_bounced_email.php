@@ -1,6 +1,6 @@
 <?php
 defined( 'ABSPATH' ) or die( "Cannot access pages directly." );
-
+//TODO: Check bounced email function not updated
 
 function wpmg_cron_bounced_email() {
 	global $objMem, $table_name_parsed_emails, $table_name_sent_emails, $table_name_users;
