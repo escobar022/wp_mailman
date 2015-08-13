@@ -2,7 +2,6 @@
 
 $WPMG_SETTINGS = get_option("WPMG_SETTINGS");
 $versionno     = $WPMG_SETTINGS["MG_VERSION_NO"];
-$plugintype    = $WPMG_SETTINGS["MG_PLUGIN_TYPE"];
 $websiteurl    = $WPMG_SETTINGS["MG_WEBSITE_URL"];
 ?>
 <style>
@@ -25,9 +24,7 @@ $websiteurl    = $WPMG_SETTINGS["MG_WEBSITE_URL"];
         <a href="admin.php?page=wpmg_mailinggroup_messagelist" class="nav-tab" title="<?php _e("Custom Messages", 'mailing-group-module'); ?>"><?php _e("Custom Messages", 'mailing-group-module'); ?></a>
 		<a href="admin.php?page=wpmg_mailinggroup_adminmessagelist" class="nav-tab" title="<?php _e("Admin Messages", 'mailing-group-module'); ?>"><?php _e("Admin Messages", 'mailing-group-module'); ?></a>
         <a href="admin.php?page=wpmg_mailinggroup_style" class="nav-tab" title="<?php _e("Stylesheet", 'mailing-group-module'); ?>"><?php _e("Stylesheet", 'mailing-group-module'); ?></a>
-        <?php if($plugintype=='PAID') { ?>
-        	<a href="admin.php?page=wpmg_mailinggroup_contact" class="nav-tab" title="<?php _e("Contact", 'mailing-group-module'); ?>"><?php _e("Support", 'mailing-group-module'); ?></a>
-        <?php } ?>
+		<a href="admin.php?page=wpmg_mailinggroup_contact" class="nav-tab" title="<?php _e("Contact", 'mailing-group-module'); ?>"><?php _e("Support", 'mailing-group-module'); ?></a>
         <a href="admin.php?page=wpmg_mailinggroup_help" class="nav-tab nav-tab-active" title="<?php _e("Help", 'mailing-group-module'); ?>"><?php _e("Help", 'mailing-group-module'); ?></a>
     </h2>
    <div>

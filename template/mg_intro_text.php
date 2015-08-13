@@ -12,7 +12,6 @@ if(isset($_POST) and $_POST['submit']) {
 	wpmg_showmessages("updated", __("Settings have been updated successfully.", 'mailing-group-module'));
 }
 $versionno             = $WPMG_SETTINGS["MG_VERSION_NO"];
-$plugintype            = $WPMG_SETTINGS["MG_PLUGIN_TYPE"];
 $subscriptioncheck     = $WPMG_SETTINGS["MG_SUBSCRIPTION_REQUEST_CHECK"];
 $subscriptionemail     = $WPMG_SETTINGS["MG_SUBSCRIPTION_REQUEST_ALERT_EMAIL"];
 $bouncecheck           = $WPMG_SETTINGS["MG_BOUNCE_CHECK"];

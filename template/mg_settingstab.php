@@ -1,7 +1,6 @@
 <?php
 
 $WPMG_SETTINGS = get_option("WPMG_SETTINGS");
-$plugintype    = $WPMG_SETTINGS["MG_PLUGIN_TYPE"];
 ?>
 <div class="wrap">
     <h2><?php _e("General Setting", 'mailing-group-module'); ?></h2>
@@ -20,11 +19,9 @@ $plugintype    = $WPMG_SETTINGS["MG_PLUGIN_TYPE"];
                 <div class="icon_content">
                 	<a href="admin.php?page=wpmg_mailinggroup_style" title="<?php _e("Style Manager", 'mailing-group-module'); ?>"><img src="<?php echo WPMG_PLUGIN_URL.'/images/style-icon.png'; ?>" width="80" alt="<?php _e("Style Manager", 'mailing-group-module'); ?>" title="<?php _e("Style Manager", 'mailing-group-module'); ?>" /></a>
                 </div>
-                <?php if($plugintype=='PAID') { ?>
                 	<div class="icon_content">
                         <a href="admin.php?page=wpmg_mailinggroup_contact" title="<?php _e("Contact Info", 'mailing-group-module'); ?>"><img src="<?php echo WPMG_PLUGIN_URL.'/images/contact-info.png'; ?>" width="80" alt="<?php _e("Contact Info", 'mailing-group-module'); ?>" title="<?php _e("Contact Info", 'mailing-group-module'); ?>" /></a>
                     </div>
-                <?php } ?>
             </div>
         </div>
     </div>

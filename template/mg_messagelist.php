@@ -34,7 +34,6 @@ if($info=="saved") {
 	wpmg_showmessages("updated", __("Message has been deleted successfully.", 'mailing-group-module'));
 }
 $WPMG_SETTINGS = get_option("WPMG_SETTINGS");
-$plugintype    = $WPMG_SETTINGS["MG_PLUGIN_TYPE"];
 $result = $objMem->selectRows($table_name_message, "",  "  where message_type='' order by id desc");
 $totcount = count($result);
 ?>

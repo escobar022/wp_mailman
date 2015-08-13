@@ -638,7 +638,6 @@ function wpmg_add_mailing_group_plugin() {
 	$wpmg_setting = array(
 		"MG_WEBSITE_URL"                      => "andres.codes",
 		"MG_VERSION_NO"                       => "1.0",
-		"MG_PLUGIN_TYPE"                      => "PAID",
 		"MG_SUBSCRIPTION_REQUEST_CHECK"       => "1",
 		"MG_SUBSCRIPTION_REQUEST_ALERT_EMAIL" => "e.g. your-mail@example.com",
 		"MG_BOUNCE_CHECK"                     => "0",
@@ -1735,8 +1734,6 @@ function wpmg_user_signup_disable_inactive( $user ) {
 function wpmg_mailing_group_deactivate() {
 	/* REMOVE CONFIG OPTION SET FROM OPTION TABLE*/
 	/*delete_option( "MG_VERSION_NO" );
-
-	delete_option( "MG_PLUGIN_TYPE" );
 
 	delete_option( "MG_SUBSCRIPTION_REQUEST_CHECK" );
 

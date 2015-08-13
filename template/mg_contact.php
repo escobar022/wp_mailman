@@ -4,7 +4,6 @@ $websiteurl     = $WPMG_SETTINGS["MG_WEBSITE_URL"];
 $contactaddress = $WPMG_SETTINGS["MG_CONTACT_ADDRESS"];
 $supportemail   = $WPMG_SETTINGS["MG_SUPPORT_EMAIL"];
 $contactphone   = $WPMG_SETTINGS["MG_SUPPORT_PHONE"];
-$plugintype     = $WPMG_SETTINGS["MG_PLUGIN_TYPE"];
 
 ?>
 <div class="wrap">
