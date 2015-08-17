@@ -138,42 +138,33 @@ $email_format = "";
 
 
 
-$args  = array(
+$args = array(
     'post_type'   => 'mg_groups',
     'post_status' => 'publish',
-    'meta_key'  => 'mg_group_status',
-    'meta_value' => '2'
+    'order_by'    => 'title',
+    'order'       => 'DESC',
+    'meta_query'  => array(
+        'relation' => 'AND',
+        array(
+            'key'   => 'mg_group_status',
+            'value' => '2'
+        ),
+        array(
+            'key'   => 'mg_group_visibility',
+            'value' => '1'
+        ),
+    )
 );
 
 $query = new WP_Query( $args );
 $result_groups = $query->get_posts();
 
 ?>
-<style>
-	.dataTables_info {
-		display: none;
-	}
-
-	.check_div {
-		width: 350px;
-	}
-</style>
-
-<script type="text/javascript">
-	jQuery(document).ready(function () {
-		jQuery("#toplevel_page_mailinggroup_intro").removeClass('wp-not-current-submenu');
-		jQuery("#toplevel_page_mailinggroup_intro").addClass('wp-has-current-submenu');
-		jQuery(".toplevel_page_mailinggroup_intro").removeClass('wp-not-current-submenu');
-		jQuery(".toplevel_page_mailinggroup_intro").addClass('wp-has-current-submenu');
-		jQuery("#toplevel_page_mailinggroup_intro ul :nth-child(4)").addClass("current");
-	});
-</script>
 
 <div xmlns="http://www.w3.org/1999/xhtml" class="wrap nosubsub">
 	<h2 class="nav-tab-wrapper">
 		<a href="admin.php?page=wpmg_mailinggroup_requestmanagerlist" title="<?php _e( "Subscription Request Manager", 'mailing-group-module' ); ?>" class="nav-tab"><?php _e( "Subscription Request Manager", 'mailing-group-module' ); ?></a>
 		<a href="admin.php?page=wpmg_mailinggroup_requestmanageradd&act=add" class="nav-tab nav-tab-active" title="<?php _e( "Add New Subscriber/User", 'mailing-group-module' ); ?>"><?php _e( "Add New Subscriber/User", 'mailing-group-module' ); ?></a>
-		<a href="admin.php?page=wpmg_mailinggroup_importuser" class="nav-tab" title="<?php _e( "Import from Existing Users", 'mailing-group-module' ); ?>"><?php _e( "Import from Existing Users", 'mailing-group-module' ); ?></a>
 	</h2>
 
     <div id="col-left-2">
@@ -181,7 +172,7 @@ $result_groups = $query->get_posts();
             <div>
                 <p><?php _e( "To add a new Mailing Group subscriber, please fill in the form below. This will automatically create a basic user account on your WordPress site, which will enable the subscriber to log in and update their mailing preferences later on. They will not be able to make any changes to the rest of your website or settings.", 'mailing-group-module' ); ?></p>
 
-                <p><?php _e( "If the user you wish to add already exists on your WordPress site, please use the Import User page to add them to your Mailing Group. You can also import a list of names and email addresses from a CSV file, or create a Subscription Request to add a new user to multiple Mailing Groups at the same time (multiple Mailing Groups available in plugin only).", 'mailing-group-module' ); ?></p>
+                <p><?php _e( "If the user you wish to add already exists on your WordPress site, please use the Import User page to add them to your Mailing Group.", 'mailing-group-module' ); ?></p>
 
                 <div class="form-wrap">
                     <form class="validate" action="" method="post" id="addmember">

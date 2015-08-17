@@ -1054,9 +1054,7 @@ table.widefat {
 	display: none;
 }
 
-.pimportcsv {
-	clear: both;
-}
+
 
 .dataTables_paginate {
 	float:       right;

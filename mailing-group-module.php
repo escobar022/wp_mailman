@@ -683,7 +683,6 @@ function wpmg_mailinggroup_Menu() {
 		add_submenu_page( 'null', __( 'Add Member', 'mailing-group-module' ), __( 'Add Member', 'mailing-group-module' ), $admin_level, 'wpmg_mailinggroup_memberadd', 'wpmg_mailinggroup_memberadd' );
 		add_submenu_page( 'wpmg_mailinggroup_intro', __( 'Subscription Requests', 'mailing-group-module' ), __( 'Subscription Requests', 'mailing-group-module' ), $admin_level, 'wpmg_mailinggroup_requestmanagerlist', 'wpmg_mailinggroup_requestmanagerlist' );
 		add_submenu_page( 'wpmg_mailinggroup_intro', __( 'Add Subscribers', 'mailing-group-module' ), __( 'Add Subscribers', 'mailing-group-module' ), $admin_level, 'wpmg_mailinggroup_requestmanageradd', 'wpmg_mailinggroup_requestmanageradd' );
-		add_submenu_page( 'wpmg_mailinggroup_intro', __( 'Import Users', 'mailing-group-module' ), __( 'Import Users', 'mailing-group-module' ), $admin_level, 'wpmg_mailinggroup_importuser', 'wpmg_mailinggroup_importuser' );
 		add_submenu_page( 'null', __( 'Add Subscription Request', 'mailing-group-module' ), __( 'Add Subscription Request', 'mailing-group-module' ), $admin_level, 'wpmg_mailinggroup_requestmanageradd', 'wpmg_mailinggroup_requestmanageradd' );
 		add_submenu_page( 'null', __( 'Send Message', 'mailing-group-module' ), __( 'Send Message', 'mailing-group-module' ), $admin_level, 'wpmg_mailinggroup_sendmessage', 'wpmg_mailinggroup_sendmessage' );
 		add_submenu_page( 'null', __( 'Messages Manager', 'mailing-group-module' ), __( 'Messages Manager', 'mailing-group-module' ), $admin_level, 'wpmg_mailinggroup_messagelist', 'wpmg_mailinggroup_messagelist' );
@@ -691,7 +690,6 @@ function wpmg_mailinggroup_Menu() {
 		add_submenu_page( 'null', __( 'Add Message', 'mailing-group-module' ), __( 'Add Message', 'mailing-group-module' ), $admin_level, 'wpmg_mailinggroup_messageadd', 'wpmg_mailinggroup_messageadd' );
 		add_submenu_page( 'null', __( 'Add Admin Message', 'mailing-group-module' ), __( 'Add Admin Message', 'mailing-group-module' ), $admin_level, 'wpmg_mailinggroup_adminmessageadd', 'wpmg_mailinggroup_adminmessageadd' );
 		add_submenu_page( 'null', __( 'Archived Messages', 'mailing-group-module' ), __( 'Archived Messages', 'mailing-group-module' ), $admin_level, 'wpmg_mailinggroup_adminarchive', 'wpmg_mailinggroup_adminarchive' );
-		add_submenu_page( 'null', __( 'Import User', 'mailing-group-module' ), __( 'Import User', 'mailing-group-module' ), $admin_level, 'wpmg_mailinggroup_importuser', 'wpmg_mailinggroup_importuser' );
 		add_submenu_page( 'null', __( 'Style Manager', 'mailing-group-module' ), __( 'Style Manager', 'mailing-group-module' ), $admin_level, 'wpmg_mailinggroup_style', 'wpmg_mailinggroup_style' );
 		add_submenu_page( 'null', __( 'Contact Info', 'mailing-group-module' ), __( 'Contact Info', 'mailing-group-module' ), $admin_level, 'wpmg_mailinggroup_contact', 'wpmg_mailinggroup_contact' );
 		add_submenu_page( 'null', __( 'Help', 'mailing-group-module' ), __( 'Help', 'mailing-group-module' ), $admin_level, 'wpmg_mailinggroup_help', 'wpmg_mailinggroup_help' );
@@ -717,7 +715,7 @@ function wpmg_mailinggroup_Menu() {
 	) );
 	wp_enqueue_script( 'dataTables.searchHighlight.min.js' );
 	wp_register_script( 'custom.js', plugin_dir_url( __FILE__ ) . 'js/custom.js', array(
-		'jquery'
+		'jquery', 'underscore', 'backbone'
 	) );
 	wp_enqueue_script( 'custom.js' );
 	wp_localize_script( 'custom.js', 'PT_Ajax', array(
@@ -784,12 +782,6 @@ function wpmg_mailinggroup_messageadd() {
 function wpmg_mailinggroup_sendmessage() {
 	global $wpdb, $objMem, $table_name_group, $table_name_message, $table_name_requestmanager;
 	include "template/mg_sendmessage.php";
-}
-
-function wpmg_mailinggroup_importuser() {
-	global $wpdb, $objMem, $table_name_group, $table_name_user_taxonomy;
-	include "lib/vcard.php";
-	include "template/mg_importuser.php";
 }
 
 function wpmg_mailinggroup_requestmanagerlist() {
@@ -900,52 +892,6 @@ function wpmg_trimVal( $value, $by = "" ) {
 
 function wpmg_showmessages( $type, $message ) {
 	echo "<div class='" . $type . "' id='message'><p><strong>Mailing Group Manager: " . $message . "</strong></p></div>";
-}
-
-/**
- * Parses a set of cards from one or more lines. The cards are sorted by
- * the N (name) property value. There is no return value. If two cards
- * have the same key, then the last card parsed is stored in the array.
-
- */
-function wpmg_parse_vcards( &$lines ) {
-	$cards = array();
-	$card  = new VCard();
-	while ( $card->parse( $lines ) ) {
-		$property = $card->getProperty( 'N' );
-		if ( ! $property ) {
-			return "";
-		}
-		$n   = $property->getComponents();
-		$tmp = array();
-		if ( $n[3] ) {
-			$tmp[] = $n[3];
-		}  /* Mr. */
-		if ( $n[1] ) {
-			$tmp[] = $n[1];
-		} /*  John */
-		if ( $n[2] ) {
-			$tmp[] = $n[2];
-		} /*  Quinlan */
-		if ( $n[4] ) {
-			$tmp[] = $n[4];
-		} /*  Esq. */
-		$ret = array();
-		if ( $n[0] ) {
-			$ret[] = $n[0];
-		}
-		$tmp = join( " ", $tmp );
-		if ( $tmp ) {
-			$ret[] = $tmp;
-		}
-		$key           = join( ", ", $ret );
-		$cards[ $key ] = $card;
-		/*  MDH: Create new VCard to prevent overwriting previous one (PHP5) */
-		$card = new VCard();
-	}
-	ksort( $cards );
-
-	return $cards;
 }
 
 /* general function */
@@ -1788,7 +1734,6 @@ function wpmg_custom_menu_hack() {
 		"wpmg_mailinggroup_intro",
 		"wpmg_mailinggroup_messagelist",
 		"wpmg_mailinggroup_messageadd",
-		"wpmg_mailinggroup_importuser",
 		"wpmg_mailinggroup_adminarchive",
 		"wpmg_mailinggroup_style",
 		"wpmg_mailinggroup_contact"

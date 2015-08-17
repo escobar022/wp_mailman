@@ -358,25 +358,3 @@ jQuery(function ($) {
 	});
 });
 
-/*Import Users */
-jQuery(function ($) {
-	$("#importuserform1").submit(function () {
-		if (!isCheckedById("selector")) {
-			alert("Please select at least one user.");
-			return false;
-		}
-		if (!isCheckedById("selectorgroup")) {
-			alert("Please select at least group.");
-			return false;
-		}
-		return true;
-	});
-
-	$("#importuserform2").submit(function () {
-		var ext = $('#fileupload').val().split('.').pop().toLowerCase();
-		if ($.inArray(ext, ['csv']) == -1) {
-			alert("Invalid file format, please browse a csv file.");
-			return false;
-		}
-	});
-});
