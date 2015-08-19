@@ -3,7 +3,7 @@
  */
 (function($) {
 
-//wp_quiz tes
+//wp_quiz
 
 
 }(jQuery));
