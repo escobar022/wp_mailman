@@ -729,6 +729,9 @@ wp_register_style( 'mg_frontend.css', plugin_dir_url( __FILE__ ) . 'css/mg_front
 wp_enqueue_style( 'mg_frontend.css' );
 
 
+wp_register_script('backbone_grp_users_js', plugin_dir_url(__FILE__) . 'js/backbone_grp_users.js', array('backbone'), null, true);
+wp_enqueue_script('backbone_grp_users_js');
+
 /* initialize menu */
 add_action( 'admin_menu', 'wpmg_mailinggroup_Menu' );
 /* initialize languae loader */
@@ -1338,8 +1341,6 @@ if ( ! function_exists( 'wp_new_user_notification' ) ) {
 			$user_login,
 			$user_email,
 			$siteTitle,
-			$group_selected,
-			$siteGroupUrl,
 			$siteUrl,
 			$siteEmail,
 			$loginURL
@@ -1357,8 +1358,6 @@ if ( ! function_exists( 'wp_new_user_notification' ) ) {
 			$user_login,
 			$user_email,
 			$siteTitle,
-			$group_selected,
-			$siteGroupUrl,
 			$siteUrl,
 			$siteEmail,
 			$loginURL
@@ -1387,8 +1386,6 @@ if ( ! function_exists( 'wp_new_user_notification' ) ) {
 			$user_email,
 			$plaintext_pass,
 			$siteTitle,
-			$group_selected,
-			$siteGroupUrl,
 			$siteUrl,
 			$siteEmail,
 			$loginURL
@@ -1408,8 +1405,6 @@ if ( ! function_exists( 'wp_new_user_notification' ) ) {
 			$user_email,
 			$plaintext_pass,
 			$siteTitle,
-			$group_selected,
-			$siteGroupUrl,
 			$siteUrl,
 			$siteEmail,
 			$loginURL
@@ -1430,6 +1425,7 @@ function wpmg_sendConfirmationtoMember( $id, $groupArray ) {
 	$user_login   = stripslashes( $user->user_login );
 	$user_email   = stripslashes( $user->user_email );
 	$user_reg     = stripslashes( $user->user_registered );
+    $grouplist = '';
 	if ( count( $groupArray ) > 0 ) {
 		foreach ( $groupArray as $key => $value ) {
 			$get_group  = $objMem->selectRows( $table_name_group, "", " where id='" . $key . "'" );
@@ -1459,8 +1455,6 @@ function wpmg_sendConfirmationtoMember( $id, $groupArray ) {
 		$user_login,
 		$user_email,
 		$siteTitle,
-		$group_selected,
-		$siteGroupUrl,
 		$siteUrl,
 		$siteEmail,
 		$activationURL,
@@ -1484,8 +1478,6 @@ function wpmg_sendConfirmationtoMember( $id, $groupArray ) {
 		$user_login,
 		$user_email,
 		$siteTitle,
-		$group_selected,
-		$siteGroupUrl,
 		$siteUrl,
 		$siteEmail,
 		$activationURL,
@@ -1515,6 +1507,7 @@ function wpmg_sendGroupConfirmationtoMember( $id, $groupArray ) {
 	$user_email   = stripslashes( $user->user_email );
 	$user_reg     = stripslashes( $user->user_registered );
 	$i            = 1;
+    $grouplist = '';
 	if ( count( $groupArray ) > 0 ) {
 		foreach ( $groupArray as $key => $value ) {
 			$get_group  = $objMem->selectRows( $table_name_group, "", " where id='" . $key . "'" );
@@ -1543,11 +1536,8 @@ function wpmg_sendGroupConfirmationtoMember( $id, $groupArray ) {
 		$user_login,
 		$user_email,
 		$siteTitle,
-		$group_selected,
-		$siteGroupUrl,
 		$siteUrl,
 		$siteEmail,
-		$activationURL,
 		$grouplist,
 		$loginURL
 	), $dataMessage ) );
@@ -1569,10 +1559,8 @@ function wpmg_sendGroupConfirmationtoMember( $id, $groupArray ) {
 		$user_email,
 		$siteTitle,
 		$grouplist,
-		$siteGroupUrl,
 		$siteUrl,
 		$siteEmail,
-		$activationURL,
 		$grouplist,
 		$loginURL
 	), $message_subject ) );
@@ -1619,6 +1607,13 @@ function wpmg_check_user_activation_link( $template ) {
 	/* wpmg_activation_url(98, "2013-08-29 13:14:31"); */
 	extract( $_GET );
 	$error = new WP_Error();
+    $verify='';
+    $activationkey='';
+    $nonce= '';
+    $unsubscribe='';
+    $userid='';
+    $group='';
+
 	if ( $verify == '1' && $activationkey != '' && $nonce != '' ) {
 		$result = $objMem->selectRows( $wpdb->users, "", " where MD5(ID) = '" . $activationkey . "' and MD5(user_registered) = '" . $nonce . "' order by id desc" );
 		if ( $result[0] && is_array( $result ) ) {

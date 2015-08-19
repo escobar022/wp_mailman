@@ -44,37 +44,37 @@ $user_query = new WP_User_Query( $args );
 $totcount   = $user_query->total_users;
 
 
-if ( $totcount > 0 ) {
-	?>
+/*if ( $totcount > 0 ) {
+	*/?><!--
 	<script type="text/javascript">
 		/* <![CDATA[ */
 		jQuery(document).ready(function () {
 			/* Build the DataTable with third column using our custom sort functions */
-			<?php if(count($totcount)>0) { ?>
+			<?php /*if(count($totcount)>0) { */?>
 			jQuery('#memberlist').dataTable({
 				"aoColumnDefs"  : [
 					{"bSortable": false, "aTargets": [2, 3, 4]}
 				],
 				"oLanguage"     : {
-					"sZeroRecords": "<?php _e("No members found.", 'mailing-group-module'); ?>"
+					"sZeroRecords": "<?php /*_e("No members found.", 'mailing-group-module'); */?>"
 				},
 				"fnDrawCallback": function () {
-					if ('<?php echo $totcount; ?>' <= 5) {
+					if ('<?php /*echo $totcount; */?>' <= 5) {
 						document.getElementById('memberlist_paginate').style.display = "none";
 					} else {
 						document.getElementById('memberlist_paginate').style.display = "block";
 					}
 				}
 			});
-			<?php } ?>
+			<?php /*} */?>
 			jQuery("#toplevel_page_mailinggroup_intro").removeClass('wp-not-current-submenu');
 			jQuery("#toplevel_page_mailinggroup_intro").addClass('wp-has-current-submenu');
 			jQuery("#toplevel_page_mailinggroup_intro ul :nth-child(3)").addClass("current");
 		});
 		/* ]]> */
 	</script>
-<?php
-}
+--><?php
+/*}*/
 $groupName = get_the_title( $gid );
 ?>
 <script type="text/javascript">
@@ -148,7 +148,7 @@ $groupName = get_the_title( $gid );
 
 		} else { ?>
 		<tr>
-			<td colspan="6" align="center"><?php _e( "No members found.", 'mailing-group-module' ); ?></td>
+			<td colspan="5" align="center"><?php _e( "No members found.", 'mailing-group-module' ); ?></td>
 		<tr>
 			<?php } ?>
 		</tbody>
