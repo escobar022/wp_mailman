@@ -15,18 +15,18 @@ class mailinggroupClass {
 					$exp = implode( ",", $grpinfo[ $key ] );
 					if ( $field == "" ) {
 						$field = "`" . $key . "`";
-						$vals  = $vals . ",'" . wpmg_dbAddslashes( $exp ) . "'";
+						$vals  = $vals . ",'" . addslashes( $exp ) . "'";
 					} else {
 						$field = $field . ",`" . $key . "`";
-						$vals  = $vals . ",'" . wpmg_dbAddslashes( $exp ) . "'";
+						$vals  = $vals . ",'" . addslashes( $exp ) . "'";
 					}
 				} else {
 					if ( $field == "" ) {
 						$field = "`" . $key . "`";
-						$vals  = "'" . wpmg_dbAddslashes( wpmg_trimVal( $grpinfo[ $key ] ) ) . "'";
+						$vals  = "'" . addslashes( wpmg_trimVal( $grpinfo[ $key ] ) ) . "'";
 					} else {
 						$field = $field . ",`" . $key . "`";
-						$vals  = $vals . ",'" . wpmg_dbAddslashes( wpmg_trimVal( $grpinfo[ $key ] ) ) . "'";
+						$vals  = $vals . ",'" . addslashes( wpmg_trimVal( $grpinfo[ $key ] ) ) . "'";
 					}
 				}
 			}
@@ -51,15 +51,15 @@ class mailinggroupClass {
 				if ( is_array( $grpinfo[ $key ] ) ) {
 					$exp = implode( ",", $grpinfo[ $key ] );
 					if ( $field == "" && $key != "id" ) {
-						$field = "`" . $key . "` = '" . wpmg_dbAddslashes( wpmg_trimVal( $exp ) ) . "'";
+						$field = "`" . $key . "` = '" . addslashes( wpmg_trimVal( $exp ) ) . "'";
 					} else if ( $key != "id" ) {
-						$field = $field . ",`" . $key . "` = '" . wpmg_dbAddslashes( wpmg_trimVal( $exp ) ) . "'";
+						$field = $field . ",`" . $key . "` = '" . addslashes( wpmg_trimVal( $exp ) ) . "'";
 					}
 				} else {
 					if ( $field == "" && $key != "id" ) {
-						$field = "`" . $key . "` = '" . wpmg_dbAddslashes( wpmg_trimVal( $grpinfo[ $key ] ) ) . "'";
+						$field = "`" . $key . "` = '" . addslashes( wpmg_trimVal( $grpinfo[ $key ] ) ) . "'";
 					} else if ( $key != "id" ) {
-						$field = $field . ",`" . $key . "` = '" . wpmg_dbAddslashes( wpmg_trimVal( $grpinfo[ $key ] ) ) . "'";
+						$field = $field . ",`" . $key . "` = '" . addslashes( wpmg_trimVal( $grpinfo[ $key ] ) ) . "'";
 					}
 				}
 			}
@@ -112,7 +112,7 @@ class mailinggroupClass {
 			if ( $extracheck = "idCheck" ) {
 				$substr = " and id!='" . $grpinfo['id'] . "'";
 			}
-			$sSQL = "select * from " . $tblname . " where " . $field . "='" . wpmg_dbAddslashes( wpmg_trimVal( $grpinfo[ $field ] ) ) . "' $substr";
+			$sSQL = "select * from " . $tblname . " where " . $field . "='" . addslashes( wpmg_trimVal( $grpinfo[ $field ] ) ) . "' $substr";
 			$res  = $wpdb->get_results( $sSQL );
 			if ( sizeof( $res ) ) {
 				return true;

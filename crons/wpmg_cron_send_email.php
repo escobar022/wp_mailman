@@ -56,7 +56,7 @@ function wpmg_cron_send_email() {
 					if ( count( $totcount ) > 0 ) {
 						foreach ( $user_query->results as $memberstoSent ) {
 
-							$footerText               = wpmg_nl2brformat( wpmg_dbStripslashes( get_post_meta( $group_id, 'mg_group_footer_text', true ) ) );
+							$footerText               = nl2br( stripslashes( get_post_meta( $group_id, 'mg_group_footer_text', true ) ) );
 							$groupTitle               = get_the_title( $group_id );
 							$groupEmail               = get_post_meta( $group_id, 'mg_group_email', true );
 //							$useinSubject             = get_post_meta( $group_id, 'mg_group_use_in_subject', true );

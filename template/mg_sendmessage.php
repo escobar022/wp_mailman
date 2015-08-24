@@ -8,7 +8,7 @@ $id = sanitize_text_field($_REQUEST['id']);$_POST = stripslashes_deep( $_POST );
 if($actreq == 'getMess') {
 	$get_message = $objMem->selectRows($table_name_message, "", " where id='".$gid."'");
 	foreach($get_message as $messg) {
-		$response = array("id"=>wpmg_dbStripslashes($messg->id),"title"=>wpmg_dbStripslashes($messg->title),"description"=>wpmg_dbStripslashes($messg->description));
+		$response = array("id"=>stripslashes($messg->id),"title"=>stripslashes($messg->title),"description"=>stripslashes($messg->description));
 	}
 	wp_send_json($response);
 	exit;
@@ -105,7 +105,7 @@ if($addme==1) {
                             	<option value=""><?php _e("Select Message", 'mailing-group-module'); ?></option>
                                 <option value="0"><?php _e("New Message", 'mailing-group-module'); ?></option>
                                 <?php foreach($result_message as $message) { ?>
-                                	<option value="<?php echo $message->id; ?>"><?php echo wpmg_dbStripslashes($message->title); ?></option>
+                                	<option value="<?php echo $message->id; ?>"><?php echo stripslashes($message->title); ?></option>
                                 <?php } ?>
                             </select>
                         </div>

@@ -45,14 +45,6 @@ $visibilityArray = array(
 $WPMG_SETTINGS = get_option( "WPMG_SETTINGS" );
 global $WPMG_SETTINGS;
 
-$table_name_group                   = $wpdb->prefix . "mailing_group";
-$table_name_message                 = $wpdb->prefix . "mailing_group_messages";
-$table_name_requestmanager          = $wpdb->prefix . "mailing_group_requestmanager";
-$table_name_requestmanager_taxonomy = $wpdb->prefix . "mailing_group_taxonomy";
-$table_name_user_taxonomy           = $wpdb->prefix . "mailing_group_user_taxonomy";
-$table_name_parsed_emails           = $wpdb->prefix . "mailing_group_parsed_emails";
-$table_name_emails_attachments      = $wpdb->prefix . "mailing_group_emails_attachments";
-$table_name_sent_emails             = $wpdb->prefix . "mailing_group_sent_emails";
 $table_name_users                   = $wpdb->prefix . "users";
 $table_name_usermeta                = $wpdb->prefix . "usermeta";
 
@@ -576,8 +568,6 @@ function save_custom_meta( $post_id, $post ) {
 			delete_post_meta( $post_id, $field['id'], $old );
 		}
 	} // end foreach
-
-
 }
 
 add_filter( 'cron_schedules', 'cron_add_weekly' );
@@ -620,7 +610,6 @@ function do_output_buffer() {
 	ob_start();
 }
 
-
 function wpmg_add_mailing_group_plugin() {
 
 	/* ADD CONFIG OPTION TO OPTION TABLE*/
@@ -652,23 +641,14 @@ function wpmg_add_mailing_group_plugin() {
 	update_option( "WPMG_SETTINGS", $wpmg_setting );
 }
 
-function wpmg_myStartSession() {
-	if ( ! session_id() && ! is_admin() ) {
-		session_start();
-	}
-}
-
-function wpmg_myEndSession() {
-	session_destroy();
-}
-
 /* Hooks used in Plugin */
 register_activation_hook( __FILE__, 'wpmg_add_mailing_group_plugin' );
 register_uninstall_hook( __FILE__, "wpmg_mailing_group_uninstall" );
-register_deactivation_hook( __FILE__, "wpmg_mailing_group_deactivate" );
-add_action( 'init', 'wpmg_myStartSession', 1 );
-add_action( 'wp_logout', 'wpmg_myEndSession' );
-add_action( 'wp_login', 'wpmg_myEndSession' );
+
+function wpmg_mailing_group_uninstall() {
+	return true;
+}
+
 /* Creating Menus */
 function wpmg_mailinggroup_Menu() {
 	$admin_level = 10;
@@ -814,7 +794,7 @@ function wpmg_mailinggroup_membergroups() {
 }
 
 function wpmg_mailinggroup_adminarchive() {
-	global $wpdb, $objMem, $table_name_sent_emails, $table_name_parsed_emails, $table_name_emails_attachments, $table_name_group;
+	global $wpdb, $objMem, $table_name_sent_emails, $table_name_emails_attachments, $table_name_group;
 	include "template/mg_adminarchived.php";
 }
 
@@ -859,26 +839,6 @@ function wpmg_redirectTo( $page, $end = "admin" ) {
 		header( "Location: " . $url );
 		exit;
 	}
-}
-
-function wpmg_dbAddslashes( $value ) {
-	return addslashes( $value );
-}
-
-function wpmg_dbStripslashes( $value ) {
-	return stripslashes( $value );
-}
-
-function wpmg_dbHtmlentities( $value ) {
-	return htmlentities( $value );
-}
-
-function wpmg_nl2brformat( $value ) {
-	return nl2br( $value );
-}
-
-function wpmg_checklength( $value ) {
-	return strlen( $value );
 }
 
 function wpmg_stringlength( $value, $length = 75 ) {
@@ -1197,7 +1157,115 @@ function wpmg_deny_group_request_callback() {
 //        update_post_meta($request_id,'mg_requested_denied','denied');
 
 	} else {
-		error_log( 'Group already subscrbed' );
+		error_log( 'Group already subscribed' );
+	}
+
+
+	/*	if ( empty( $denied_requests ) ) {
+			$denied_requests   = array();
+			$denied_requests[] = $group_requested_id;
+			update_user_meta( $user_id, 'mg_user_denied_request', $denied_requests );
+			error_log( print_r( $denied_requests, true ) );
+
+		} else {
+			$updated_denied_request   = $denied_requests;
+			$updated_denied_request[] = $group_requested_id;
+			update_user_meta( $user_id, 'mg_user_denied_request', $updated_denied_request );
+			error_log( print_r( $updated_denied_request, true ) );
+		}*/
+
+
+	$response = json_encode( $_POST );
+	// response output
+	header( "Content-Type: application/json" );
+	echo $response;
+
+	wp_die();
+}
+
+//Manage Group Manager
+add_action( 'wp_ajax_wpmg_remove_user', 'wpmg_remove_user_callback' );
+//add_action( 'wp_ajax_wpmg_deny_group_request', 'wpmg_deny_group_request_callback' );
+
+function wpmg_remove_user() {
+	// check nonce
+	$nonce = $_POST['nextNonce'];
+
+	if ( ! wp_verify_nonce( $nonce, 'myajax-next-nonce' ) ) {
+		die ( 'Busted!' );
+	}
+
+	$request_id = $_POST['request_id'];
+	$user_id    = $_POST['user_id'];
+
+	$groups_subscribed    = get_user_meta( $user_id, 'mg_user_group_subscribed', true );
+	$groups_requested_arr = get_user_meta( $user_id, 'mg_user_requested_groups', true );
+	$group_requested_id   = get_post_meta( $request_id, 'mg_request_group_id', true );
+	$groups_array         = array();
+
+//	if ( empty( $groups_subscribed ) ) {
+//		$groups_subscribed = array();
+//	}
+//
+//	if ( ! array_key_exists( $group_requested_id, $groups_subscribed ) ) {
+//
+//		$new_groups_subscribed                        = $groups_subscribed;
+//		$new_groups_subscribed[ $group_requested_id ] = $groups_requested_arr[ $group_requested_id ]['group_format'];
+//
+//		$groups_subscribed_arr = $new_groups_subscribed;
+//		foreach ( $groups_subscribed_arr as $group => $format ) {
+//			$groups_array[] = (string) $group;
+//		}
+//
+//		update_user_meta( $user_id, 'mg_user_group_subscribed', $new_groups_subscribed, $groups_subscribed );
+//		update_user_meta( $user_id, 'mg_user_group_sub_arr', $groups_array );
+//
+//		$updated_requested_groups = $groups_requested_arr;
+//		unset( $updated_requested_groups[ $group_requested_id ] );
+//
+//		update_user_meta( $user_id, 'mg_user_requested_groups', $updated_requested_groups, $groups_requested_arr );
+//
+//		wp_delete_post( $request_id, true );
+//
+//	} else {
+//		error_log( 'Group already subscrbed' );
+//	}
+
+
+	$response = json_encode( $_POST );
+	// response output
+	header( "Content-Type: application/json" );
+	echo $response;
+
+	wp_die();
+}
+
+function wpmg_deny_group_request2_callback() {
+	// check nonce
+	$nonce = $_POST['nextNonce'];
+
+	if ( ! wp_verify_nonce( $nonce, 'myajax-next-nonce' ) ) {
+		die ( 'Busted!' );
+	}
+
+	$request_id           = $_POST['request_id'];
+	$user_id              = $_POST['user_id'];
+	$groups_subscribed    = get_user_meta( $user_id, 'mg_user_group_subscribed', true );
+	$groups_requested_arr = get_user_meta( $user_id, 'mg_user_requested_groups', true );
+	$group_requested_id   = get_post_meta( $request_id, 'mg_request_group_id', true );
+//	$denied_requests      = get_user_meta( $user_id, 'mg_user_group_subscribed', true );
+
+	if ( ! array_key_exists( $group_requested_id, $groups_subscribed ) ) {
+
+		$updated_requested_groups = $groups_requested_arr;
+		unset( $updated_requested_groups[ $group_requested_id ] );
+
+		update_user_meta( $user_id, 'mg_user_requested_groups', $updated_requested_groups, $groups_requested_arr );
+		wp_delete_post( $request_id, true );
+//        update_post_meta($request_id,'mg_requested_denied','denied');
+
+	} else {
+		error_log( 'Group already subscribed' );
 	}
 
 
@@ -1233,8 +1301,8 @@ function wpmg_sendmessagetoSubscriber( $gid, $id, $info ) {
 	$get_user    = $objMem->selectRows( $table_name_requestmanager, "", " where id='" . $id . "'" );
 	$sendToname  = $get_user[0]->name;
 	$sendToemail = $get_user[0]->email;
-	$subject     = wpmg_dbStripslashes( $info['title'] );
-	$message     = wpmg_dbStripslashes( $info['description'] );
+	$subject     = stripslashes( $info['title'] );
+	$message     = stripslashes( $info['description'] );
 	$message     = str_replace( "{%name%}", $sendToname, $message );
 	$message     = str_replace( "{%email%}", $sendToemail, $message );
 	$message     = str_replace( "{%site_title%}", get_bloginfo( 'name' ), $message );
@@ -1270,8 +1338,8 @@ function wpmg_sendmessagetoAdmin( $name, $email, $grpsel ) {
 		$headers        = 'From: ' . get_bloginfo( 'name' ) . ' <' . get_bloginfo( 'admin_email' ) . '>' . "\r\n";
 		$headers .= 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
 		$get_message     = $objMem->selectRows( $table_name_message, "", " where message_type = 'wpmg_sendmessagetoAdmin'" );
-		$message_subject = wpmg_dbStripslashes( $get_message[0]->message_subject );
-		$dataMessage     = wpmg_dbStripslashes( $get_message[0]->description );
+		$message_subject = stripslashes( $get_message[0]->message_subject );
+		$dataMessage     = stripslashes( $get_message[0]->description );
 		$message         = nl2br( str_replace( array(
 			'{%name%}',
 			'{%email%}',
@@ -1326,8 +1394,8 @@ if ( ! function_exists( 'wp_new_user_notification' ) ) {
 		$user_login      = stripslashes( $user->user_login );
 		$user_email      = stripslashes( $user->user_email );
 		$get_message     = $objMem->selectRows( $table_name_message, "", " where message_type = 'RegistrationNotificationMailToAdmin'" );
-		$dataMessage     = wpmg_dbStripslashes( $get_message[0]->description );
-		$message_subject = wpmg_dbStripslashes( $get_message[0]->message_subject );
+		$dataMessage     = stripslashes( $get_message[0]->description );
+		$message_subject = stripslashes( $get_message[0]->message_subject );
 		$message         = nl2br( str_replace( array(
 			'{%name%}',
 			'{%email%}',
@@ -1369,8 +1437,8 @@ if ( ! function_exists( 'wp_new_user_notification' ) ) {
 			return;
 		}
 		$get_message     = $objMem->selectRows( $table_name_message, "", " where message_type = 'RegistrationNotificationMailToMember'" );
-		$dataMessage     = wpmg_dbStripslashes( $get_message[0]->description );
-		$message_subject = wpmg_dbStripslashes( $get_message[0]->message_subject );
+		$dataMessage     = stripslashes( $get_message[0]->description );
+		$message_subject = stripslashes( $get_message[0]->message_subject );
 		$message         = nl2br( str_replace( array(
 			'{%name%}',
 			'{%email%}',
@@ -1436,8 +1504,8 @@ function wpmg_sendConfirmationtoMember( $id, $groupArray ) {
 	}
 	$activationURL   = wpmg_activation_url( $id, $user_reg );
 	$get_message     = $objMem->selectRows( $table_name_message, "", " where message_type = 'Confirmationemailforsubscribertoverifyaccount'" );
-	$dataMessage     = wpmg_dbStripslashes( $get_message[0]->description );
-	$message_subject = wpmg_dbStripslashes( $get_message[0]->message_subject );
+	$dataMessage     = stripslashes( $get_message[0]->description );
+	$message_subject = stripslashes( $get_message[0]->message_subject );
 	$message         = nl2br( str_replace( array(
 		'{%displayname%}',
 		'{%name%}',
@@ -1517,8 +1585,8 @@ function wpmg_sendGroupConfirmationtoMember( $id, $groupArray ) {
 		$grouplist = wpmg_trimVal( $grouplist, ", " );
 	}
 	$get_message     = $objMem->selectRows( $table_name_message, "", " where message_type = 'Emailuseronsuccessfullregisterationofagroup'" );
-	$dataMessage     = wpmg_dbStripslashes( $get_message[0]->description );
-	$message_subject = wpmg_dbStripslashes( $get_message[0]->message_subject );
+	$dataMessage     = stripslashes( $get_message[0]->description );
+	$message_subject = stripslashes( $get_message[0]->message_subject );
 	$message         = nl2br( str_replace( array(
 		'{%displayname%}',
 		'{%name%}',
@@ -1670,36 +1738,8 @@ function wpmg_user_signup_disable_inactive( $user ) {
 	return $user;
 }
 
-/* disable user with status 2 to login */
-/*uninstall and deactivate code*/
-function wpmg_mailing_group_deactivate() {
-	/* REMOVE CONFIG OPTION SET FROM OPTION TABLE*/
-	/*delete_option( "MG_VERSION_NO" );
 
-	delete_option( "MG_SUBSCRIPTION_REQUEST_CHECK" );
 
-	delete_option( "MG_SUBSCRIPTION_REQUEST_ALERT_EMAIL" );
-
-	delete_option( "MG_BOUNCE_CHECK" );
-
-	delete_option( "MG_BOUNCE_CHECK_ALERT_TIMES" );
-
-	delete_option( "MG_BOUNCE_CHECK_ALERT_EMAIL" );
-
-	delete_option( "MG_CUSTOM_STYLESHEET" );
-
-	delete_option( "MG_WEBSITE_URL" );
-
-	delete_option( "MG_CONTACT_ADDRESS" );
-
-	delete_option( "MG_SUPPORT_EMAIL" );
-
-	delete_option( "MG_SUPPORT_PHONE" );*/
-}
-
-function wpmg_mailing_group_uninstall() {
-	return true;
-}
 
 /*uninstall and deactivate code*/
 /* hook to delete user taxonomy on deleting from wordpress */

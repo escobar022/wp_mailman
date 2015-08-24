@@ -144,7 +144,6 @@ $email_format = "";
 
 ?>
 
-
 <div xmlns="http://www.w3.org/1999/xhtml" class="wrap nosubsub">
 	<div class="icon32" id="icon-edit"><br /></div>
 	<h2><?php _e( "Add/Edit Member", 'mailing-group-module' ); ?></h2>
@@ -154,112 +153,82 @@ $email_format = "";
 			<div>
 				<p><?php _e( "To add a new Mailing Group subscriber, please fill in the form below. This will automatically create a basic user account on your WordPress site, which will enable the subscriber to log in and update their mailing preferences later on. They will not be able to make any changes to the rest of your website or settings.", 'mailing-group-module' ); ?></p>
 
-				<p><?php _e( "If the user you wish to add already exists on your WordPress site, please use the Import User page to add them to your Mailing Group.", 'mailing-group-module' ); ?></p>
-
-				<div class="form-wrap">
-
-					<table id="users">
-						<thead>
-						<tr>
-							<th>First Name</th>
-							<th>Last Name</th>
-							<th>Email Address</th>
-						</tr>
-						</thead>
-						<tbody id="users__body"></tbody>
-					</table>
-
-				</div>
-			</div>
-		</div>
-	</div>
-</div>
-
-<!--<div xmlns="http://www.w3.org/1999/xhtml" class="wrap nosubsub">
-	<div class="icon32" id="icon-edit"><br /></div>
-	<h2><?php /*_e( "Add/Edit Member", 'mailing-group-module' ); */?></h2>
-
-	<div id="col-left-2">
-		<div class="col-wrap">
-			<div>
-				<p><?php /*_e( "To add a new Mailing Group subscriber, please fill in the form below. This will automatically create a basic user account on your WordPress site, which will enable the subscriber to log in and update their mailing preferences later on. They will not be able to make any changes to the rest of your website or settings.", 'mailing-group-module' ); */?></p>
-
-				<p><?php /*_e( "If the user you wish to add already exists on your WordPress site, please use the Import User page to add them to your Mailing Group. You can also import a list of names and email addresses from a CSV file, or create a Subscription Request to add a new user to multiple Mailing Groups at the same time (multiple Mailing Groups available in plugin only).", 'mailing-group-module' ); */?></p>
+				<p><?php _e( "If the user you wish to add already exists on your WordPress site, please use the Import User page to add them to your Mailing Group. You can also import a list of names and email addresses from a CSV file, or create a Subscription Request to add a new user to multiple Mailing Groups at the same time (multiple Mailing Groups available in plugin only).", 'mailing-group-module' ); ?></p>
 
 				<div class="form-wrap">
 					<form class="validate" action="" method="post" id="addmember">
 						<div class="form-field">
-							<label for="tag-name"><?php /*_e( "Name", 'mailing-group-module' ); */?> : </label>
-							<input type="text" size="40" id="name" name="name" value="<?php /*echo $name; */?>" />
+							<label for="tag-name"><?php _e( "Name", 'mailing-group-module' ); ?> : </label>
+							<input type="text" size="40" id="name" name="name" value="<?php echo $name; ?>" />
 						</div>
-						<?php /*if ( $act != 'upd' ) { */?>
+						<?php if ( $act != 'upd' ) { ?>
 							<div class="form-field">
 								<label for="tag-name">&nbsp;</label>
-								<input type="checkbox" name="auto_generate" <?php /*echo( $auto_generate == '1' ? "checked" : "" ); */?> value="1" id="auto_generate" />&nbsp;<?php /*_e( "Auto-generate WordPress username", 'mailing-group-module' ); */?>
+								<input type="checkbox" name="auto_generate" <?php echo( $auto_generate == '1' ? "checked" : "" ); ?> value="1" id="auto_generate" />&nbsp;<?php _e( "Auto-generate WordPress username", 'mailing-group-module' ); ?>
 							</div>
-						<?php /*} */?>
+						<?php } ?>
 						<div class="form-field" id="gen_username">
-							<label for="tag-name"><?php /*_e( "Username", 'mailing-group-module' ); */?> : </label>
-							<input type="text" size="40" id="username" name="username" <?php /*echo( $act == 'upd' ? 'disabled="disabled"' : "" ) */?> value="<?php /*echo $username; */?>" /><?php /*if ( $act != 'upd' ) { */?>&nbsp;<a href="#" id="check_username" name="check_username"/><?php /*_e( "Check Availability", 'mailing-group-module' ); */?></a><?php /*} */?><?php /*echo( $act == 'upd' ? '&nbsp;' . __( "Username cannot be edited.", 'mailing-group-module' ) : "" ) */?>
+							<label for="tag-name"><?php _e( "Username", 'mailing-group-module' ); ?> : </label>
+							<input type="text" size="40" id="username" name="username" <?php echo( $act == 'upd' ? 'disabled="disabled"' : "" ) ?> value="<?php echo $username; ?>" /><?php if ( $act != 'upd' ) { ?>&nbsp;<a href="#" id="check_username" name="check_username"/><?php _e( "Check Availability", 'mailing-group-module' ); ?></a><?php } ?><?php echo( $act == 'upd' ? '&nbsp;' . __( "Username cannot be edited.", 'mailing-group-module' ) : "" ) ?>
 						</div>
 						<div class="form-field">
-							<label for="tag-name"><?php /*_e( "Email Address", 'mailing-group-module' ); */?> : </label>
-							<input type="text" size="40" id="email" name="email" <?php /*echo( $act == 'upd' ? 'disabled="disabled"' : "" ) */?> value="<?php /*echo $email; */?>" /><?php /*echo( $act == 'upd' ? '&nbsp;' . __( "Email cannot be edited.", 'mailing-group-module' ) : "" ) */?>
+							<label for="tag-name"><?php _e( "Email Address", 'mailing-group-module' ); ?> : </label>
+							<input type="text" size="40" id="email" name="email" <?php echo( $act == 'upd' ? 'disabled="disabled"' : "" ) ?> value="<?php echo $email; ?>" /><?php echo( $act == 'upd' ? '&nbsp;' . __( "Email cannot be edited.", 'mailing-group-module' ) : "" ) ?>
 						</div>
-						<?php /*if ( $act != 'upd' ) { */?>
+						<?php if ( $act != 'upd' ) { ?>
 							<div class="form-field">
 								<label for="tag-name">&nbsp;</label>
 
 								<div><p class="ltfloat">
-										<input type="radio" name="confirmation_email" <?php /*echo( $confirmation_email == '1' ? "checked" : ( ! isset( $confirmation_email ) ? "checked" : "" ) ); */?> class="confirmation_email" id="confirmation_email_1" value="1" /><?php /*_e( "Send opt-in confirmation link", 'mailing-group-module' ); */?>
+										<input type="radio" name="confirmation_email" <?php echo( $confirmation_email == '1' ? "checked" : ( ! isset( $confirmation_email ) ? "checked" : "" ) ); ?> class="confirmation_email" id="confirmation_email_1" value="1" /><?php _e( "Send opt-in confirmation link", 'mailing-group-module' ); ?>
 									</p>
 
 									<p class="ltfloat">
-										<input type="radio" <?php /*echo( $confirmation_email == '0' ? "checked" : "" ); */?> name="confirmation_email" class="confirmation_email" id="confirmation_email_0" value="0" />  <?php /*_e( "Skip opt-in confirmation", 'mailing-group-module' ); */?>
+										<input type="radio" <?php echo( $confirmation_email == '0' ? "checked" : "" ); ?> name="confirmation_email" class="confirmation_email" id="confirmation_email_0" value="0" />  <?php _e( "Skip opt-in confirmation", 'mailing-group-module' ); ?>
 									</p></div>
 							</div>
-						<?php /*} */?>
+						<?php } ?>
 						<div class="form-field">
-							<label for="tag-name"><?php /*_e( "Group Name", 'mailing-group-module' ); */?> : </label>
+							<label for="tag-name"><?php _e( "Group Name", 'mailing-group-module' ); ?> : </label>
 
 							<div class="check_div">
 								<table class="wp-list-table widefat fixed" id="memberaddedit">
 									<thead>
 									<tr role="row" class="topRow">
-										<th class="sort topRow_messagelist"><?php /*_e( "Mailing Group Name", 'mailing-group-module' ); */?></th>
-										<th><?php /*_e( "Subscription Status", 'mailing-group-module' ); */?></th>
-										<th><?php /*_e( "Email Format", 'mailing-group-module' ); */?></th>
+										<th class="sort topRow_messagelist"><?php _e( "Mailing Group Name", 'mailing-group-module' ); ?></th>
+										<th><?php _e( "Subscription Status", 'mailing-group-module' ); ?></th>
+										<th><?php _e( "Email Format", 'mailing-group-module' ); ?></th>
 									</tr>
 									</thead>
 									<tbody>
 									<?php
-/*									foreach ( $result_groups as $group ) {
+									foreach ( $result_groups as $group ) {
 										$checkSelected = false;
 										if ( array_key_exists( $group->ID, $group_name ) ) {
 											$checkSelected = true;
 										}
-										*/?>
+										?>
 										<tr>
 											<td>
 
-												<input type="checkbox" name="group_name[]" id="selector" value="<?php /*echo $group->ID; */?>" <?php /*echo( $checkSelected ? "checked" : ( $gid == $group->ID ? "checked" : "" ) ) */?> /><?php /*echo  $group->post_title; */?>
+												<input type="checkbox" name="group_name[]" id="selector" value="<?php echo $group->ID; ?>" <?php echo( $checkSelected ? "checked" : ( $gid == $group->ID ? "checked" : "" ) ) ?> /><?php echo  $group->post_title; ?>
 											</td>
 											<td>
-												<?php /*if ( $checkSelected ) {
+												<?php if ( $checkSelected ) {
 													echo "Yes";
 												} else {
 													echo "No";
-												} */?>
+												} ?>
 											</td>
 											<td>
 												<div class="check_div">
-													<input type="radio" name="email_format_<?php /*echo $group->ID; */?>" <?php /*echo( $group_name[ $group->ID ] == '1' ? "checked" : "" ) */?> value="1" />&nbsp;<?php /*_e( "HTML", 'mailing-group-module' ); */?>
+													<input type="radio" name="email_format_<?php echo $group->ID; ?>" <?php echo( $group_name[ $group->ID ] == '1' ? "checked" : "" ) ?> value="1" />&nbsp;<?php _e( "HTML", 'mailing-group-module' ); ?>
 													<br />
-													<input type="radio" <?php /*echo( $group_name[ $group->ID ] == '2' ? "checked" : ( count( $group_name ) == '0' ? "checked" : ( ! isset( $group_name[ $group->ID ] ) ? "checked" : "" ) ) ) */?> name="email_format_<?php /*echo $group->ID; */?>" value="2" />&nbsp;<?php /*_e( "Plain Text", 'mailing-group-module' ); */?>
+													<input type="radio" <?php echo( $group_name[ $group->ID ] == '2' ? "checked" : ( count( $group_name ) == '0' ? "checked" : ( ! isset( $group_name[ $group->ID ] ) ? "checked" : "" ) ) ) ?> name="email_format_<?php echo $group->ID; ?>" value="2" />&nbsp;<?php _e( "Plain Text", 'mailing-group-module' ); ?>
 												</div>
 											</td>
 										</tr>
-									<?php /*} */?>
+									<?php } ?>
 									</tbody>
 								</table>
 							</div>
@@ -269,34 +238,34 @@ $email_format = "";
 
 							<div>
 								<p class="ltfloat">
-									<input type="radio" name="status" <?php /*echo( $status == '0' ? "checked" : "" ); */?> <?php /*echo( $status == '' ? "checked" : "" ) */?> id="status_0" value="0" />&nbsp;<?php /*_e( "On Hold", 'mailing-group-module' ); */?>
+									<input type="radio" name="status" <?php echo( $status == '0' ? "checked" : "" ); ?> <?php echo( $status == '' ? "checked" : "" ) ?> id="status_0" value="0" />&nbsp;<?php _e( "On Hold", 'mailing-group-module' ); ?>
 								</p>
 
 								<p class="ltfloat">
-									<input type="radio" <?php /*echo( $status == '1' ? "checked" : "" ); */?> name="status" id="status_1" value="1" <?php /*if ($act != "upd") { */?>disabled="disabled"<?php /*} */?> />&nbsp;<?php /*_e( "Active", 'mailing-group-module' ); */?>
+									<input type="radio" <?php echo( $status == '1' ? "checked" : "" ); ?> name="status" id="status_1" value="1" <?php if ($act != "upd") { ?>disabled="disabled"<?php } ?> />&nbsp;<?php _e( "Active", 'mailing-group-module' ); ?>
 								</p>
 							</div>
 						</div>
 						<div class="clearbth"></div>
 						<p>
-							<i><?php /*_e( "NB: On Hold is the default status for new members until they confirm their subscription by clicking the opt-in link sent by email. To make a new member active immediately, select the `Skip opt-in confirmation` option above. Please ONLY do this if you have received permission from the new member, or you may be contravening laws on Unsolicited Email.", 'mailing-group-module' ); */?></i>
+							<i><?php _e( "NB: On Hold is the default status for new members until they confirm their subscription by clicking the opt-in link sent by email. To make a new member active immediately, select the `Skip opt-in confirmation` option above. Please ONLY do this if you have received permission from the new member, or you may be contravening laws on Unsolicited Email.", 'mailing-group-module' ); ?></i>
 						</p>
 
 						<div class="clearbth"></div>
-						<?php /*if ( $act == 'upd' ) { */?>
+						<?php if ( $act == 'upd' ) { ?>
 							<p>
-								<i><?php /*_e( "NB: To unsubscribe a member from a Mailing Group, de-select the checkbox next to the group name and click Update Member.", 'mailing-group-module' ); */?></i>
+								<i><?php _e( "NB: To unsubscribe a member from a Mailing Group, de-select the checkbox next to the group name and click Update Member.", 'mailing-group-module' ); ?></i>
 							</p>
-						<?php /*} */?>
+						<?php } ?>
 						<div class="clearbth"></div>
 						<p class="submit">
-							<input type="submit" value="<?php /*echo $btn; */?>" class="button" id="submit" name="submit" />
-							<input type="hidden" name="addme" value="<?php /*echo $hidval;*/?>">
-							<input type="hidden" name="id" value="<?php /*echo $id; */?>">
+							<input type="submit" value="<?php echo $btn; ?>" class="button" id="submit" name="submit" />
+							<input type="hidden" name="addme" value="<?php echo $hidval;?>">
+							<input type="hidden" name="id" value="<?php echo $id; ?>">
 						</p>
 					</form>
 				</div>
 			</div>
 		</div>
 	</div>
-</div>-->
+</div>

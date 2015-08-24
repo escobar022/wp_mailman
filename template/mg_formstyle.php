@@ -6,7 +6,7 @@ if(isset($_POST) and $_POST['submit']) {
 	update_option("WPMG_SETTINGS", $WPMG_SETTINGS);
 	wpmg_showmessages("updated", __("Stylesheet has been updated successfully.", 'mailing-group-module'));
 }
-$custom_style = wpmg_dbStripslashes($WPMG_SETTINGS["MG_CUSTOM_STYLESHEET"]);
+$custom_style = stripslashes($WPMG_SETTINGS["MG_CUSTOM_STYLESHEET"]);
 ?>
 <script type="text/javascript">
 	jQuery(document).ready(function() {

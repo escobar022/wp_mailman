@@ -19,9 +19,9 @@ if($act=="upd") {
 	if (count($result) > 0 ) {
 		foreach($result as $row) {
 			$id        = $row->id;
-			$title      = wpmg_dbStripslashes($row->title);
-			$message_subject = wpmg_dbStripslashes($row->message_subject);
-			$description  = wpmg_dbStripslashes($row->description);
+			$title      = stripslashes($row->title);
+			$message_subject = stripslashes($row->message_subject);
+			$description  = stripslashes($row->description);
 			$status  = $row->status;
 			$btn	   = __("Update Message", 'mailing-group-module');
 			$hidval	   = 2;

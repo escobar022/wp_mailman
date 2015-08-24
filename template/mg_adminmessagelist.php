@@ -83,8 +83,8 @@ if ($totcount>0) {
 				/* //echo count($row);
 				//echo "<pre>";print_r($row);echo "</pre>"; */
 				$id     = $row->id;
-				$title  = wpmg_dbStripslashes($row->title);
-				$desc   = wpmg_stringlength(wpmg_nl2brformat(wpmg_dbStripslashes($row->description)),50);
+				$title  = stripslashes($row->title);
+				$desc   = wpmg_stringlength(nl2br(stripslashes($row->description)),50);
 				$status = $row->status;
 				$act    = "hid";
 				$lablestatus = __("Visible", 'mailing-group-module');
