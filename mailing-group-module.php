@@ -34,6 +34,28 @@ $obj = new receiveMail( '', '', '', $mailserver = '', $servertype = '', $port = 
 global $obj;
 
 
+include 'lib/UserManagement.php';
+
+// Create an instance of the Plugin Class
+function call_UserManagement() {
+	return new UserManagement( 'admin' );
+}
+
+// Only when the current user is an Admin
+if ( is_admin ){
+	add_action( 'init', 'call_UserManagement' );
+
+}
+
+// Helper function
+if ( !function_exists( 'pp' ) ) {
+	function pp1() {
+		return plugin_dir_url( __FILE__ );
+	}
+}
+
+
+
 /*Define global variable to be used in plugin*/
 global $wpdb, $table_name_group, $table_name_message, $table_name_requestmanager, $table_name_requestmanager_taxonomy, $table_name_user_taxonomy, $table_name_parsed_emails, $table_name_emails_attachments, $table_name_sent_emails, $table_name_users, $table_name_usermeta;
 $visibilityArray = array(
@@ -724,22 +746,28 @@ function wpmg_mailinggroup_Menu() {
 		)
 	);
 }
+/* initialize menu */
+add_action( 'admin_menu', 'wpmg_mailinggroup_Menu' );
 
 wp_register_style( 'mg_frontend.css', plugin_dir_url( __FILE__ ) . 'css/mg_frontend.css' );
 wp_enqueue_style( 'mg_frontend.css' );
 
 
-wp_register_script('backbone_grp_users_js', plugin_dir_url(__FILE__) . 'js/backbone_grp_users.js', array('backbone'), null, true);
-wp_enqueue_script('backbone_grp_users_js');
 
-/* initialize menu */
-add_action( 'admin_menu', 'wpmg_mailinggroup_Menu' );
-/* initialize languae loader */
+
+
+//Functions for user management
+add_action( 'init', 'wpmg_mailing_group_language_init' );
+
 function wpmg_mailing_group_language_init() {
-	load_plugin_textdomain( 'mailing-group-module', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
+
+
+
 }
 
-add_action( 'init', 'wpmg_mailing_group_language_init' );
+
+
+
 /* initialize languae loader */
 function wpmg_mailinggroup_generalsettingtab() {
 	include "template/mg_settingstab.php";
@@ -1792,5 +1820,20 @@ require_once( "crons/wpmg_cron_parse_email.php" );
 
 add_action( 'wpmg_cron_task_bounced_email', 'wpmg_cron_bounced_email' );
 require_once( "crons/wpmg_cron_bounced_email.php" );
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
