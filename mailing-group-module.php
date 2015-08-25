@@ -571,7 +571,6 @@ function save_custom_meta( $post_id, $post ) {
 }
 
 add_filter( 'cron_schedules', 'cron_add_weekly' );
-
 function cron_add_weekly( $schedules ) {
 	// Adds once weekly to the existing schedules.
 	/*$schedules['wpmg_two_minute']     = array(
@@ -610,6 +609,8 @@ function do_output_buffer() {
 	ob_start();
 }
 
+/* Install Plugin */
+register_activation_hook( __FILE__, 'wpmg_add_mailing_group_plugin' );
 function wpmg_add_mailing_group_plugin() {
 
 	/* ADD CONFIG OPTION TO OPTION TABLE*/
@@ -641,15 +642,15 @@ function wpmg_add_mailing_group_plugin() {
 	update_option( "WPMG_SETTINGS", $wpmg_setting );
 }
 
-/* Hooks used in Plugin */
-register_activation_hook( __FILE__, 'wpmg_add_mailing_group_plugin' );
-register_uninstall_hook( __FILE__, "wpmg_mailing_group_uninstall" );
 
+/* Uninstall Plugin */
+register_uninstall_hook( __FILE__, "wpmg_mailing_group_uninstall" );
 function wpmg_mailing_group_uninstall() {
 	return true;
 }
 
-/* Creating Menus */
+/* Initialize menu */
+add_action( 'admin_menu', 'wpmg_mailinggroup_Menu' );
 function wpmg_mailinggroup_Menu() {
 	$admin_level = 10;
 	$user_level  = 0;
@@ -709,15 +710,9 @@ wp_register_style( 'mg_frontend.css', plugin_dir_url( __FILE__ ) . 'css/mg_front
 wp_enqueue_style( 'mg_frontend.css' );
 
 
-wp_register_script('backbone_grp_users_js', plugin_dir_url(__FILE__) . 'js/backbone_grp_users.js', array('backbone'), null, true);
-wp_enqueue_script('backbone_grp_users_js');
+//wp_register_script('backbone_grp_users_js', plugin_dir_url(__FILE__) . 'js/backbone_grp_users.js', array('backbone'), null, true);
+//wp_enqueue_script('backbone_grp_users_js');
 
-/* initialize menu */
-add_action( 'admin_menu', 'wpmg_mailinggroup_Menu' );
-/* initialize languae loader */
-function wpmg_mailing_group_language_init() {
-	load_plugin_textdomain( 'mailing-group-module', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
-}
 
 add_action( 'init', 'wpmg_mailing_group_language_init' );
 /* initialize languae loader */
