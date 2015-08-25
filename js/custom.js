@@ -325,9 +325,66 @@ jQuery(function ($) {
 });
 
 
-
 /*Add Subscribers*/
 jQuery(function ($) {
+
+	$(".remove_user").click(function () {
+
+		var r = confirm("Are you sure you want to remove user from group?");
+		if (r === true) {
+			var group_id = $(this).data("group_id");
+			var user_id = $(this).data("user_id");
+
+			var data = {
+				action   : 'wpmg_remove_user',
+				group_id : group_id,
+				user_id  : user_id,
+				nextNonce: PT_Ajax.nextNonce
+			};
+
+			$.post(PT_Ajax.ajaxurl, data, function (response) {
+
+				if (response['action'] === 'error') {
+					$('#message').html(response['description']);
+				} else {
+					location.reload(true);
+				}
+
+				return true;
+			});
+		}
+	});
+
+	$(".add_subscriber").click(function () {
+
+		var r = confirm("Are you sure you want to add user to group?");
+
+		if (r === true) {
+			var group_id = $(this).data("group_id");
+			var user_id = $(this).data("user_id");
+
+			var data = {
+				action   : 'wpmg_add_user_to_current_group',
+				group_id : group_id,
+				user_id  : user_id,
+				nextNonce: PT_Ajax.nextNonce
+			};
+
+			$.post(PT_Ajax.ajaxurl, data, function (response) {
+
+				if (response['action'] === 'error') {
+					$('#message').html(response['description']);
+				} else {
+					location.reload(true);
+				}
+
+				return true;
+			});
+		}
+
+	});
+
+
 	$('#addmember').submit(function () {
 		if (trim($("#name").val()) == "") {
 			alert("Please enter your name.");

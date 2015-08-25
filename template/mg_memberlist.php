@@ -1,10 +1,12 @@
 <?php
 /* get all variables */
 $info   = sanitize_text_field( $_REQUEST["info"] );
-$gid    = sanitize_text_field( $_REQUEST["gid"] );
 $actreq = sanitize_text_field( $_REQUEST["act"] );
 $id     = sanitize_text_field( $_REQUEST["id"] );
-$userID  = sanitize_text_field( $_GET["userID"] );
+
+$gid    = sanitize_text_field( $_REQUEST["gid"] );
+$groupName = get_the_title( $gid );
+
 /* get all variables */
 
 if ( $gid == "" ) {
@@ -14,35 +16,15 @@ if ( $info == "saved" ) {
 	wpmg_showmessages( "updated", __( "Member has been added successfully.", 'mailing-group-module' ) );
 } else if ( $info == "upd" ) {
 	wpmg_showmessages( "updated", __( "Member has been updated successfully.", 'mailing-group-module' ) );
-} else if ( $info == "del" ) {
-
-	$groups_subscribed    = get_user_meta( $userID, 'mg_user_group_subscribed', true );
-
-	$mg_user_group_sub_arr = get_user_meta( $userID, 'mg_user_group_sub_arr', true );
-
-	if ( !empty( $groups_subscribed ) ) {
-
-		$updated_groups = $groups_subscribed;
-		unset( $updated_groups[ $gid ] );
-
-		$groups_subscribed_arr = $updated_groups;
-		foreach ( $groups_subscribed_arr as $group => $format ) {
-			$groups_array[] = (string) $group;
-		}
-
-		update_user_meta( $userID, 'mg_user_group_subscribed', $updated_groups);
-		update_user_meta( $userID, 'mg_user_group_sub_arr', $groups_array);
-		wpmg_redirectTo( "wpmg_mailinggroup_memberlist&gid=" . $gid );
-	}
-
 }
+
 if ( $actreq == 'hold' ) {
 	update_user_meta( $id, "mg_user_status", '0', '1' );
-	wpmg_redirectTo( "wpmg_mailinggroup_memberlist&info=vis&gid=" . $gid );
+	wpmg_redirectTo( "wpmg_mailinggroup_memberlist&gid=" . $gid );
 	exit;
 } else if ( $actreq == 'active' ) {
 	update_user_meta( $id, "mg_user_status", '1', '0' );
-	wpmg_redirectTo( "wpmg_mailinggroup_memberlist&info=hid&gid=" . $gid );
+	wpmg_redirectTo( "wpmg_mailinggroup_memberlist&gid=" . $gid );
 	exit;
 }
 
@@ -56,84 +38,22 @@ $args = array(
 	)
 );
 
-//$args = array(
-//	'meta_query' => array(
-//		'relation' => 'OR',
-//		array(
-//			'key'     => 'mg_user_group_sub_arr',
-//			'value'   => '"' . $gid . '"',
-//			'compare' => 'NOT EXISTS'
-//		),
-//		array(
-//			'key'     => 'mg_user_group_sub_arr',
-//			'value'   => '"' . $gid . '"',
-//			'compare' => 'NOT LIKE'
-//		)
-//	)
-//);
-
-$user_query = new WP_User_Query( $args );
-
-$users = $user_query->get_results();
+$user_in_group_query = new WP_User_Query( $args );
+$users_in_group = $user_in_group_query->get_results();
+$totcount = $user_in_group_query->get_total();
 
 
-foreach ( $users as $user ) {
-	error_log( print_r( $user->ID, true ) );
-}
-
-
-$totcount = $user_query->total_users;
-
-
-/*if ( $totcount > 0 ) {
-	*/ ?><!--
-	<script type="text/javascript">
-		/* <![CDATA[ */
-		jQuery(document).ready(function () {
-			/* Build the DataTable with third column using our custom sort functions */
-			<?php /*if(count($totcount)>0) { */ ?>
-			jQuery('#memberlist').dataTable({
-				"aoColumnDefs"  : [
-					{"bSortable": false, "aTargets": [2, 3, 4]}
-				],
-				"oLanguage"     : {
-					"sZeroRecords": "<?php /*_e("No members found.", 'mailing-group-module'); */ ?>"
-				},
-				"fnDrawCallback": function () {
-					if ('<?php /*echo $totcount; */ ?>' <= 5) {
-						document.getElementById('memberlist_paginate').style.display = "none";
-					} else {
-						document.getElementById('memberlist_paginate').style.display = "block";
-					}
-				}
-			});
-			<?php /*} */ ?>
-			jQuery("#toplevel_page_mailinggroup_intro").removeClass('wp-not-current-submenu');
-			jQuery("#toplevel_page_mailinggroup_intro").addClass('wp-has-current-submenu');
-			jQuery("#toplevel_page_mailinggroup_intro ul :nth-child(3)").addClass("current");
-		});
-		/* ]]> */
-	</script>
---><?php
-/*}*/
-$groupName = get_the_title( $gid );
 ?>
-<script type="text/javascript">
-	jQuery(document).ready(function () {
-		jQuery("#toplevel_page_mailinggroup_intro").removeClass('wp-not-current-submenu');
-		jQuery("#toplevel_page_mailinggroup_intro").addClass('wp-has-current-submenu');
-		jQuery("#toplevel_page_mailinggroup_intro ul :nth-child(3)").addClass("current");
-	});
-</script>
 <div class="wrap">
-	<h2><?php _e( "Member Manager", 'mailing-group-module' ); ?> <?php echo( $groupName != '' ? "($groupName) <a class='backlink' href='admin.php?page=wpmg_mailinggroup_list'>" . __( "Back", 'mailing-group-module' ) . "</a>" : "" ) ?>
+	<h2><?php _e( "Current Members", 'mailing-group-module' ); ?> <?php echo( $groupName != '' ? "($groupName) <a class='backlink' href='admin.php?page=wpmg_mailinggroup_list'>" . __( "Back", 'mailing-group-module' ) . "</a>" : "" ) ?>
 		<a class="button add-new-h2" href="admin.php?page=wpmg_mailinggroup_memberadd&act=add&gid=<?php echo $gid; ?>"><?php _e( "Add New Member", 'mailing-group-module' ); ?></a>
 	</h2>
+
+	<div id="message"></div>
 	<table class="wp-list-table widefat fixed" id="memberlist">
 		<thead>
 		<tr role="row" class="topRow" id="memberlistdata">
 			<th class="sort topRow_messagelist"><a href="#"><?php _e( "Name", 'mailing-group-module' ); ?></a></th>
-			<!--			<th><a href="#">--><?php //_e( "Username", 'mailing-group-module' ); ?><!--</a></th>-->
 			<th><a href="#"><?php _e( "Email Address", 'mailing-group-module' ); ?></a></th>
 			<th><?php _e( "Bounced Emails", 'mailing-group-module' ); ?></th>
 			<th><?php _e( "Status", 'mailing-group-module' ); ?></th>
@@ -143,9 +63,9 @@ $groupName = get_the_title( $gid );
 		<tbody>
 		<?php
 		if ( $totcount > 0 ) {
-			foreach ( $user_query->results as $row ) {
+			foreach ( $users_in_group as $user ) {
 
-				$userId            = $row->ID;
+				$userId            = $user->ID;
 				$group_name_serial = get_user_meta( $userId, 'mg_user_group_subscribed', true );
 
 				if ( count( $group_name_serial ) > 0 ) {
@@ -172,15 +92,12 @@ $groupName = get_the_title( $gid );
 							} ?>
 							<tr>
 								<td><?php echo $display_name; ?></td>
-								<!--								<td>--><?php //echo $user_login; ?><!--</td>-->
 								<td><?php echo $user_email; ?></td>
 								<td><?php echo $noofemailb; ?></td>
 								<td><?php echo $lablestatus; ?> (<a href="admin.php?page=wpmg_mailinggroup_memberlist&act=<?php echo $act; ?>&id=<?php echo $userId; ?>&gid=<?php echo $gid; ?>"><?php echo $labledetail; ?></a>)
 								</td>
 								<td width="20%" class="last">
-									<a href="admin.php?page=wpmg_mailinggroup_memberadd&act=upd&id=<?php echo $userId; ?>&gid=<?php echo $gid; ?>" class="edit_record" title="<?php _e( "Edit", 'mailing-group-module' ); ?>"></a>|
-									<a href="admin.php?page=wpmg_mailinggroup_memberlist&info=del&userID=<?php echo $userId; ?>&gid=<?php echo $gid; ?>" onclick="return confirm('<?php _e( "Are you sure you want to remove this member?", 'mailing-group-module' ); ?>');" class="delete_record" title="Remove"></a>
-
+									<a href="admin.php?page=wpmg_mailinggroup_memberadd&act=upd&id=<?php echo $userId; ?>&gid=<?php echo $gid; ?>" class="edit_record" title="<?php _e( "Edit", 'mailing-group-module' ); ?>"></a>|<a class="delete_record remove_user" data-group_id="<?php echo $group_id; ?>" data-user_id="<?php echo $userId; ?>" title="Remove"></a>
 								</td>
 							</tr>
 						<?php }
@@ -195,4 +112,94 @@ $groupName = get_the_title( $gid );
 			<?php } ?>
 		</tbody>
 	</table>
+
 </div>
+
+
+<?php
+
+$args_available = array(
+	'meta_query' => array(
+		'relation' => 'OR',
+		array(
+			'key'     => 'mg_user_group_sub_arr',
+			'value'   => '"' . $gid . '"',
+			'compare' => 'NOT EXISTS'
+		),
+		array(
+			'key'     => 'mg_user_group_sub_arr',
+			'value'   => '"' . $gid . '"',
+			'compare' => 'NOT LIKE'
+		)
+	)
+);
+
+$available_user_query = new WP_User_Query( $args_available );
+
+$available_users = $available_user_query->get_results();
+
+$tot_available = $available_user_query->get_total();
+
+?>
+
+<div class="wrap">
+	<h2><?php _e( "All Available Users", 'mailing-group-module' ); ?></h2>
+	<table class="wp-list-table widefat fixed" id="memberlist">
+		<thead>
+		<tr role="row" class="topRow" id="memberlistdata">
+			<th class="sort topRow_messagelist"><a href="#"><?php _e( "Name", 'mailing-group-module' ); ?></a></th>
+			<th><a href="#"><?php _e( "Email Address", 'mailing-group-module' ); ?></a></th>
+			<th><?php _e( "Bounced Emails", 'mailing-group-module' ); ?></th>
+			<th><?php _e( "Status", 'mailing-group-module' ); ?></th>
+			<th width="10%"><?php _e( "Actions", 'mailing-group-module' ); ?></th>
+		</tr>
+		</thead>
+		<tbody>
+		<?php
+		if ( $tot_available > 0 ) {
+			foreach ( $available_users as $user ) {
+
+				$userId = $user->ID;
+				$Userrow      = get_user_by( "id", $userId );
+				$user_login   = $Userrow->user_login;
+				$user_email   = $Userrow->user_email;
+				$display_name = $Userrow->first_name;
+				$status       = get_user_meta( $userId, 'mg_user_status', true );
+
+				/*TODO: add email bounce table*/
+//                  $mailbounceresult = $objMem->selectRows( $table_name_sent_emails, "", " where user_id = '" . $userId . "' and status='2'" );
+				$mailbounceresult = "";
+				$noofemailb       = 0;/*count( $mailbounceresult )*/
+
+				$act         = "hold";
+				$lablestatus = __( "Active", 'mailing-group-module' );
+				$labledetail = __( "click to put On Hold", 'mailing-group-module' );
+				if ( $status == 0 ) {
+					$act         = "active";
+					$lablestatus = __( "On Hold", 'mailing-group-module' );
+					$labledetail = __( "click to Activate", 'mailing-group-module' );
+				} ?>
+				<tr>
+					<td><?php echo $display_name; ?></td>
+					<td><?php echo $user_email; ?></td>
+					<td><?php echo $noofemailb; ?></td>
+					<td><?php echo $lablestatus; ?> (<a href="admin.php?page=wpmg_mailinggroup_memberlist&act=<?php echo $act; ?>&id=<?php echo $userId; ?>&gid=<?php echo $gid; ?>"><?php echo $labledetail; ?></a>)
+					</td>
+					<td width="20%" class="last">
+						<a href="admin.php?page=wpmg_mailinggroup_memberadd&act=upd&id=<?php echo $userId; ?>&gid=<?php echo $gid; ?>" class="edit_record" title="<?php _e( "Edit", 'mailing-group-module' ); ?>"></a>|<a class="add_subscriber" data-group_id="<?php echo $gid; ?>" data-user_id="<?php echo $userId; ?>" title="Add User"></a>
+					</td>
+				</tr>
+				<?php
+			}
+
+		} else { ?>
+		<tr>
+			<td colspan="5" align="center"><?php _e( "No members found.", 'mailing-group-module' ); ?></td>
+		<tr>
+			<?php } ?>
+		</tbody>
+	</table>
+
+</div>
+
+

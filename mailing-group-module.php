@@ -856,6 +856,9 @@ function wpmg_trimVal( $value, $by = "" ) {
 function wpmg_showmessages( $type, $message ) {
 	echo "<div class='" . $type . "' id='message'><p><strong>Mailing Group Manager: " . $message . "</strong></p></div>";
 }
+function wpmg_showmessages_ajax( $type, $message ) {
+	return "<div class='" . $type . "' id='message'><p><strong>Mailing Group Manager: " . $message . "</strong></p></div>";
+}
 
 /* general function */
 /* ajax requests */
@@ -1183,11 +1186,10 @@ function wpmg_deny_group_request_callback() {
 	wp_die();
 }
 
-//Manage Group Manager
+//Group Users Manager
 add_action( 'wp_ajax_wpmg_remove_user', 'wpmg_remove_user_callback' );
-//add_action( 'wp_ajax_wpmg_deny_group_request', 'wpmg_deny_group_request_callback' );
-
-function wpmg_remove_user() {
+add_action( 'wp_ajax_wpmg_add_user_to_current_group', 'wpmg_add_user_to_current_group_callback' );
+function wpmg_remove_user_callback() {
 	// check nonce
 	$nonce = $_POST['nextNonce'];
 
@@ -1195,41 +1197,78 @@ function wpmg_remove_user() {
 		die ( 'Busted!' );
 	}
 
-	$request_id = $_POST['request_id'];
-	$user_id    = $_POST['user_id'];
+	$groupID = $_POST['group_id'];
+	$userID    = $_POST['user_id'];
 
-	$groups_subscribed    = get_user_meta( $user_id, 'mg_user_group_subscribed', true );
-	$groups_requested_arr = get_user_meta( $user_id, 'mg_user_requested_groups', true );
-	$group_requested_id   = get_post_meta( $request_id, 'mg_request_group_id', true );
+	$groups_subscribed    = get_user_meta( $userID, 'mg_user_group_subscribed', true );
+	$groups_array = array();
+
+	if ( !empty( $groups_subscribed ) ) {
+
+		$updated_groups = $groups_subscribed;
+		unset( $updated_groups[ $groupID ] );
+
+		$groups_subscribed_arr = $updated_groups;
+		foreach ( $groups_subscribed_arr as $group => $format ) {
+			$groups_array[] = (string) $group;
+		}
+		update_user_meta( $userID, 'mg_user_group_subscribed', $updated_groups);
+		update_user_meta( $userID, 'mg_user_group_sub_arr', $groups_array);
+		$_POST['description'] = wpmg_showmessages_ajax( "updated","Member has been removed successfully." );
+		$_POST['action'] = 'success';
+
+	}else{
+		$_POST['description'] =  wpmg_showmessages_ajax( "error","Member has been removed unsuccessfully." );
+		$_POST['action'] = 'error';
+	}
+
+
+	$response = json_encode( $_POST );
+	// response output
+	header( "Content-Type: application/json" );
+	echo $response;
+
+	wp_die();
+}
+
+function wpmg_add_user_to_current_group_callback() {
+	// check nonce
+	$nonce = $_POST['nextNonce'];
+
+	if ( ! wp_verify_nonce( $nonce, 'myajax-next-nonce' ) ) {
+		die ( 'Busted!' );
+	}
+	$groupID = $_POST['group_id'];
+	$email_format = '1';
+	$userID    = $_POST['user_id'];
+
+	$groups_subscribed    = get_user_meta( $userID, 'mg_user_group_subscribed', true );
 	$groups_array         = array();
 
-//	if ( empty( $groups_subscribed ) ) {
-//		$groups_subscribed = array();
-//	}
-//
-//	if ( ! array_key_exists( $group_requested_id, $groups_subscribed ) ) {
-//
-//		$new_groups_subscribed                        = $groups_subscribed;
-//		$new_groups_subscribed[ $group_requested_id ] = $groups_requested_arr[ $group_requested_id ]['group_format'];
-//
-//		$groups_subscribed_arr = $new_groups_subscribed;
-//		foreach ( $groups_subscribed_arr as $group => $format ) {
-//			$groups_array[] = (string) $group;
-//		}
-//
-//		update_user_meta( $user_id, 'mg_user_group_subscribed', $new_groups_subscribed, $groups_subscribed );
-//		update_user_meta( $user_id, 'mg_user_group_sub_arr', $groups_array );
-//
-//		$updated_requested_groups = $groups_requested_arr;
-//		unset( $updated_requested_groups[ $group_requested_id ] );
-//
-//		update_user_meta( $user_id, 'mg_user_requested_groups', $updated_requested_groups, $groups_requested_arr );
-//
-//		wp_delete_post( $request_id, true );
-//
-//	} else {
-//		error_log( 'Group already subscrbed' );
-//	}
+	if ( empty( $groups_subscribed ) ) {
+		$groups_subscribed = array();
+	}
+
+	if ( ! array_key_exists( $groupID, $groups_subscribed ) ) {
+
+		$new_groups_subscribed                        = $groups_subscribed;
+		$new_groups_subscribed[ $groupID ] = $email_format;
+
+		foreach ( $new_groups_subscribed as $group => $format ) {
+			$groups_array[] = (string) $group;
+		}
+
+		update_user_meta( $userID, 'mg_user_group_subscribed', $new_groups_subscribed);
+		update_user_meta( $userID, 'mg_user_group_sub_arr', $groups_array );
+
+
+		$_POST['description'] = wpmg_showmessages_ajax( "updated","Member has been removed successfully." );
+		$_POST['action'] = 'success';
+
+	}else{
+		$_POST['description'] =  wpmg_showmessages_ajax( "error","Member has been removed unsuccessfully." );
+		$_POST['action'] = 'error';
+	}
 
 
 	$response = json_encode( $_POST );
@@ -1239,58 +1278,6 @@ function wpmg_remove_user() {
 
 	wp_die();
 }
-
-function wpmg_deny_group_request2_callback() {
-	// check nonce
-	$nonce = $_POST['nextNonce'];
-
-	if ( ! wp_verify_nonce( $nonce, 'myajax-next-nonce' ) ) {
-		die ( 'Busted!' );
-	}
-
-	$request_id           = $_POST['request_id'];
-	$user_id              = $_POST['user_id'];
-	$groups_subscribed    = get_user_meta( $user_id, 'mg_user_group_subscribed', true );
-	$groups_requested_arr = get_user_meta( $user_id, 'mg_user_requested_groups', true );
-	$group_requested_id   = get_post_meta( $request_id, 'mg_request_group_id', true );
-//	$denied_requests      = get_user_meta( $user_id, 'mg_user_group_subscribed', true );
-
-	if ( ! array_key_exists( $group_requested_id, $groups_subscribed ) ) {
-
-		$updated_requested_groups = $groups_requested_arr;
-		unset( $updated_requested_groups[ $group_requested_id ] );
-
-		update_user_meta( $user_id, 'mg_user_requested_groups', $updated_requested_groups, $groups_requested_arr );
-		wp_delete_post( $request_id, true );
-//        update_post_meta($request_id,'mg_requested_denied','denied');
-
-	} else {
-		error_log( 'Group already subscribed' );
-	}
-
-
-	/*	if ( empty( $denied_requests ) ) {
-			$denied_requests   = array();
-			$denied_requests[] = $group_requested_id;
-			update_user_meta( $user_id, 'mg_user_denied_request', $denied_requests );
-			error_log( print_r( $denied_requests, true ) );
-
-		} else {
-			$updated_denied_request   = $denied_requests;
-			$updated_denied_request[] = $group_requested_id;
-			update_user_meta( $user_id, 'mg_user_denied_request', $updated_denied_request );
-			error_log( print_r( $updated_denied_request, true ) );
-		}*/
-
-
-	$response = json_encode( $_POST );
-	// response output
-	header( "Content-Type: application/json" );
-	echo $response;
-
-	wp_die();
-}
-
 
 /* callback function for above ajax requests */
 /* mail function used in plugin */
