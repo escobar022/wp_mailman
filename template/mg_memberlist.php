@@ -74,7 +74,8 @@ $totcount            = $user_in_group_query->get_total();
 							$Userrow      = get_user_by( "id", $userId );
 							$user_login   = $Userrow->user_login;
 							$user_email   = $Userrow->user_email;
-							$display_name = $Userrow->first_name;
+							$display_name = $Userrow->user_firstname;
+							$lastname = $Userrow->user_lastname;
 							$status       = get_user_meta( $userId, "mg_user_status", true );
 
 							/*TODO: add email bounce table*/
@@ -91,7 +92,7 @@ $totcount            = $user_in_group_query->get_total();
 								$labledetail = __( "click to Activate", 'mailing-group-module' );
 							} ?>
 							<tr>
-								<td><?php echo $display_name; ?></td>
+								<td><?php echo $display_name.' '.$lastname; ?></td>
 								<td><?php echo $user_email; ?></td>
 								<td><?php echo $noofemailb; ?></td>
 								<td><?php echo $lablestatus; ?> (<a href="admin.php?page=wpmg_mailinggroup_memberlist&act=<?php echo $act; ?>&id=<?php echo $userId; ?>&gid=<?php echo $gid; ?>"><?php echo $labledetail; ?></a>)
@@ -163,7 +164,8 @@ $tot_available = $available_user_query->get_total();
 				$Userrow      = get_user_by( "id", $userId );
 				$user_login   = $Userrow->user_login;
 				$user_email   = $Userrow->user_email;
-				$display_name = $Userrow->first_name;
+				$display_name = $Userrow->user_firstname;
+				$lastname = $Userrow->user_lastname;
 				$status       = get_user_meta( $userId, 'mg_user_status', true );
 
 				/*TODO: add email bounce table*/
@@ -180,7 +182,7 @@ $tot_available = $available_user_query->get_total();
 					$labledetail = __( "click to Activate", 'mailing-group-module' );
 				} ?>
 				<tr>
-					<td><?php echo $display_name; ?></td>
+					<td><?php echo $display_name.' '.$lastname; ?></td>
 					<td><?php echo $user_email; ?></td>
 					<td><?php echo $noofemailb; ?></td>
 					<td><?php echo $lablestatus; ?> (<a href="admin.php?page=wpmg_mailinggroup_memberlist&act=<?php echo $act; ?>&id=<?php echo $userId; ?>&gid=<?php echo $gid; ?>"><?php echo $labledetail; ?></a>)

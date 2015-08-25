@@ -693,6 +693,7 @@ function wpmg_mailinggroup_Menu() {
 		'jquery'
 	) );
 	wp_enqueue_script( 'custom.js' );
+
 	wp_localize_script( 'custom.js', 'PT_Ajax', array(
 			'ajaxurl'   => admin_url( 'admin-ajax.php' ),
 			'nextNonce' => wp_create_nonce( 'myajax-next-nonce' )
@@ -700,8 +701,7 @@ function wpmg_mailinggroup_Menu() {
 	);
 }
 
-wp_register_style( 'mg_frontend.css', plugin_dir_url( __FILE__ ) . 'css/mg_frontend.css' );
-wp_enqueue_style( 'mg_frontend.css' );
+
 
 
 
@@ -1619,6 +1619,9 @@ function wpmg_mailing_group_form_func() {
 	ob_start();
 	wp_register_style( 'demo_table.css', plugin_dir_url( __FILE__ ) . 'css/demo_table.css' );
 	wp_enqueue_style( 'demo_table.css' );
+	wp_register_style( 'mg_frontend.css', plugin_dir_url( __FILE__ ) . 'css/mg_frontend.css' );
+	wp_enqueue_style( 'mg_frontend.css' );
+
 	wp_register_script( 'user_form.js', plugin_dir_url( __FILE__ ) . 'js/user_form.js', array(
 		'jquery'
 	) );

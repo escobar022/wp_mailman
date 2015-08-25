@@ -46,6 +46,7 @@
 	clear:    both;
 	zoom:     1; /* Feeling sorry for IE */
 
+
 }
 
 .dataTables_processing {
@@ -651,7 +652,6 @@ div.box {
 
 table.widefat {
 	margin-bottom: 10px;
-	width:         100%;
 }
 
 .col-wrap p.submit {
