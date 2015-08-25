@@ -4,7 +4,7 @@ $info   = sanitize_text_field( $_REQUEST["info"] );
 $actreq = sanitize_text_field( $_REQUEST["act"] );
 $id     = sanitize_text_field( $_REQUEST["id"] );
 
-$gid    = sanitize_text_field( $_REQUEST["gid"] );
+$gid       = sanitize_text_field( $_REQUEST["gid"] );
 $groupName = get_the_title( $gid );
 
 /* get all variables */
@@ -39,8 +39,8 @@ $args = array(
 );
 
 $user_in_group_query = new WP_User_Query( $args );
-$users_in_group = $user_in_group_query->get_results();
-$totcount = $user_in_group_query->get_total();
+$users_in_group      = $user_in_group_query->get_results();
+$totcount            = $user_in_group_query->get_total();
 
 
 ?>
@@ -96,7 +96,7 @@ $totcount = $user_in_group_query->get_total();
 								<td><?php echo $noofemailb; ?></td>
 								<td><?php echo $lablestatus; ?> (<a href="admin.php?page=wpmg_mailinggroup_memberlist&act=<?php echo $act; ?>&id=<?php echo $userId; ?>&gid=<?php echo $gid; ?>"><?php echo $labledetail; ?></a>)
 								</td>
-								<td width="20%" class="last">
+								<td class="last">
 									<a href="admin.php?page=wpmg_mailinggroup_memberadd&act=upd&id=<?php echo $userId; ?>&gid=<?php echo $gid; ?>" class="edit_record" title="<?php _e( "Edit", 'mailing-group-module' ); ?>"></a>|<a class="delete_record remove_user" data-group_id="<?php echo $group_id; ?>" data-user_id="<?php echo $userId; ?>" title="Remove"></a>
 								</td>
 							</tr>
@@ -143,10 +143,10 @@ $tot_available = $available_user_query->get_total();
 ?>
 
 <div class="wrap">
-	<h2><?php _e( "All Available Users", 'mailing-group-module' ); ?></h2>
-	<table class="wp-list-table widefat fixed" id="memberlist">
+	<h2>Available Users to add</h2>
+	<table class="wp-list-table widefat fixed" id="available_members">
 		<thead>
-		<tr role="row" class="topRow" id="memberlistdata">
+		<tr role="row" class="topRow">
 			<th class="sort topRow_messagelist"><a href="#"><?php _e( "Name", 'mailing-group-module' ); ?></a></th>
 			<th><a href="#"><?php _e( "Email Address", 'mailing-group-module' ); ?></a></th>
 			<th><?php _e( "Bounced Emails", 'mailing-group-module' ); ?></th>
@@ -159,7 +159,7 @@ $tot_available = $available_user_query->get_total();
 		if ( $tot_available > 0 ) {
 			foreach ( $available_users as $user ) {
 
-				$userId = $user->ID;
+				$userId       = $user->ID;
 				$Userrow      = get_user_by( "id", $userId );
 				$user_login   = $Userrow->user_login;
 				$user_email   = $Userrow->user_email;
@@ -185,7 +185,7 @@ $tot_available = $available_user_query->get_total();
 					<td><?php echo $noofemailb; ?></td>
 					<td><?php echo $lablestatus; ?> (<a href="admin.php?page=wpmg_mailinggroup_memberlist&act=<?php echo $act; ?>&id=<?php echo $userId; ?>&gid=<?php echo $gid; ?>"><?php echo $labledetail; ?></a>)
 					</td>
-					<td width="20%" class="last">
+					<td class="last">
 						<a href="admin.php?page=wpmg_mailinggroup_memberadd&act=upd&id=<?php echo $userId; ?>&gid=<?php echo $gid; ?>" class="edit_record" title="<?php _e( "Edit", 'mailing-group-module' ); ?>"></a>|<a class="add_subscriber" data-group_id="<?php echo $gid; ?>" data-user_id="<?php echo $userId; ?>" title="Add User"></a>
 					</td>
 				</tr>
@@ -199,7 +199,4 @@ $tot_available = $available_user_query->get_total();
 			<?php } ?>
 		</tbody>
 	</table>
-
 </div>
-
-

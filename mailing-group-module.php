@@ -687,16 +687,10 @@ function wpmg_mailinggroup_Menu() {
 		'jquery'
 	) );
 	wp_enqueue_script( 'jquery.dataTables.js' );
-	wp_register_script( 'jquery.highlight.js', plugin_dir_url( __FILE__ ) . 'js/jquery.highlight.js', array(
-		'jquery'
-	) );
-	wp_enqueue_script( 'jquery.highlight.js' );
-	wp_register_script( 'dataTables.searchHighlight.min.js', plugin_dir_url( __FILE__ ) . 'js/dataTables.searchHighlight.min.js', array(
-		'jquery'
-	) );
-	wp_enqueue_script( 'dataTables.searchHighlight.min.js' );
+
+
 	wp_register_script( 'custom.js', plugin_dir_url( __FILE__ ) . 'js/custom.js', array(
-		'jquery', 'underscore', 'backbone'
+		'jquery'
 	) );
 	wp_enqueue_script( 'custom.js' );
 	wp_localize_script( 'custom.js', 'PT_Ajax', array(
@@ -710,11 +704,7 @@ wp_register_style( 'mg_frontend.css', plugin_dir_url( __FILE__ ) . 'css/mg_front
 wp_enqueue_style( 'mg_frontend.css' );
 
 
-//wp_register_script('backbone_grp_users_js', plugin_dir_url(__FILE__) . 'js/backbone_grp_users.js', array('backbone'), null, true);
-//wp_enqueue_script('backbone_grp_users_js');
 
-
-add_action( 'init', 'wpmg_mailing_group_language_init' );
 /* initialize languae loader */
 function wpmg_mailinggroup_generalsettingtab() {
 	include "template/mg_settingstab.php";
@@ -815,19 +805,15 @@ function wpmg_redirectTo( $page, $end = "admin" ) {
 	}
 	if ( headers_sent() ) {
 		?>
-
 		<html>
 		<head>
-
 			<script language="javascript" type="text/javascript">
 
 				window.self.location = '<?php  echo $url; ?>';
 
 			</script>
-
 		</head>
 		</html>
-
 		<?php
 		exit;
 	} else {
@@ -1780,7 +1766,6 @@ function wpmg_get_user_role() {
 
 function wpmg_add_menu_icons_styles() {
 	?>
-
 	<style>
 		#adminmenu .toplevel_page_mailinggroup_intro div.wp-menu-image:before {
 			content: '\f237';

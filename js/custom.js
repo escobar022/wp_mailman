@@ -384,6 +384,18 @@ jQuery(function ($) {
 
 	});
 
+	$('#available_members').dataTable({
+		"aoColumnDefs"  : [
+			{"bSortable": true, "aTargets": [0, 1]}
+		],
+		"oLanguage"     : {
+			"sZeroRecords": "There are no more members available to import."
+		},
+		"fnDrawCallback": function () {
+			document.getElementById('available_members_paginate').style.display = "block";
+		}
+	});
+
 
 	$('#addmember').submit(function () {
 		if (trim($("#name").val()) == "") {
@@ -415,5 +427,8 @@ jQuery(function ($) {
 		}
 		return true;
 	});
+
+
+
 });
 
