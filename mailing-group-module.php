@@ -1721,11 +1721,8 @@ function wpmg_user_signup_disable_inactive( $user ) {
 	if ( is_a( $user, 'WP_User' ) && 2 == $user->user_status ) {
 		return new WP_Error( 'invalid_username', __( "<strong>ERROR</strong>: You account has been deactivated.", 'mailing-group-module' ) );
 	}
-
 	return $user;
 }
-
-
 
 
 /*uninstall and deactivate code*/
