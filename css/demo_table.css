@@ -644,15 +644,15 @@ div.box {
 .dataTables_filter input {
 	height: 30px !important;
 }
+table.widefat {
+	margin-bottom: 10px;
+}
 
 .widefat thead th:last-of-type {
 	border-top-right-radius: 3px;
 	text-align:              left;
 }
 
-table.widefat {
-	margin-bottom: 10px;
-}
 
 .col-wrap p.submit {
 	/* margin-top: -28px !important;*/
@@ -677,7 +677,6 @@ table.widefat {
 }
 
 .form-field input, .form-field textarea {
-	margin-bottom: 14px;
 	text-align:    left;
 }
 
@@ -1047,7 +1046,7 @@ table.widefat {
 }
 
 .div800 {
-	width: 800px;
+	max-width: 800px;
 }
 
 .hidetd {

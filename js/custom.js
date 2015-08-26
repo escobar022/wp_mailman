@@ -95,7 +95,7 @@ jQuery(function ($) {
 //Custom Style Page
 jQuery(function ($) {
 	$("#styleform").submit(function () {
-		if (trim($("#user_style").val()) == "") {
+		if (trim($(this).val()) == "") {
 			alert("Please enter css styles to submit.");
 			$("#user_style").focus();
 			return false;
@@ -219,50 +219,6 @@ jQuery(function ($) {
 
 });
 
-//Add user section through admin TODO
-jQuery(function ($) {
-
-	$('#auto_generate').click(function () {
-
-		if ($('#auto_generate').is(':checked')) {
-			$("#gen_username").hide();
-		} else {
-			$("#gen_username").show();
-		}
-
-	});
-
-	$("#check_username").click(function () {
-		if (trim($("#username").val()) == "") {
-			alert("Please enter username to check.");
-			$("#username").focus();
-			return false;
-		}
-		var thisUsername = trim($("#username").val());
-
-		var data = {
-			action  : 'wpmg_checkusername',
-			page    : 'wpmg_mailinggroup_memberadd',
-			username: thisUsername
-		};
-		$.post(ajaxurl, data, function (response) {
-
-			if (trim(response) == 'yes') {
-				alert("Username is available.");
-				$("#username").val(thisUsername)
-				console.log(ajaxurl);
-				return true;
-			} else {
-				alert("Username is not available, please try again.");
-				$("#username").val(thisUsername);
-				return true;
-			}
-		});
-	});
-
-});
-
-
 /*Subscription Request Manager*/
 jQuery(function ($) {
 
@@ -355,7 +311,7 @@ jQuery(function ($) {
 		}
 	});
 
-	$(".add_subscriber").click(function () {
+	$(".add_user").click(function () {
 
 		var r = confirm("Are you sure you want to add user to group?");
 
@@ -501,6 +457,37 @@ jQuery(function ($) {
 			$(upd_button).toggle(false);
 		}
 	});
-
 });
 
+//Add user section through admin
+jQuery(function ($) {
+	
+	$("#check_username").click(function () {
+		if (trim($("#username").val()) == "") {
+			alert("Please enter username to check.");
+			$("#username").focus();
+			return false;
+		}
+		var thisUsername = trim($("#username").val());
+
+		var data = {
+			action  : 'wpmg_checkusername',
+			page    : 'wpmg_mailinggroup_memberadd',
+			username: thisUsername
+		};
+		$.post(ajaxurl, data, function (response) {
+
+			if (trim(response) == 'yes') {
+				alert("Username is available.");
+				$("#username").val(thisUsername)
+				console.log(ajaxurl);
+				return true;
+			} else {
+				alert("Username is not available, please try again.");
+				$("#username").val(thisUsername);
+				return true;
+			}
+		});
+	});
+
+});

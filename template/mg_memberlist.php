@@ -46,7 +46,7 @@ $totcount            = $user_in_group_query->get_total();
 ?>
 <div class="wrap">
 	<h2><?php _e( "Current Members", 'mailing-group-module' ); ?> <?php echo( $groupName != '' ? "($groupName) <a class='backlink' href='admin.php?page=wpmg_mailinggroup_list'>" . __( "Back", 'mailing-group-module' ) . "</a>" : "" ) ?>
-		<a class="button add-new-h2" href="admin.php?page=wpmg_mailinggroup_memberadd&act=add&gid=<?php echo $gid; ?>"><?php _e( "Add New Member", 'mailing-group-module' ); ?></a>
+		<a class="button add-new-h2" href="admin.php?page=wpmg_mailinggroup_requestmanageradd&act=add"><?php _e( "Add New User", 'mailing-group-module' ); ?></a>
 	</h2>
 
 	<div id="message"></div>
@@ -188,7 +188,7 @@ $tot_available = $available_user_query->get_total();
 					<td><?php echo $lablestatus; ?> (<a href="admin.php?page=wpmg_mailinggroup_memberlist&act=<?php echo $act; ?>&id=<?php echo $userId; ?>&gid=<?php echo $gid; ?>"><?php echo $labledetail; ?></a>)
 					</td>
 					<td class="last">
-						<a href="admin.php?page=wpmg_mailinggroup_memberadd&id=<?php echo $userId; ?>&gid=<?php echo $gid; ?>" class="edit_record" title="<?php _e( "Edit", 'mailing-group-module' ); ?>"></a>|<a class="add_subscriber" data-group_id="<?php echo $gid; ?>" data-user_id="<?php echo $userId; ?>" title="Add User"></a>
+						<a href="admin.php?page=wpmg_mailinggroup_memberadd&id=<?php echo $userId; ?>&gid=<?php echo $gid; ?>" class="edit_record" title="<?php _e( "Edit", 'mailing-group-module' ); ?>"></a>|<a class="add_subscriber add_user" data-group_id="<?php echo $gid; ?>" data-user_id="<?php echo $userId; ?>" title="Add User"></a>
 					</td>
 				</tr>
 				<?php

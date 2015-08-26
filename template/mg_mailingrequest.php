@@ -12,7 +12,7 @@ $totcount      = count( $result_groups );
 <div class="wrap">
 		<h2 class="nav-tab-wrapper">
 			<a href="admin.php?page=wpmg_mailinggroup_requestmanagerlist" title="<?php _e( "Subscription Request Manager", 'mailing-group-module' ); ?>" class="nav-tab nav-tab-active"><?php _e( "Subscription Request Manager", 'mailing-group-module' ); ?></a>
-			<a href="admin.php?page=wpmg_mailinggroup_requestmanageradd&act=add" class="nav-tab" title="<?php _e( "Add New Subscriber", 'mailing-group-module' ); ?>"><?php _e( "Add New Subscriber", 'mailing-group-module' ); ?></a>
+			<a href="admin.php?page=wpmg_mailinggroup_requestmanageradd" class="nav-tab" title="<?php _e( "Add New Subscriber", 'mailing-group-module' ); ?>"><?php _e( "Add New Subscriber", 'mailing-group-module' ); ?></a>
 		</h2>
 
 		<div class="description">

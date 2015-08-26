@@ -6,6 +6,10 @@ $groupName = get_the_title( $gid );
 $recid = sanitize_text_field( $_REQUEST["id"] );
 $status_change = sanitize_text_field( $_REQUEST["stat"] );
 
+if ( $gid == "" ) {
+	wpmg_redirectTo( "wpmg_mailinggroup_list" );
+}
+
 $user_id    = "";
 $name       = "";
 $email      = "";

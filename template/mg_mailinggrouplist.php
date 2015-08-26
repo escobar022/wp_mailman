@@ -46,9 +46,9 @@
 				<tr>
 					<td><?php echo $title; ?></td>
 					<td><?php echo ( $email != '' ? $email : 'Please Enter Email' ); ?></td>
-					<td><?php echo( $status == '1' ? 'Inactive' : 'Active' ); ?> </td>
+					<td><?php echo( $status == '1' ? 'Inactive' : 'Active' ); ?></td>
 					<td class="last">
-						<a class="add_subscriber" title="<?php _e( "Add Subscriber", 'mailing-group-module' ); ?>" href="admin.php?page=wpmg_mailinggroup_memberadd&act=add&gid=<?php echo $id; ?>"></a>
+						<a class="add_subscriber" title="<?php _e( "Add Subscriber", 'mailing-group-module' ); ?>" href="admin.php?page=wpmg_mailinggroup_requestmanageradd&gid=<?php echo $id; ?>"></a>
 						<a class="view_users" title="<?php _e( "View Members", 'mailing-group-module' ); ?>" href="admin.php?page=wpmg_mailinggroup_memberlist&gid=<?php echo $id; ?>"></a>
 						<!--TODO: make archive page-->
 						<a class="archive_messages" href="admin.php?page=wpmg_mailinggroup_adminarchive&gid=<?php echo $id; ?>" title="<?php _e( "View Archived Messages", 'mailing-group-module' ); ?>"></a>

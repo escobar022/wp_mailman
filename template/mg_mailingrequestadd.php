@@ -21,29 +21,7 @@ $hidval       = 1;
 
 
 
-/* get all variables */
-if ( $act == "upd" ) {
-    $result = get_userdata( $recid );
-    if ( $result ) {
-        $id            = $result->ID;
-        $name          = $result->first_name;
-        $email         = $result->user_email;
-        $username      = $result->user_login;
-        $status        = get_user_meta( $id, "mg_user_status", true );
-        $group_name_serial =  get_user_meta( $id, "mg_user_group_subscribed", true );
-        $groups_unserialized = unserialize($group_name_serial);
-
-        if ( count( $groups_unserialized ) > 0 ) {
-            foreach ( $groups_unserialized as $group_id => $email_format ) {
-                $group_name[ $group_id ] = $email_format;
-            }
-        } else {
-            $group_name = array();
-        }
-        $btn    = __( "Update Member", 'mailing-group-module' );
-        $hidval = 2;
-    }
-} else if ( $act == "uns" && $unsid != '' ) {
+if ( $act == "uns" && $unsid != '' ) {
     $group_arr_old = unserialize( get_user_meta( $recid, "mg_user_group_subscribed", true ) );
     unset( $group_arr_old[ $unsid ] );
     $grpserial = serialize( $group_arr_old );
@@ -100,38 +78,12 @@ if ( $addme == 1 ) {
     } else {
         wpmg_showmessages( "error", __( "Please enter username or email to proceed.", 'mailing-group-module' ) );
     }
-} else if ( $addme == 2 ) {
-    $recid  = sanitize_text_field( $_POST['id'] );
-    $name   = sanitize_text_field( $_POST['name'] );
-    $status = sanitize_text_field( $_POST['status'] );
-
-    if ( $name != '' ) {
-        $userdata  = array(
-            'ID'         => $recid,
-            'first_name' => $name
-        );
-        wp_update_user( $userdata );
-        $statusold = get_user_meta( $recid, "mg_user_status", true );
-        update_user_meta( $recid, "mg_user_status", $status, $statusold );
-
-        $grpsArray = $objMem->getGroupSerialized( $_POST );
-        $grpserial = serialize( $grpsArray );
-
-        update_user_meta( $recid, "mg_user_group_subscribed", $grpserial );
-        update_user_meta( $recid, "mg_user_group_sub_arr", $_POST['group_name'] );
-
-        wpmg_redirectTo( "wpmg_mailinggroup_memberlist&info=upd&gid=" . $gid );
-
-        exit;
-    } else {
-        wpmg_showmessages( "error", __( "Please enter username to proceed.", 'mailing-group-module' ) );
-    }
 }
 
 if ( $info == "userexists" ) {
     wpmg_showmessages( "error", __( "The email entered already exists in the system.", 'mailing-group-module' ) );
 } else if ( $info == "uns" ) {
-    wpmg_showmessages( "updated", __( "Member has been unsubcribed from the group.", 'mailing-group-module' ) );
+    wpmg_showmessages( "updated", __( "Member has been unsubscribed from the group.", 'mailing-group-module' ) );
 }
 
 $email_format = "";
@@ -143,17 +95,6 @@ $args = array(
     'post_status' => 'publish',
     'order_by'    => 'title',
     'order'       => 'DESC',
-    'meta_query'  => array(
-        'relation' => 'AND',
-        array(
-            'key'   => 'mg_group_status',
-            'value' => '2'
-        ),
-        array(
-            'key'   => 'mg_group_visibility',
-            'value' => '1'
-        ),
-    )
 );
 
 $query = new WP_Query( $args );
@@ -164,15 +105,17 @@ $result_groups = $query->get_posts();
 <div xmlns="http://www.w3.org/1999/xhtml" class="wrap nosubsub">
 	<h2 class="nav-tab-wrapper">
 		<a href="admin.php?page=wpmg_mailinggroup_requestmanagerlist" title="<?php _e( "Subscription Request Manager", 'mailing-group-module' ); ?>" class="nav-tab"><?php _e( "Subscription Request Manager", 'mailing-group-module' ); ?></a>
-		<a href="admin.php?page=wpmg_mailinggroup_requestmanageradd&act=add" class="nav-tab nav-tab-active" title="<?php _e( "Add New Subscriber/User", 'mailing-group-module' ); ?>"><?php _e( "Add New Subscriber/User", 'mailing-group-module' ); ?></a>
+		<a href="admin.php?page=wpmg_mailinggroup_requestmanageradd" class="nav-tab nav-tab-active" title="<?php _e( "Add New Subscriber/User", 'mailing-group-module' ); ?>"><?php _e( "Add New Subscriber/User", 'mailing-group-module' ); ?></a>
 	</h2>
 
     <div id="col-left-2">
         <div class="col-wrap">
-            <div>
-                <p><?php _e( "To add a new Mailing Group subscriber, please fill in the form below. This will automatically create a basic user account on your WordPress site, which will enable the subscriber to log in and update their mailing preferences later on. They will not be able to make any changes to the rest of your website or settings.", 'mailing-group-module' ); ?></p>
+            <div class="div800">
+                <p><?php _e( "Fill out the form below to add a subscriber to a mailing group.<br>
+They will then be sent an email to confirm that they are now a subscriber.<br>
+NB: Please only add subscribers here if you have their permission already.", 'mailing-group-module' ); ?></p>
 
-                <p><?php _e( "If the user you wish to add already exists on your WordPress site, please use the Import User page to add them to your Mailing Group.", 'mailing-group-module' ); ?></p>
+                <p>If the user you wish to add already exists on your WordPress site, add via <a href="admin.php?page=wpmg_mailinggroup_list">Mailing Groups</a></p>
 
                 <div class="form-wrap">
                     <form class="validate" action="" method="post" id="addmember">
@@ -187,16 +130,10 @@ $result_groups = $query->get_posts();
                             <input type="text" size="40" id="last_name" name="last_name" value="<?php echo $last_name; ?>" />
                         </div>
 
-                        <?php if ( $act != 'upd' ) { ?>
-                            <div class="form-field">
-                                <label for="tag-name">&nbsp;</label>
-                                <input type="checkbox" name="auto_generate" <?php echo( $auto_generate == '1' ? "checked" : "" ); ?> value="1" id="auto_generate" />&nbsp;<?php _e( "Auto-generate WordPress username", 'mailing-group-module' ); ?>
-                            </div>
-                        <?php } ?>
 
                         <div class="form-field" id="gen_username">
                             <label for="tag-name"><?php _e( "Username", 'mailing-group-module' ); ?> : </label>
-                            <input type="text" size="40" id="username" name="username" <?php echo( $act == 'upd' ? 'disabled="disabled"' : "" ) ?> value="<?php echo $username; ?>" /><?php if ( $act != 'upd' ) { ?>&nbsp;<a href="#" id="check_username" name="check_username"/><?php _e( "Check Availability", 'mailing-group-module' ); ?></a><?php } ?><?php echo( $act == 'upd' ? '&nbsp;' . __( "Username cannot be edited.", 'mailing-group-module' ) : "" ) ?>
+                            <input type="text" size="40" id="username" name="username" value="" /><?php if ( $act != 'upd' ) { ?>&nbsp;<a href="#" id="check_username" name="check_username"/><?php _e( "Check Availability", 'mailing-group-module' ); ?></a><?php } ?><?php echo( $act == 'upd' ? '&nbsp;' . __( "Username cannot be edited.", 'mailing-group-module' ) : "" ) ?>
                         </div>
 
 
@@ -220,10 +157,8 @@ $result_groups = $query->get_posts();
                         <?php } ?>
                         
                         <div class="form-field">
-                            <label for="tag-name"><?php _e( "Group Name", 'mailing-group-module' ); ?> : </label>
-
                             <div class="check_div">
-                                <table class="wp-list-table widefat fixed" id="memberaddedit">
+                                <table class="wp-list-table widefat fixed mg_groups" id="memberaddedit">
                                     <thead>
                                     <tr role="row" class="topRow">
                                         <th class="sort topRow_messagelist"><?php _e( "Mailing Group Name", 'mailing-group-module' ); ?></th>
