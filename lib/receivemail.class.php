@@ -59,7 +59,7 @@ class receiveMail {
 	protected function initImapStream() {
 		$imapStream = @imap_open( $this->server, $this->username, $this->password/*, 0, 0, array( 'DISABLE_AUTHENTICATOR' => 'GSSAPI' ) */ );
 		if ( ! $imapStream ) {
-			throw new ImapMailboxException( 'Connection error: ' . imap_last_error() );
+//			throw new ImapMailboxException( 'Connection error: ' . imap_last_error() );
 		}
 
 		return $imapStream;

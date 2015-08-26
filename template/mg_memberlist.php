@@ -98,7 +98,7 @@ $totcount            = $user_in_group_query->get_total();
 								<td><?php echo $lablestatus; ?> (<a href="admin.php?page=wpmg_mailinggroup_memberlist&act=<?php echo $act; ?>&id=<?php echo $userId; ?>&gid=<?php echo $gid; ?>"><?php echo $labledetail; ?></a>)
 								</td>
 								<td class="last">
-									<a href="admin.php?page=wpmg_mailinggroup_memberadd&act=upd&id=<?php echo $userId; ?>&gid=<?php echo $gid; ?>" class="edit_record" title="<?php _e( "Edit", 'mailing-group-module' ); ?>"></a>|<a class="delete_record remove_user" data-group_id="<?php echo $group_id; ?>" data-user_id="<?php echo $userId; ?>" title="Remove"></a>
+									<a href="admin.php?page=wpmg_mailinggroup_memberadd&id=<?php echo $userId; ?>&gid=<?php echo $gid; ?>" class="edit_record" title="<?php _e( "Edit", 'mailing-group-module' ); ?>"></a>|<a class="delete_record remove_user" data-group_id="<?php echo $group_id; ?>" data-user_id="<?php echo $userId; ?>" title="Remove"></a>
 								</td>
 							</tr>
 						<?php }
@@ -188,16 +188,13 @@ $tot_available = $available_user_query->get_total();
 					<td><?php echo $lablestatus; ?> (<a href="admin.php?page=wpmg_mailinggroup_memberlist&act=<?php echo $act; ?>&id=<?php echo $userId; ?>&gid=<?php echo $gid; ?>"><?php echo $labledetail; ?></a>)
 					</td>
 					<td class="last">
-						<a href="admin.php?page=wpmg_mailinggroup_memberadd&act=upd&id=<?php echo $userId; ?>&gid=<?php echo $gid; ?>" class="edit_record" title="<?php _e( "Edit", 'mailing-group-module' ); ?>"></a>|<a class="add_subscriber" data-group_id="<?php echo $gid; ?>" data-user_id="<?php echo $userId; ?>" title="Add User"></a>
+						<a href="admin.php?page=wpmg_mailinggroup_memberadd&id=<?php echo $userId; ?>&gid=<?php echo $gid; ?>" class="edit_record" title="<?php _e( "Edit", 'mailing-group-module' ); ?>"></a>|<a class="add_subscriber" data-group_id="<?php echo $gid; ?>" data-user_id="<?php echo $userId; ?>" title="Add User"></a>
 					</td>
 				</tr>
 				<?php
 			}
 
 		} else { ?>
-		<tr>
-			<td colspan="5" align="center"><?php _e( "No members found.", 'mailing-group-module' ); ?></td>
-		<tr>
 			<?php } ?>
 		</tbody>
 	</table>

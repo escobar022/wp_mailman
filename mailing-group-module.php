@@ -701,10 +701,6 @@ function wpmg_mailinggroup_Menu() {
 	);
 }
 
-
-
-
-
 /* initialize languae loader */
 function wpmg_mailinggroup_generalsettingtab() {
 	include "template/mg_settingstab.php";
@@ -911,7 +907,7 @@ function wpmg_request_group_callback() {
 
 	add_post_meta( $request_id, 'mg_request_user_id', $user_id, true );
 	add_post_meta( $request_id, 'mg_request_group_id', $group_id, true );
-	update_user_meta( $user_id, 'mg_user_status', 1 );
+
 
 	/*$wp_sent = wp_mail( 'aescobar@isda.org', 'New Subscribtion Request', 'A user has requested to update their subscription' );
 
@@ -1034,7 +1030,6 @@ function wpmg_update_group_format_callback() {
 		update_user_meta( $user_id, 'mg_user_group_subscribed', $updated_groups, $groups_subscribed );
 	} else {
 
-
 		$groups_requested = get_user_meta( $user_id, 'mg_user_requested_groups', true );
 
 		$group_sub_changed = array(
@@ -1047,7 +1042,6 @@ function wpmg_update_group_format_callback() {
 		$updated_req_groups = array_replace( $groups_requested, $group_sub_changed );
 
 		update_user_meta( $user_id, 'mg_user_requested_groups', $updated_req_groups, $groups_requested );
-
 	}
 
 
@@ -1100,7 +1094,7 @@ function wpmg_approve_group_request_callback() {
 		unset( $updated_requested_groups[ $group_requested_id ] );
 
 		update_user_meta( $user_id, 'mg_user_requested_groups', $updated_requested_groups, $groups_requested_arr );
-
+		update_user_meta( $user_id, 'mg_user_status', 1 );
 		wp_delete_post( $request_id, true );
 
 	} else {
@@ -1220,8 +1214,12 @@ function wpmg_add_user_to_current_group_callback() {
 		die ( 'Busted!' );
 	}
 	$groupID = $_POST['group_id'];
-	$email_format = '1';
+	$email_format = $_POST['group_format'];
 	$userID    = $_POST['user_id'];
+
+	if(empty($email_format) ){
+		$email_format = '1';
+	}
 
 	$groups_subscribed    = get_user_meta( $userID, 'mg_user_group_subscribed', true );
 	$groups_array         = array();

@@ -325,7 +325,7 @@ jQuery(function ($) {
 });
 
 
-/*Add Subscribers*/
+/*Add Subscribers to Group Manager*/
 jQuery(function ($) {
 
 	$(".remove_user").click(function () {
@@ -396,39 +396,111 @@ jQuery(function ($) {
 		}
 	});
 
+});
 
-	$('#addmember').submit(function () {
-		if (trim($("#name").val()) == "") {
-			alert("Please enter your name.");
-			$("#name").focus();
-			return false;
+/*Edit Member*/
+jQuery(function ($) {
+	$(".add_user_to_group").click(function () {
+
+		var r = confirm("Are you sure you want to add user to group?");
+
+		if (r === true) {
+			var user_id = $("#user_id").val();
+			var group_id = $(this).data("group_id");
+			var group_format = $('input[name=email_format_edit_' + group_id + ']:checked').val();
+
+			var data = {
+				action   : 'wpmg_add_user_to_current_group',
+				group_id : group_id,
+				user_id  : user_id,
+				group_format:group_format,
+				nextNonce: PT_Ajax.nextNonce
+			};
+
+			$.post(PT_Ajax.ajaxurl, data, function (response) {
+
+				if (response['action'] === 'error') {
+					$('#message').html(response['description']);
+				} else {
+					location.reload(true);
+				}
+
+				return true;
+			});
 		}
-		if ($('#auto_generate').is(':checked')) {
-		} else {
-			if (trim($("#username").val()) == "") {
-				alert("Please enter username.");
-				$("#username").focus();
-				return false;
-			}
-		}
-		if (trim($("#email").val()) == "") {
-			alert("Please enter email.");
-			$("#email").focus();
-			return false;
-		}
-		if (!checkemail($("#email").val())) {
-			alert("Please enter valid email address.");
-			$("#email").focus();
-			return false;
-		}
-		if (!isCheckedById("selector")) {
-			alert("Please select at least one group.");
-			return false;
-		}
-		return true;
 	});
 
+	$(".remove_from_group").click(function () {
 
+		var group_id = $(this).data("group_id");
+		var user_id = $("#user_id").val();
+		var current_status = $(".current_status[data-group_id=" + group_id + "]");
+		var confirm_message = $(".confirm_message[data-group_id=" + group_id + "]");
+		var confirm_button = $(".confirm_leave_group[data-group_id=" + group_id + "]");
+		var cancel_button = $(".cancel_leave_group[data-group_id=" + group_id + "]");
+
+		$(this).toggle(false);
+		$(current_status).hide();
+		$(confirm_message).show();
+		$(confirm_button).toggle(true);
+		$(cancel_button).toggle(true);
+
+		$(confirm_button).click(function () {
+
+			var data = {
+				action   : 'wpmg_leave_group',
+				user_id  : user_id,
+				group_id : group_id,
+				nextNonce: PT_Ajax.nextNonce
+			};
+
+			$.post(PT_Ajax.ajaxurl, data, function () {
+				location.reload();
+				return true;
+			});
+		});
+
+		$(cancel_button).click(function () {
+			$(".remove_from_group").toggle(true);
+			$(current_status).show();
+			$(confirm_message).hide();
+			$(confirm_button).toggle(false);
+			$(cancel_button).toggle(false);
+		});
+
+	});
+
+	$('.email_format_edit').change(function () {
+
+		var user_id = $("#user_id").val();
+		var group_id = $(this).data("group_id");
+		var upd_button = $(".update_group_format[data-group_id=" + group_id + "]");
+		var current_format = $(".current_format[data-group_id=" + group_id + "]").val();
+		var new_group_format = $('input[name=email_format_edit_' + group_id + ']:checked').val();
+
+
+		if (current_format != new_group_format) {
+			$(upd_button).toggle(true);
+
+			$(".update_group_format").click(function () {
+
+				var data = {
+					action          : 'wpmg_update_group_format',
+					user_id         : user_id,
+					group_id        : group_id,
+					new_group_format: new_group_format,
+					nextNonce       : PT_Ajax.nextNonce
+				};
+
+				$.post(PT_Ajax.ajaxurl, data, function () {
+					location.reload();
+					return true;
+				});
+			});
+		} else {
+			$(upd_button).toggle(false);
+		}
+	});
 
 });
 
