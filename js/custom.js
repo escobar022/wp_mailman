@@ -461,7 +461,18 @@ jQuery(function ($) {
 
 //Add user section through admin
 jQuery(function ($) {
-	
+
+	$("#addmember .confirmation_email").change(function(){
+		if(this.value=='0') {
+			$("#status_1").removeAttr("disabled");
+		} else {
+			$("#status_1").attr("disabled","disabled");
+			$("#status_0").attr("checked",true);
+		}
+	});
+
+
+
 	$("#check_username").click(function () {
 		if (trim($("#username").val()) == "") {
 			alert("Please enter username to check.");

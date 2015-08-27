@@ -14,7 +14,6 @@ $totcount      = count( $result_groups );
 			<a href="admin.php?page=wpmg_mailinggroup_requestmanagerlist" title="<?php _e( "Subscription Request Manager", 'mailing-group-module' ); ?>" class="nav-tab nav-tab-active"><?php _e( "Subscription Request Manager", 'mailing-group-module' ); ?></a>
 			<a href="admin.php?page=wpmg_mailinggroup_requestmanageradd" class="nav-tab" title="<?php _e( "Add New Subscriber", 'mailing-group-module' ); ?>"><?php _e( "Add New Subscriber", 'mailing-group-module' ); ?></a>
 		</h2>
-
 		<div class="description">
 			<h4><?php _e( "Any new subscriber requests submitted via your website, or via the Add New Subscriber panel, will appear below. You need to use the plugin’s shortcode to display the subscription request form on your website - see the Help tab in the General Settings for more information.", 'mailing-group-module' ); ?></h4>
 		</div>

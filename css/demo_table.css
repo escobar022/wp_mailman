@@ -46,7 +46,6 @@
 	clear:    both;
 	zoom:     1; /* Feeling sorry for IE */
 
-
 }
 
 .dataTables_processing {
@@ -644,15 +643,11 @@ div.box {
 .dataTables_filter input {
 	height: 30px !important;
 }
-table.widefat {
-	margin-bottom: 10px;
-}
 
 .widefat thead th:last-of-type {
 	border-top-right-radius: 3px;
 	text-align:              left;
 }
-
 
 .col-wrap p.submit {
 	/* margin-top: -28px !important;*/
@@ -677,7 +672,7 @@ table.widefat {
 }
 
 .form-field input, .form-field textarea {
-	text-align:    left;
+	text-align: left;
 }
 
 .form-field input#auto_delete_no {
@@ -707,8 +702,9 @@ table.widefat {
 
 .validate .form-field {
 
-	height: auto !important;
-	clear:  both;
+	height:  auto !important;
+	clear:   both;
+	padding: 5px 0;
 
 }
 
@@ -1052,8 +1048,6 @@ table.widefat {
 .hidetd {
 	display: none;
 }
-
-
 
 .dataTables_paginate {
 	float:       right;
