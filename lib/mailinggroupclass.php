@@ -2,6 +2,84 @@
 
 class mailinggroupClass {
 
+	public $admin_emails = array(
+		'1' => array(
+			'title'        => 'For subscribers: Opt-in confirmation for new subscribers',
+			'message_type' => 'optinAdminAdd',
+			'subject' => '',
+			'message' => ''
+		),
+		'2' => array(
+			'title'        => 'For subscribers: Confirmation of successful group subscription',
+			'message_type' => 'userApprovedRequest',
+			'subject' => '',
+			'message' => ''
+		),
+		'3' => array(
+			'title'        => 'For admin: New subscription request alert',
+			'message_type' => 'newGroupRequest',
+			'subject' => '',
+			'message' => ''
+		)
+	);
+
+	public function __construct() {
+		add_action( 'wp_ajax_wpmg_reset_admin_email', array( $this, 'wpmg_reset_admin_email' ) );
+	}
+
+	function updateAdminEmail( $id, $posted_vals, $submited_fields ) {
+
+		$submitted_changes = array();
+		$current_emails    = get_option( 'wp_mailman_admin_emails' );
+
+		foreach ( $submited_fields as $field ) {
+			$submitted_changes[ $field ] = $posted_vals[ $field ];
+		}
+
+		$difference = array_diff_assoc( $current_emails[ $id ], $submitted_changes );
+
+		if ( ! empty( $difference ) ) {
+
+			$new_submission = array( $id => $submitted_changes );
+			$updated_list   = array_replace( $current_emails, $new_submission );
+
+			update_option( 'wp_mailman_admin_emails', $updated_list );
+
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	public function wpmg_reset_admin_email() {
+		// check nonce
+		$current_emails    = get_option( 'wp_mailman_admin_emails' );
+
+		$nonce = $_POST['nextNonce'];
+
+		if ( ! wp_verify_nonce( $nonce, 'myajax-next-nonce' ) ) {
+			die ( 'Busted!' );
+		}
+		$email_id      = $_POST['email_id'];
+
+		$default_email= $this->admin_emails;
+
+		$new_submission = array( $email_id => $default_email[$email_id] );
+
+
+		$updated_list   = array_replace( $current_emails, $new_submission );
+
+		update_option( 'wp_mailman_admin_emails', $updated_list );
+
+		$response = json_encode( $email_id );
+		// response output
+		header( "Content-Type: application/json" );
+		echo $response;
+
+		wp_die();
+	}
+
+
 	function addNewRow( $tblname, $grpinfo, $fields ) {
 		global $wpdb;
 		$count = sizeof( $grpinfo );

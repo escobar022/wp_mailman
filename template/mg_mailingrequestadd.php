@@ -26,11 +26,8 @@ if ( $addme == 1 ) {
 	$email              = sanitize_email( $_POST['email'] );
 	$confirmation_email = sanitize_text_field( $_POST['confirmation_email'] );
 
-	$status = sanitize_text_field( $_POST['status'] );
-
-
+	$status                = sanitize_text_field( $_POST['status'] );
 	$new_groups_subscribed = $_POST['group_name'];
-
 
 	if ( $username != '' && $email != '' ) {
 
@@ -51,7 +48,7 @@ if ( $addme == 1 ) {
 			$user_id  = wp_insert_user( $userdata );
 
 
-			if ( $user_id ) {
+			if ( ! is_wp_error( $user_id ) ) {
 				foreach ( $new_groups_subscribed as $group_ID ) {
 
 					$groups_subscribed[ $group_ID ] = $_POST[ 'email_format_' . $group_ID ];
@@ -60,33 +57,30 @@ if ( $addme == 1 ) {
 					$groups_array[] = (string) $group;
 				}
 
+				update_user_meta( $user_id, 'mg_user_group_subscribed', $groups_subscribed );
+				update_user_meta( $user_id, 'mg_user_group_sub_arr', $groups_array );
 
-				update_user_meta( $userID, 'mg_user_group_subscribed', $groups_subscribed );
-				update_user_meta( $userID, 'mg_user_group_sub_arr', $groups_array );
+				if ( $confirmation_email ) {
+					wpmg_sendConfirmationtoMember( $user_id, $groups_array );
+				} else {
+					wp_new_user_notification( $user_id, $random_password );
+				}
+				wpmg_redirectTo( "wpmg_mailinggroup_requestmanageradd&info=saved" );
 
+			} else {
+				wpmg_showmessages( "error", __( "There has been an error", 'mailing-group-module' ) );
 			}
-
-
 		}
 	} else {
 		wpmg_showmessages( "error", __( "Please enter username or email to proceed.", 'mailing-group-module' ) );
 	}
 
 
-//			if ( $confirmation_email ) {
-//				wpmg_sendConfirmationtoMember( $user_id, $grpsArray );
-//			} else {
-//				wp_new_user_notification( $user_id, $random_password );
-//			}
-//			wpmg_redirectTo( "wpmg_mailinggroup_memberlist&info=saved&gid=" . $gid );
-//			exit;
-//		}
-
 }
 
-//if ( $info == "userexists" ) {
-//	wpmg_showmessages( "error", __( "The email entered already exists in the system.", 'mailing-group-module' ) );
-//}
+if ( $info === "saved" ) {
+	wpmg_showmessages( "updated", __( "User has been added successfully added to the group/s.", 'mailing-group-module' ) );
+}
 
 $email_format = "";
 
@@ -94,7 +88,7 @@ $args = array(
 	'post_type'   => 'mg_groups',
 	'post_status' => 'publish',
 	'order_by'    => 'title',
-	'order'       => 'DESC',
+	'order'       => 'DESC'
 );
 
 $query         = new WP_Query( $args );
@@ -175,6 +169,7 @@ $result_groups = $query->get_posts();
 									<thead>
 									<tr>
 										<th class="sort topRow_messagelist"><?php _e( "Mailing Group Name", 'mailing-group-module' ); ?></th>
+										<th><?php _e( "Group Status", 'mailing-group-module' ); ?></th>
 										<th><?php _e( "Email Format", 'mailing-group-module' ); ?></th>
 									</tr>
 									</thead>
@@ -182,10 +177,15 @@ $result_groups = $query->get_posts();
 									<?php
 									foreach ( $result_groups as $group ) {
 										$checkSelected = false;
+										$group_status  = get_post_meta( $group->ID, 'mg_group_status', true );
 										?>
+
 										<tr>
 											<td>
 												<input type="checkbox" name="group_name[]" id="selector" value="<?php echo $group->ID; ?>" /><?php echo $group->post_title; ?>
+											</td>
+											<td>
+												<p><?php echo( $group_status == '1' ? 'Inactive' : 'Active' ); ?></p>
 											</td>
 											<td>
 												<div class="check_div">

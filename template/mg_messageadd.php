@@ -1,8 +1,15 @@
 <?php
 /* get all variables */
+$admin_emails = get_option( 'wp_mailman_admin_emails' );
+
+error_log($admin_emails);
+
+
+
 $addme = sanitize_text_field($_POST["addme"]);
 $act = sanitize_text_field($_REQUEST["act"]);
-$recid = sanitize_text_field($_REQUEST["id"]);$_POST = stripslashes_deep( $_POST );
+$recid = sanitize_text_field($_REQUEST["id"]);
+$_POST = stripslashes_deep( $_POST );
 /* get all variables */
 $myFields=array("id","title","description","status");
 if($addme==1) {
@@ -36,15 +43,6 @@ if($act=="upd") {
 	$hidval	   = 1;
 }
 ?>
-<script type="text/javascript">
-	jQuery(document).ready(function() {
-		jQuery("#toplevel_page_mailinggroup_intro").removeClass('wp-not-current-submenu');
-		jQuery("#toplevel_page_mailinggroup_intro").addClass('wp-has-current-submenu');
-		jQuery(".toplevel_page_mailinggroup_intro").removeClass('wp-not-current-submenu');
-		jQuery(".toplevel_page_mailinggroup_intro").addClass('wp-has-current-submenu');
-		jQuery("#toplevel_page_mailinggroup_intro ul li.wp-first-item").addClass("current");
-	});
-</script>
 <div xmlns="http://www.w3.org/1999/xhtml" class="wrap nosubsub">
 	<h2 class="nav-tab-wrapper">
         <a href="admin.php?page=wpmg_mailinggroup_intro" title="<?php _e("Introduction", 'mailing-group-module'); ?>" class="nav-tab"><?php _e("Introduction", 'mailing-group-module'); ?></a>

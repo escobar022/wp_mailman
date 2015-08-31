@@ -14,7 +14,6 @@ if ( preg_match( '#' . basename( __FILE__ ) . '#', $_SERVER['PHP_SELF'] ) ) {
 }
 /**
  * Indicates that a clean exit occured. Handled by set_exception_handler
-
  */
 if ( ! class_exists( 'E_Clean_Exit' ) ) {
 	class E_Clean_Exit extends RuntimeException {
@@ -45,8 +44,8 @@ $visibilityArray = array(
 $WPMG_SETTINGS = get_option( "WPMG_SETTINGS" );
 global $WPMG_SETTINGS;
 
-$table_name_users                   = $wpdb->prefix . "users";
-$table_name_usermeta                = $wpdb->prefix . "usermeta";
+$table_name_users    = $wpdb->prefix . "users";
+$table_name_usermeta = $wpdb->prefix . "usermeta";
 
 add_action( 'init', 'Mailing_Groups' );
 add_action( 'add_meta_boxes', 'add_custom_meta_box' );
@@ -361,9 +360,9 @@ This message was sent to <b>{%name%}</b> at <b>{%email%}</b> by the <a href="{%s
 			)
 		),
 		array(
-			'label'   => 'Old Archived URL:',
-			'id'      => $prefix . 'old_archive_url',
-			'type'    => 'text'
+			'label' => 'Old Archived URL:',
+			'id'    => $prefix . 'old_archive_url',
+			'type'  => 'text'
 		)
 	);
 
@@ -612,6 +611,7 @@ function do_output_buffer() {
 /* Install Plugin */
 register_activation_hook( __FILE__, 'wpmg_add_mailing_group_plugin' );
 function wpmg_add_mailing_group_plugin() {
+	global $objMem;
 
 	/* ADD CONFIG OPTION TO OPTION TABLE*/
 
@@ -640,6 +640,10 @@ function wpmg_add_mailing_group_plugin() {
 	);
 
 	update_option( "WPMG_SETTINGS", $wpmg_setting );
+
+	if(!get_option('wp_mailman_admin_emails')){
+		add_option( 'wp_mailman_admin_emails', $objMem->admin_emails );
+	}
 }
 
 
@@ -833,6 +837,7 @@ function wpmg_trimVal( $value, $by = "" ) {
 function wpmg_showmessages( $type, $message ) {
 	echo "<div class='" . $type . "' id='message'><p><strong>Mailing Group Manager: " . $message . "</strong></p></div>";
 }
+
 function wpmg_showmessages_ajax( $type, $message ) {
 	return "<div class='" . $type . "' id='message'><p><strong>Mailing Group Manager: " . $message . "</strong></p></div>";
 }
@@ -1173,12 +1178,12 @@ function wpmg_remove_user_callback() {
 	}
 
 	$groupID = $_POST['group_id'];
-	$userID    = $_POST['user_id'];
+	$userID  = $_POST['user_id'];
 
-	$groups_subscribed    = get_user_meta( $userID, 'mg_user_group_subscribed', true );
-	$groups_array = array();
+	$groups_subscribed = get_user_meta( $userID, 'mg_user_group_subscribed', true );
+	$groups_array      = array();
 
-	if ( !empty( $groups_subscribed ) ) {
+	if ( ! empty( $groups_subscribed ) ) {
 
 		$updated_groups = $groups_subscribed;
 		unset( $updated_groups[ $groupID ] );
@@ -1187,14 +1192,14 @@ function wpmg_remove_user_callback() {
 		foreach ( $groups_subscribed_arr as $group => $format ) {
 			$groups_array[] = (string) $group;
 		}
-		update_user_meta( $userID, 'mg_user_group_subscribed', $updated_groups);
-		update_user_meta( $userID, 'mg_user_group_sub_arr', $groups_array);
-		$_POST['description'] = wpmg_showmessages_ajax( "updated","Member has been removed successfully." );
-		$_POST['action'] = 'success';
+		update_user_meta( $userID, 'mg_user_group_subscribed', $updated_groups );
+		update_user_meta( $userID, 'mg_user_group_sub_arr', $groups_array );
+		$_POST['description'] = wpmg_showmessages_ajax( "updated", "Member has been removed successfully." );
+		$_POST['action']      = 'success';
 
-	}else{
-		$_POST['description'] =  wpmg_showmessages_ajax( "error","Member has been removed unsuccessfully." );
-		$_POST['action'] = 'error';
+	} else {
+		$_POST['description'] = wpmg_showmessages_ajax( "error", "Member has been removed unsuccessfully." );
+		$_POST['action']      = 'error';
 	}
 
 
@@ -1213,16 +1218,16 @@ function wpmg_add_user_to_current_group_callback() {
 	if ( ! wp_verify_nonce( $nonce, 'myajax-next-nonce' ) ) {
 		die ( 'Busted!' );
 	}
-	$groupID = $_POST['group_id'];
+	$groupID      = $_POST['group_id'];
 	$email_format = $_POST['group_format'];
-	$userID    = $_POST['user_id'];
+	$userID       = $_POST['user_id'];
 
-	if(empty($email_format) ){
+	if ( empty( $email_format ) ) {
 		$email_format = '1';
 	}
 
-	$groups_subscribed    = get_user_meta( $userID, 'mg_user_group_subscribed', true );
-	$groups_array         = array();
+	$groups_subscribed = get_user_meta( $userID, 'mg_user_group_subscribed', true );
+	$groups_array      = array();
 
 	if ( empty( $groups_subscribed ) ) {
 		$groups_subscribed = array();
@@ -1230,23 +1235,23 @@ function wpmg_add_user_to_current_group_callback() {
 
 	if ( ! array_key_exists( $groupID, $groups_subscribed ) ) {
 
-		$new_groups_subscribed                        = $groups_subscribed;
+		$new_groups_subscribed             = $groups_subscribed;
 		$new_groups_subscribed[ $groupID ] = $email_format;
 
 		foreach ( $new_groups_subscribed as $group => $format ) {
 			$groups_array[] = (string) $group;
 		}
 
-		update_user_meta( $userID, 'mg_user_group_subscribed', $new_groups_subscribed);
+		update_user_meta( $userID, 'mg_user_group_subscribed', $new_groups_subscribed );
 		update_user_meta( $userID, 'mg_user_group_sub_arr', $groups_array );
 
 
-		$_POST['description'] = wpmg_showmessages_ajax( "updated","Member has been removed successfully." );
-		$_POST['action'] = 'success';
+		$_POST['description'] = wpmg_showmessages_ajax( "updated", "Member has been removed successfully." );
+		$_POST['action']      = 'success';
 
-	}else{
-		$_POST['description'] =  wpmg_showmessages_ajax( "error","Member has been removed unsuccessfully." );
-		$_POST['action'] = 'error';
+	} else {
+		$_POST['description'] = wpmg_showmessages_ajax( "error", "Member has been removed unsuccessfully." );
+		$_POST['action']      = 'error';
 	}
 
 
@@ -1459,15 +1464,17 @@ function wpmg_sendConfirmationtoMember( $id, $groupArray ) {
 	$user_login   = stripslashes( $user->user_login );
 	$user_email   = stripslashes( $user->user_email );
 	$user_reg     = stripslashes( $user->user_registered );
-    $grouplist = '';
+	$grouplist    = '';
+
 	if ( count( $groupArray ) > 0 ) {
-		foreach ( $groupArray as $key => $value ) {
-			$get_group  = $objMem->selectRows( $table_name_group, "", " where id='" . $key . "'" );
-			$group_name = $get_group[0]->title;
+		foreach ( $groupArray as $key => $group_id ) {
+
+			$group_name = get_the_title( $group_id );
 			$grouplist .= $group_name . ", ";
 		}
 		$grouplist = wpmg_trimVal( $grouplist, ", " );
 	}
+
 	$activationURL   = wpmg_activation_url( $id, $user_reg );
 	$get_message     = $objMem->selectRows( $table_name_message, "", " where message_type = 'Confirmationemailforsubscribertoverifyaccount'" );
 	$dataMessage     = stripslashes( $get_message[0]->description );
@@ -1541,7 +1548,7 @@ function wpmg_sendGroupConfirmationtoMember( $id, $groupArray ) {
 	$user_email   = stripslashes( $user->user_email );
 	$user_reg     = stripslashes( $user->user_registered );
 	$i            = 1;
-    $grouplist = '';
+	$grouplist    = '';
 	if ( count( $groupArray ) > 0 ) {
 		foreach ( $groupArray as $key => $value ) {
 			$get_group  = $objMem->selectRows( $table_name_group, "", " where id='" . $key . "'" );
@@ -1643,13 +1650,13 @@ function wpmg_check_user_activation_link( $template ) {
 	global $wpdb, $objMem, $table_name_user_taxonomy;
 	/* wpmg_activation_url(98, "2013-08-29 13:14:31"); */
 	extract( $_GET );
-	$error = new WP_Error();
-    $verify='';
-    $activationkey='';
-    $nonce= '';
-    $unsubscribe='';
-    $userid='';
-    $group='';
+	$error         = new WP_Error();
+	$verify        = '';
+	$activationkey = '';
+	$nonce         = '';
+	$unsubscribe   = '';
+	$userid        = '';
+	$group         = '';
 
 	if ( $verify == '1' && $activationkey != '' && $nonce != '' ) {
 		$result = $objMem->selectRows( $wpdb->users, "", " where MD5(ID) = '" . $activationkey . "' and MD5(user_registered) = '" . $nonce . "' order by id desc" );
@@ -1703,6 +1710,7 @@ function wpmg_user_signup_disable_inactive( $user ) {
 	if ( is_a( $user, 'WP_User' ) && 2 == $user->user_status ) {
 		return new WP_Error( 'invalid_username', __( "<strong>ERROR</strong>: You account has been deactivated.", 'mailing-group-module' ) );
 	}
+
 	return $user;
 }
 
@@ -1772,7 +1780,7 @@ function wpmg_add_menu_icons_styles() {
 			content: '\f237';
 		}
 	</style>
-<?php
+	<?php
 }
 
 add_action( 'admin_head', 'wpmg_add_menu_icons_styles' );

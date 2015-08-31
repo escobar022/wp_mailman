@@ -73,23 +73,41 @@ jQuery(function ($) {
 //Custom/Admin Message Add Section
 jQuery(function ($) {
 	$('#addmessage').submit(function () {
-		if (trim($("#title").val()) == "") {
+		if ($("#title").val() == "") {
 			alert("Please enter message title.");
-			$("#title").focus();
+			$(this).focus();
 			return false;
 		}
-		if (trim($("#description").val()) == "") {
-			alert("Please enter message description.");
-			$("#description").focus();
-			return false;
-		}
-		if ($("#status option:selected").val() == "") {
-			alert("Please select message status.");
-			$("#status").focus();
+		if ($("textarea#message").val() == "") {
+			alert("Please enter a message.");
+			$(this).focus();
 			return false;
 		}
 		return true;
 	});
+
+	$(".reset_admin_email").click(function () {
+
+		var r = confirm("Are you sure you want to reset this email?");
+
+		if (r === true) {
+			var email_id = $(this).data('email_id');
+
+			var data = {
+				action   : 'wpmg_reset_admin_email',
+				email_id : email_id,
+				nextNonce: PT_Ajax.nextNonce
+			};
+
+			$.post(PT_Ajax.ajaxurl, data, function () {
+				location.reload(true);
+				return true;
+			});
+		}
+
+	});
+
+
 });
 
 //Custom Style Page
@@ -366,11 +384,11 @@ jQuery(function ($) {
 			var group_format = $('input[name=email_format_edit_' + group_id + ']:checked').val();
 
 			var data = {
-				action   : 'wpmg_add_user_to_current_group',
-				group_id : group_id,
-				user_id  : user_id,
-				group_format:group_format,
-				nextNonce: PT_Ajax.nextNonce
+				action      : 'wpmg_add_user_to_current_group',
+				group_id    : group_id,
+				user_id     : user_id,
+				group_format: group_format,
+				nextNonce   : PT_Ajax.nextNonce
 			};
 
 			$.post(PT_Ajax.ajaxurl, data, function (response) {
@@ -462,15 +480,14 @@ jQuery(function ($) {
 //Add user section through admin
 jQuery(function ($) {
 
-	$("#addmember .confirmation_email").change(function(){
-		if(this.value=='0') {
+	$("#addmember .confirmation_email").change(function () {
+		if (this.value == '0') {
 			$("#status_1").removeAttr("disabled");
 		} else {
-			$("#status_1").attr("disabled","disabled");
-			$("#status_0").attr("checked",true);
+			$("#status_1").attr("disabled", "disabled");
+			$("#status_0").attr("checked", true);
 		}
 	});
-
 
 
 	$("#check_username").click(function () {
