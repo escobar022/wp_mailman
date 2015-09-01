@@ -25,11 +25,10 @@ $totcount = count( $admin_emails );
 	<div>&nbsp;</div>
 
 	<p><?php _e( "The following emails are sent out automatically by the plugin when the events described in the title column occur. You are welcome to customise the text according to your preference. The available dynamic variables are shown when you click to edit a message.", 'mailing-group-module' ); ?></p>
-	<table class="wp-list-table widefat fixed" id="messagelist">
+	<table class="wp-list-table widefat fixed">
 		<thead>
 		<tr role="row" class="topRow">
-			<th width="35%" class="sort topRow_messagelist">
-				<a href="#"><?php _e( "Title", 'mailing-group-module' ); ?></a></th>
+			<th width="35%" class="sort topRow_messagelist"><?php _e( "Title", 'mailing-group-module' ); ?></th>
 			<th width="35%"><?php _e( "Message", 'mailing-group-module' ); ?></th>
 			<th width="8%"><?php _e( "Actions", 'mailing-group-module' ); ?></th>
 		</tr>
@@ -49,6 +48,7 @@ $totcount = count( $admin_emails );
 					</td>
 				</tr>
 			<?php }
+
 		} else { ?>
 		<tr>
 			<td colspan="3" align="center"><?php _e( "No Message Found!", 'mailing-group-module' ); ?></td>

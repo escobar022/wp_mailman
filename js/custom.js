@@ -72,6 +72,7 @@ jQuery(function ($) {
 
 //Custom/Admin Message Add Section
 jQuery(function ($) {
+	//Admin Message Add
 	$('#addmessage').submit(function () {
 		if ($("#title").val() == "") {
 			alert("Please enter message title.");
@@ -80,6 +81,11 @@ jQuery(function ($) {
 		}
 		if ($("textarea#message").val() == "") {
 			alert("Please enter a message.");
+			$(this).focus();
+			return false;
+		}
+		if ($("#visible").val() == "") {
+			alert("Please select its visibility to use in response.");
 			$(this).focus();
 			return false;
 		}
@@ -104,7 +110,56 @@ jQuery(function ($) {
 				return true;
 			});
 		}
+	});
 
+	$('#messagelist').dataTable({
+		"aoColumnDefs"  : [
+			{"bSortable": false, "aTargets": [1, 2, 3]}
+		],
+		"fnDrawCallback": function () {
+			if ($("#messagelist").find("tr:not(.ui-widget-header)").length <= 5) {
+				document.getElementById('messagelist_paginate').style.display = "none";
+			} else {
+				document.getElementById('messagelist_paginate').style.display = "block";
+			}
+		}
+	});
+
+	$(".custom_msg_visibility").click(function () {
+
+		var email_id = $(this).data('email_id');
+		var visibility = $(this).data('visibility');
+
+		var data = {
+			action   : 'wpmg_custom_msg_visibility',
+			email_id : email_id,
+			visibility : visibility,
+			nextNonce: PT_Ajax.nextNonce
+		};
+
+		$.post(PT_Ajax.ajaxurl, data, function () {
+			location.reload(true);
+			return true;
+		});
+	});
+
+	$(".remove_custom_email").click(function () {
+		var r = confirm("Are you sure you want to delete this email?");
+
+		if (r === true) {
+			var email_id = $(this).data('email_id');
+
+			var data = {
+				action   : 'wpmg_remove_custom_email',
+				email_id : email_id,
+				nextNonce: PT_Ajax.nextNonce
+			};
+
+			$.post(PT_Ajax.ajaxurl, data, function () {
+				//location.reload(true);
+				return true;
+			});
+		}
 	});
 
 
@@ -113,7 +168,7 @@ jQuery(function ($) {
 //Custom Style Page
 jQuery(function ($) {
 	$("#styleform").submit(function () {
-		if (trim($(this).val()) == "") {
+		if (trim($('textarea'+this).val()) == "") {
 			alert("Please enter css styles to submit.");
 			$("#user_style").focus();
 			return false;

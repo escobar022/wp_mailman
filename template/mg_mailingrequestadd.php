@@ -2,6 +2,7 @@
 /* get all variables */
 $addme = sanitize_text_field( $_POST["addme"] );
 $info  = sanitize_text_field( $_REQUEST["info"] );
+$gid  = sanitize_text_field( $_REQUEST["gid"] );
 $_POST = stripslashes_deep( $_POST );
 
 $btn          = __( "Submit", 'mailing-group-module' );
@@ -106,8 +107,8 @@ $result_groups = $query->get_posts();
 			<div class="div800">
 				<p><?php _e( "Fill out the form below to add a subscriber to a mailing group.<br>They will then be sent an email to confirm that they are now a subscriber.<br>NB: Please only add subscribers here if you have their permission already.", 'mailing-group-module' ); ?></p>
 
-				<p>If the user you wish to add already exists on your WordPress site, add via
-					<a href="admin.php?page=wpmg_mailinggroup_list">Mailing Groups</a></p>
+				<h3><strong>If the user you wish to add already exists on your WordPress site, add via</strong>
+					<a href="admin.php?page=wpmg_mailinggroup_list">Mailing Groups Manager</a></h3>
 
 				<div class="form-wrap">
 					<form class="validate" action="" method="post" id="addmember">
@@ -182,7 +183,7 @@ $result_groups = $query->get_posts();
 
 										<tr>
 											<td>
-												<input type="checkbox" name="group_name[]" id="selector" value="<?php echo $group->ID; ?>" /><?php echo $group->post_title; ?>
+												<input type="checkbox" name="group_name[]" id="selector" value="<?php echo $group->ID; ?>"  <?php echo ( $gid == $group->ID ? "checked" : ""); ?>/><?php echo $group->post_title; ?>
 											</td>
 											<td>
 												<p><?php echo( $group_status == '1' ? 'Inactive' : 'Active' ); ?></p>

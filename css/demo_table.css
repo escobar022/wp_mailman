@@ -685,10 +685,6 @@ div.box {
 	float: none !important;
 }
 
-.form-field input#archive_message {
-	width:       auto !important;
-	margin-left: 3px;
-}
 
 .form-field input#auto_delete_limit {
 	float: none !important;
@@ -1142,7 +1138,7 @@ div.box {
 }
 
 /*Custom for Maling Group */
-#mg_group_server_typeContain, #mg_group_mail_typeContain, #mg_group_archiveContain, #mg_group_footer_textContain {
+#mg_group_server_typeContain, #mg_group_mail_typeContain, #mg_group_footer_textContain {
 	border-top:  solid 3px #a0a5aa;
 	padding-top: 10px;
 }

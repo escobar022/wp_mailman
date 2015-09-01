@@ -1,7 +1,3 @@
-<?php
-/*Page to Administrate groups and subscribers.
- */
-?>
 <div class="wrap" id="mail_listing">
 
 	<h2><?php _e( "Mailing Group Manager", 'mailing-group-module' ); ?>
@@ -50,8 +46,7 @@
 					<td class="last">
 						<a class="add_subscriber" title="<?php _e( "Add Subscriber", 'mailing-group-module' ); ?>" href="admin.php?page=wpmg_mailinggroup_requestmanageradd&gid=<?php echo $id; ?>"></a>
 						<a class="view_users" title="<?php _e( "View Members", 'mailing-group-module' ); ?>" href="admin.php?page=wpmg_mailinggroup_memberlist&gid=<?php echo $id; ?>"></a>
-						<!--TODO: make archive page-->
-						<a class="archive_messages" href="admin.php?page=wpmg_mailinggroup_adminarchive&gid=<?php echo $id; ?>" title="<?php _e( "View Archived Messages", 'mailing-group-module' ); ?>"></a>
+						<a class="archive_messages" href="<?php echo get_the_permalink($id); ?>" title="<?php _e( "View Archived Messages", 'mailing-group-module' ); ?>"></a>
 						<a class="edit_record" title="<?php _e( "Edit", 'mailing-group-module' ); ?>" name="<?php echo $id; ?>" href="/wp-admin/post.php?post=<?php echo $id; ?>&action=edit"></a>
 					</td>
 				</tr>

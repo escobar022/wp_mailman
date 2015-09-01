@@ -5,15 +5,15 @@ $act         = sanitize_text_field( $_REQUEST["act"] );
 $msg_success = sanitize_text_field( $_REQUEST["msg"] );
 $id          = sanitize_text_field( $_REQUEST["id"] );
 
-$_POST = stripslashes_deep( $_POST );
-
-$admin_emails = get_option( 'wp_mailman_admin_emails' );
+$_POST        = stripslashes_deep( $_POST );
+$option_name  = 'wp_mailman_admin_emails';
+$admin_emails = get_option( $option_name );
 
 $submitted_fields = array( 'title', 'message_type', 'subject', 'message' );
 
 
 if ( $addme == 2 ) {
-	if ( $objMem->updateAdminEmail( $id, $_POST, $submitted_fields ) ) {
+	if ( $objMem->updateEmailOption( $id, $_POST, $submitted_fields, $option_name ) ) {
 		wpmg_redirectTo( "wpmg_mailinggroup_adminmessageadd&act=upd&msg=saved&id=" . $id );
 	} else {
 		wpmg_redirectTo( "wpmg_mailinggroup_adminmessageadd&act=upd&msg=same&id=" . $id );

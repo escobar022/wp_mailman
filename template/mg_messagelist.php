@@ -1,26 +1,31 @@
 <?php
 
 /* get all variables */
-$actreq = sanitize_text_field( $_REQUEST["act"] );
+$custom_emails = get_option( 'wp_mailman_custom_emails' );
+
+$act = sanitize_text_field( $_REQUEST["act"] );
 $info   = sanitize_text_field( $_REQUEST["info"] );
 $delid  = sanitize_text_field( $_GET["did"] );
 $id     = sanitize_text_field( $_GET["id"] );
+
 /* get all variables */
-if ( $actreq == 'vis' ) {
-	$myFields       = array( "status" );
-	$_ARR['id']     = $id;
-	$_ARR['status'] = '1';
-	$objMem->updRow( $table_name_message, $_ARR, $myFields );
+if ( $act == 'vis' ) {
+//	$myFields       = array( "status" );
+//	$_ARR['id']     = $id;
+//	$_ARR['status'] = '1';
+//	$objMem->updRow( $table_name_message, $_ARR, $myFields );
 	wpmg_redirectTo( "wpmg_mailinggroup_messagelist&info=vis" );
 	exit;
-} else if ( $actreq == 'hid' ) {
-	$myFields       = array( "status" );
-	$_ARR['id']     = $id;
-	$_ARR['status'] = '0';
-	$objMem->updRow( $table_name_message, $_ARR, $myFields );
+} else if ( $act == 'hid' ) {
+//	$myFields       = array( "status" );
+//	$_ARR['id']     = $id;
+//	$_ARR['status'] = '0';
+//	$objMem->updRow( $table_name_message, $_ARR, $myFields );
 	wpmg_redirectTo( "wpmg_mailinggroup_messagelist&info=hid" );
 	exit;
 }
+
+
 if ( $info == "saved" ) {
 	wpmg_showmessages( "updated", __( "Message has been added successfully.", 'mailing-group-module' ) );
 } else if ( $info == "upd" ) {
@@ -30,48 +35,12 @@ if ( $info == "saved" ) {
 } else if ( $info == "hid" ) {
 	wpmg_showmessages( "updated", __( "Message has been  set to hidden successfully.", 'mailing-group-module' ) );
 } else if ( $info == "del" ) {
-	$wpdb->query( "delete from " . $table_name_message . " where id=" . $delid );
 	wpmg_showmessages( "updated", __( "Message has been deleted successfully.", 'mailing-group-module' ) );
 }
-$WPMG_SETTINGS = get_option( "WPMG_SETTINGS" );
-$result        = $objMem->selectRows( $table_name_message, "", "  where message_type='' order by id desc" );
-$totcount      = count( $result );
+
+$totcount      = count( $custom_emails );
 ?>
-<script type="text/javascript">
-	/* <![CDATA[ */
-	jQuery(document).ready(function () {
-		jQuery("#toplevel_page_mailinggroup_intro").removeClass('wp-not-current-submenu');
-		jQuery("#toplevel_page_mailinggroup_intro").addClass('wp-has-current-submenu');
-		jQuery(".toplevel_page_mailinggroup_intro").removeClass('wp-not-current-submenu');
-		jQuery(".toplevel_page_mailinggroup_intro").addClass('wp-has-current-submenu');
-		jQuery("#toplevel_page_mailinggroup_intro ul li.wp-first-item").addClass("current");
-	});
-</script>
-<?php
-if ( $totcount > 0 ) {
-	?>
-	<script type="text/javascript">
-		/* <![CDATA[ */
-		jQuery(document).ready(function () {
-			/* Build the DataTable with third column using our custom sort functions */
-			jQuery('#messagelist').dataTable({
-				"aoColumnDefs"  : [
-					{"bSortable": false, "aTargets": [1, 2, 3]},
-				],
-				"fnDrawCallback": function () {
-					if (jQuery("#messagelist").find("tr:not(.ui-widget-header)").length <= 5) {
-						document.getElementById('messagelist_paginate').style.display = "none";
-					} else {
-						document.getElementById('messagelist_paginate').style.display = "block";
-					}
-				}
-			});
-		});
-		/* ]]> */
-		/* //wp-has-current-submenu
-		 //wp-not-current-submenu */
-	</script>
-<?php } ?>
+
 <div class="wrap">
 	<h2 class="nav-tab-wrapper">
 		<a href="admin.php?page=wpmg_mailinggroup_intro" title="<?php _e( "Introduction", 'mailing-group-module' ); ?>" class="nav-tab"><?php _e( "Introduction", 'mailing-group-module' ); ?></a>
@@ -97,32 +66,32 @@ if ( $totcount > 0 ) {
 		</thead>
 		<tbody>
 		<?php
-		if ( $totcount > 0 )
-		{
-			foreach ( $result as $row ) {
-				$id    = $row->id;
-				$title = stripslashes( $row->title );
-				if ( strlen( $row->description ) > 100 ) {
-					$desc = wpmg_stringlength( nl2br( stripslashes( $row->description ) ), 100 );
+		if ( $totcount > 0 ){
+			foreach ( $custom_emails as $email_id => $custom_email_info ) {
+				$title = stripslashes( $custom_email_info['title'] );
+
+				if ( strlen( $custom_email_info['message']) > 100 ) {
+					$message = wpmg_stringlength( nl2br( stripslashes( $custom_email_info['message'] ) ), 100 );
 				} else {
-					$desc = nl2br( stripslashes( $row->description ) );
+					$message = nl2br( stripslashes($custom_email_info['message'] ) );
 				}
-				$status      = $row->status;
+				$visible     = $custom_email_info['visible'];
 				$act         = "hid";
 				$lablestatus = __( "Visible", 'mailing-group-module' );
-				if ( $status == 0 ) {
+				if ( $visible == 0 ) {
 					$act         = "vis";
 					$lablestatus = __( "Hidden", 'mailing-group-module' );
 				}
 				?>
 				<tr>
 					<td width="40%"><?php echo $title; ?></td>
-					<td width="40%"><?php echo $desc; ?></td>
+					<td width="40%"><?php echo $message; ?></td>
 					<td width="15%">
-						<a href="admin.php?page=wpmg_mailinggroup_messagelist&act=<?php echo $act; ?>&id=<?php echo $id; ?>"><?php echo $lablestatus; ?></a>
+						<a class="custom_msg_visibility" data-email_id="<?php echo $email_id; ?>" data-visibility="<?php echo $visible; ?>" href="#"><?php echo $lablestatus; ?></a>
+
 					</td>
 					<td width="10%" class="last">
-						<a href="admin.php?page=wpmg_mailinggroup_messageadd&act=upd&id=<?php echo $id; ?>" class="edit_record" title="<?php _e( "Edit", 'mailing-group-module' ); ?>"></a>|<a class="delete_record" title="<?php _e( "Delete", 'mailing-group-module' ); ?>" href="admin.php?page=wpmg_mailinggroup_messagelist&info=del&did=<?php echo $id; ?>" onclick="return confirm('<?php _e( "Are you sure you want to delete this message?", 'mailing-group-module' ); ?>');"></a>
+						<a href="admin.php?page=wpmg_mailinggroup_messageadd&act=upd&id=<?php echo $email_id; ?>" class="edit_record" title="<?php _e( "Edit", 'mailing-group-module' ); ?>"></a>|<a class="delete_record remove_custom_email" title="<?php _e( "Delete", 'mailing-group-module' ); ?>" href="#" data-email_id="<?php echo $email_id; ?>"></a>
 					</td>
 				</tr>
 			<?php }

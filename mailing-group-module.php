@@ -259,7 +259,7 @@ function mg_group_custom_meta_fields() {
 			'type'  => 'password'
 		),
 		array(
-			'label' => 'Archive:',
+			'label' => 'Public Archive:',
 			'id'    => $prefix . 'archive',
 			'type'  => 'checkbox'
 		),
@@ -611,7 +611,9 @@ function do_output_buffer() {
 /* Install Plugin */
 register_activation_hook( __FILE__, 'wpmg_add_mailing_group_plugin' );
 function wpmg_add_mailing_group_plugin() {
-	global $objMem;
+	/* Class to be used in complete plugin for all db requests */
+	require_once( "lib/mailinggroupclass.php" );
+	$objMem = new mailinggroupClass();
 
 	/* ADD CONFIG OPTION TO OPTION TABLE*/
 
@@ -644,6 +646,10 @@ function wpmg_add_mailing_group_plugin() {
 	if(!get_option('wp_mailman_admin_emails')){
 		add_option( 'wp_mailman_admin_emails', $objMem->admin_emails );
 	}
+
+	if(!get_option('wp_mailman_custom_emails')){
+		add_option( 'wp_mailman_custom_emails', $objMem->custom_default_emails );
+	}
 }
 
 
@@ -674,7 +680,6 @@ function wpmg_mailinggroup_Menu() {
 		add_submenu_page( 'null', __( 'Messages Editor', 'mailing-group-module' ), __( 'Messages Editor', 'mailing-group-module' ), $admin_level, 'wpmg_mailinggroup_adminmessagelist', 'wpmg_mailinggroup_adminmessagelist' );
 		add_submenu_page( 'null', __( 'Add Message', 'mailing-group-module' ), __( 'Add Message', 'mailing-group-module' ), $admin_level, 'wpmg_mailinggroup_messageadd', 'wpmg_mailinggroup_messageadd' );
 		add_submenu_page( 'null', __( 'Add Admin Message', 'mailing-group-module' ), __( 'Add Admin Message', 'mailing-group-module' ), $admin_level, 'wpmg_mailinggroup_adminmessageadd', 'wpmg_mailinggroup_adminmessageadd' );
-		add_submenu_page( 'null', __( 'Archived Messages', 'mailing-group-module' ), __( 'Archived Messages', 'mailing-group-module' ), $admin_level, 'wpmg_mailinggroup_adminarchive', 'wpmg_mailinggroup_adminarchive' );
 		add_submenu_page( 'null', __( 'Style Manager', 'mailing-group-module' ), __( 'Style Manager', 'mailing-group-module' ), $admin_level, 'wpmg_mailinggroup_style', 'wpmg_mailinggroup_style' );
 		add_submenu_page( 'null', __( 'Contact Info', 'mailing-group-module' ), __( 'Contact Info', 'mailing-group-module' ), $admin_level, 'wpmg_mailinggroup_contact', 'wpmg_mailinggroup_contact' );
 		add_submenu_page( 'null', __( 'Help', 'mailing-group-module' ), __( 'Help', 'mailing-group-module' ), $admin_level, 'wpmg_mailinggroup_help', 'wpmg_mailinggroup_help' );
@@ -778,10 +783,7 @@ function wpmg_mailinggroup_membergroups() {
 	include "template/mg_membergroups.php";
 }
 
-function wpmg_mailinggroup_adminarchive() {
-	global $wpdb, $objMem, $table_name_sent_emails, $table_name_emails_attachments, $table_name_group;
-	include "template/mg_adminarchived.php";
-}
+
 
 function wpmg_mailinggroup_adminmessagelist() {
 	global $wpdb, $objMem, $table_name_message;
@@ -1743,7 +1745,6 @@ function wpmg_custom_menu_hack() {
 		"wpmg_mailinggroup_intro",
 		"wpmg_mailinggroup_messagelist",
 		"wpmg_mailinggroup_messageadd",
-		"wpmg_mailinggroup_adminarchive",
 		"wpmg_mailinggroup_style",
 		"wpmg_mailinggroup_contact"
 	);
