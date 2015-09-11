@@ -24,6 +24,15 @@ function wpmg_cron_send_email() {
 			$senderEmail = get_post_meta( $thread_id, 'mg_thread_email_from', true );
 			$is_active_group = get_post_meta($group_id,'mg_group_status',true);
 
+			$thread_subject = get_post_meta( $thread_id, 'mg_thread_email_subject', true );
+			$test_for = "/out of the office/i";
+
+			if (preg_match($test_for, $thread_subject)) {
+					update_post_meta( $thread_id, 'mg_thread_email_status', 'Out of Office' );
+					break;
+			}
+
+
 			if ( $is_active_group == 2 && is_numeric( $group_id ) && $group_id > 0 ) {
 
 				/* get sender user details */
