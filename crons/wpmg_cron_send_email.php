@@ -84,6 +84,7 @@ function wpmg_cron_send_email() {
 
 							if ( empty( $has_parent ) ) {
 								$footerText = str_replace( "{%name%}", $sendToName, $footerText );
+								$footerText = str_replace( "{%grouptitle%}", $groupTitle, $footerText );
 								$footerText = str_replace( "{%email%}", $sendToEmail, $footerText );
 								$footerText = str_replace( "{%site_url%}", get_site_url(), $footerText );
 								$footerText = str_replace( "{%archive_url%}", get_permalink($group_id), $footerText );
