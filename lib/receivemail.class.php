@@ -1,14 +1,4 @@
 <?php
-// Main ReciveMail Class File - Version 1.1 (02-06-2009)
-/*
- * File: recivemail.class.php
- * Description: Reciving mail With Attachment
- * Version: 1.1
- * Created: 01-03-2006
- * Modified: 02-06-2009
- * Author: Sunil Verma
- * Email: sanford@123789.org
- */
 
 /***************** Changes *********************
  *
@@ -74,6 +64,14 @@ class receiveMail {
 
 	public function deleteMail( $mailId ) {
 		return imap_delete( $this->getImapStream(), $mailId, FT_UID );
+	}
+
+	public function moveMail($mailId) {
+		return imap_mail_move($this->getImapStream(), $mailId,'INBOX/Archive', CP_UID) && $this->expungeDeletedMails();
+	}
+
+	public function expungeDeletedMails() {
+		return imap_expunge($this->getImapStream());
 	}
 
 	function get_bounced_email_address( $content ) {
