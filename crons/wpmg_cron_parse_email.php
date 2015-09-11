@@ -133,7 +133,9 @@ function wpmg_cron_parse_email() {
 						}
 					}
 					//debug
-					$obj->moveMail( $i );
+					$obj->deleteMail( $i );
+
+
 				}
 			} else {
 				echo "No Email Found.";

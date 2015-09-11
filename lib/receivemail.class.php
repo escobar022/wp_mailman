@@ -66,12 +66,18 @@ class receiveMail {
 		return imap_delete( $this->getImapStream(), $mailId, FT_UID );
 	}
 
-	public function moveMail($mailId) {
-		return imap_mail_move($this->getImapStream(), $mailId,'INBOX/Archive', CP_UID) && $this->expungeDeletedMails();
+	public function moveMail( $mailId ) {
+
+		$imapresult = imap_mail_move( $this->getImapStream(), $mailId, 'INBOX.Archive' ) && $this->expungeDeletedMails();
+		if ( $imapresult == false ) {
+			error_log(imap_last_error());
+		}
+
+		return $imapresult;
 	}
 
 	public function expungeDeletedMails() {
-		return imap_expunge($this->getImapStream());
+		return imap_expunge( $this->getImapStream() );
 	}
 
 	function get_bounced_email_address( $content ) {
@@ -356,6 +362,7 @@ class IncomingMail {
 				$fetchedHtml = str_replace( $placeholder, $this->attachments[ $attachmentId ]->wordpresdir['url'], $fetchedHtml );
 			}
 		}
+
 		return $fetchedHtml;
 	}
 }
