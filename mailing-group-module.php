@@ -1719,7 +1719,7 @@ function wpmg_user_signup_disable_inactive( $user ) {
 
 /*uninstall and deactivate code*/
 /* hook to delete user taxonomy on deleting from wordpress */
-add_action( 'delete_user', 'wpmg_delete_user_taxonomy' );
+/*add_action( 'delete_user', 'wpmg_delete_user_taxonomy' );
 function wpmg_delete_user_taxonomy( $user_id ) {
 	global $wpdb, $objMem, $table_name_user_taxonomy, $table_name_requestmanager, $table_name_requestmanager_taxonomy;
 	$user_obj = get_userdata( $user_id );
@@ -1729,7 +1729,7 @@ function wpmg_delete_user_taxonomy( $user_id ) {
 	$subscriptoinid            = $get_subscription_taxonomy[0]->id;
 	$wpdb->query( "delete from " . $table_name_requestmanager_taxonomy . " where user_id = " . $subscriptoinid );
 	$wpdb->query( "delete from " . $table_name_requestmanager . " where id = " . $subscriptoinid );
-}
+}*/
 
 function wpmg_custom_menu_hack() {
 	/* Custom menu hack */
