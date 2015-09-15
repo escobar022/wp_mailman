@@ -623,9 +623,9 @@ function wpmg_add_mailing_group_plugin() {
 	if ( ! wp_next_scheduled( 'wpmg_cron_task_parse_email' ) ) {
 		wp_schedule_event( time(), 'wpmg_five_minute', 'wpmg_cron_task_parse_email' );
 	}
-	if ( ! wp_next_scheduled( 'wpmg_cron_task_bounced_email' ) ) {
+	/*if ( ! wp_next_scheduled( 'wpmg_cron_task_bounced_email' ) ) {
 		wp_schedule_event( time(), 'wpmg_fifteen_minute', 'wpmg_cron_task_bounced_email' );
-	}
+	}*/
 
 	$wpmg_setting = array(
 		"MG_WEBSITE_URL"                      => "andres.codes",
@@ -1804,7 +1804,7 @@ require_once( "crons/wpmg_cron_send_email.php" );
 add_action( 'wpmg_cron_task_parse_email', 'wpmg_cron_parse_email' );
 require_once( "crons/wpmg_cron_parse_email.php" );
 
-add_action( 'wpmg_cron_task_bounced_email', 'wpmg_cron_bounced_email' );
-require_once( "crons/wpmg_cron_bounced_email.php" );
+/*add_action( 'wpmg_cron_task_bounced_email', 'wpmg_cron_bounced_email' );
+require_once( "crons/wpmg_cron_bounced_email.php" );*/
 
 
