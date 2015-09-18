@@ -111,8 +111,7 @@ function wpmg_cron_send_email() {
 								$mail->Host   = get_post_meta( $group_id, 'mg_group_smtp_server', true );
 								$mail->Port   = get_post_meta( $group_id, 'mg_group_smtp_port', true );
 								$mail->Sender = $groupEmail;
-								//$mail->SetFrom($senderEmail, $senderName);	//
-								$mail->SetFrom($groupEmail, $senderName);
+								$mail->SetFrom( $senderEmail, $senderName );
 								/* reply to */
 								$mail->AddReplyTo( $groupEmail, $groupTitle );
 
