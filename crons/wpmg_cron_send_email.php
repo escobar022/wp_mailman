@@ -24,15 +24,6 @@ function wpmg_cron_send_email() {
 			$senderEmail = get_post_meta( $thread_id, 'mg_thread_email_from', true );
 			$is_active_group = get_post_meta($group_id,'mg_group_status',true);
 
-			$thread_subject = get_post_meta( $thread_id, 'mg_thread_email_subject', true );
-			$test_for = "/out of the office/i";
-
-			if (preg_match($test_for, $thread_subject)) {
-					update_post_meta( $thread_id, 'mg_thread_email_status', 'Out of Office' );
-					break;
-			}
-
-
 			if ( $is_active_group == 2 && is_numeric( $group_id ) && $group_id > 0 ) {
 
 				/* get sender user details */
@@ -84,7 +75,6 @@ function wpmg_cron_send_email() {
 
 							if ( empty( $has_parent ) ) {
 								$footerText = str_replace( "{%name%}", $sendToName, $footerText );
-								$footerText = str_replace( "{%grouptitle%}", $groupTitle, $footerText );
 								$footerText = str_replace( "{%email%}", $sendToEmail, $footerText );
 								$footerText = str_replace( "{%site_url%}", get_site_url(), $footerText );
 								$footerText = str_replace( "{%archive_url%}", get_permalink($group_id), $footerText );
@@ -121,7 +111,8 @@ function wpmg_cron_send_email() {
 								$mail->Host   = get_post_meta( $group_id, 'mg_group_smtp_server', true );
 								$mail->Port   = get_post_meta( $group_id, 'mg_group_smtp_port', true );
 								$mail->Sender = $groupEmail;
-								$mail->SetFrom( $senderEmail, $senderName );
+								//$mail->SetFrom($senderEmail, $senderName);
+								$mail->SetFrom($resultGroup->email, $senderName);
 								/* reply to */
 								$mail->AddReplyTo( $groupEmail, $groupTitle );
 
