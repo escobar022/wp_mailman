@@ -49,7 +49,7 @@ class receiveMail {
 	protected function initImapStream() {
 		$imapStream = @imap_open( $this->server, $this->username, $this->password/*, 0, 0, array( 'DISABLE_AUTHENTICATOR' => 'GSSAPI' ) */ );
 		if ( ! $imapStream ) {
-//			throw new ImapMailboxException( 'Connection error: ' . imap_last_error() );
+			throw new ImapMailboxException( 'Connection error: ' . imap_last_error() );
 		}
 
 		return $imapStream;
@@ -70,7 +70,7 @@ class receiveMail {
 
 		$imapresult = imap_mail_move( $this->getImapStream(), $mailId, 'INBOX.Archive' ) && $this->expungeDeletedMails();
 		if ( $imapresult == false ) {
-			error_log(imap_last_error());
+			error_log( imap_last_error() );
 		}
 
 		return $imapresult;
@@ -198,6 +198,31 @@ class receiveMail {
 
 
 		$params = array();
+
+		if ( $partStructure->type == 2 AND $partStructure->encoding == 0 AND $partStructure->disposition == 'ATTACHMENT' ) {
+//			$current = print_r($partStructure,true);
+//			error_log($current,3,'wp-content/plugins/wp_mailing_groups/newfile.txt');
+
+			$mail_attachment = mailparse_msg_create();
+			mailparse_msg_parse( $mail_attachment, $data );
+			$struct = mailparse_msg_get_structure( $mail_attachment );
+
+			$info = array();
+			foreach ( $struct as $st ) {
+				$section = mailparse_msg_get_part( $mail_attachment, $st );
+				$info    = mailparse_msg_get_part_data( $section );
+			}
+
+			if ( ! empty( $info['headers'] ) ) {
+				$file_name =preg_replace('/[^A-Za-z0-9\-]/', '', $info['headers']['subject']);
+				$params['filename'] = $file_name.'.msg';
+				$params['name'] = $file_name.'.msg';
+			}
+
+			mailparse_msg_free ($mail_attachment );
+		}
+
+
 		if ( ! empty( $partStructure->parameters ) ) {
 			foreach ( $partStructure->parameters as $param ) {
 				$params[ strtolower( $param->attribute ) ] = $param->value;
@@ -237,6 +262,9 @@ class receiveMail {
 			$attachment->name        = $fileName;
 			$attachment->disposition = $partStructure->disposition;
 			$attachment->wordpresdir = wp_upload_bits( $fileName, null, $data );
+
+			error_log(print_r($attachment,true));
+
 			$mail->addAttachment( $attachment );
 
 		} elseif ( $partStructure->type == 0 && $data ) {
