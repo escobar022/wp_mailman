@@ -587,11 +587,11 @@ function cron_add_weekly( $schedules ) {
 
 	//Testing purposes
 	$schedules['wpmg_two_minute']     = array(
-		'interval' => 30,
+		'interval' => 120,
 		'display'  => __( 'Every Two Minutes' )
 	);
 	$schedules['wpmg_five_minute']    = array(
-		'interval' => 35,
+		'interval' => 300,
 		'display'  => __( 'Every Five Minutes' )
 	);
 	$schedules['wpmg_fifteen_minute'] = array(
