@@ -3,14 +3,14 @@ defined( 'ABSPATH' ) or die( "Cannot access pages directly." );
 
 function wpmg_cron_send_email() {
 
-	$args  = array(
+	$args = array(
 		'post_type'   => 'mg_threads',
 		'post_status' => 'publish',
 		'perm'        => 'readable',
 		'meta_key'    => 'mg_thread_email_status',
-		'meta_value'  => 'Test'
-
+		'meta_value'  => 'Pending'
 	);
+
 	$query = new WP_Query( $args );
 
 	$threads = $query->get_posts();
@@ -19,17 +19,17 @@ function wpmg_cron_send_email() {
 
 		foreach ( $threads as $emailParsed ) {
 
-			$thread_id   = $emailParsed->ID;
-			$group_id    = get_post_meta( $thread_id, 'mg_thread_email_group_id', true );
-			$senderEmail = get_post_meta( $thread_id, 'mg_thread_email_from', true );
-			$is_active_group = get_post_meta($group_id,'mg_group_status',true);
+			$thread_id       = $emailParsed->ID;
+			$group_id        = get_post_meta( $thread_id, 'mg_thread_email_group_id', true );
+			$senderEmail     = get_post_meta( $thread_id, 'mg_thread_email_from', true );
+			$is_active_group = get_post_meta( $group_id, 'mg_group_status', true );
 
 			$thread_subject = get_post_meta( $thread_id, 'mg_thread_email_subject', true );
-			$test_for = "/out of the office/i";
+			$test_for       = "/out of the office/i";
 
-			if (preg_match($test_for, $thread_subject)) {
-					update_post_meta( $thread_id, 'mg_thread_email_status', 'Out of Office' );
-					break;
+			if ( preg_match( $test_for, $thread_subject ) ) {
+				update_post_meta( $thread_id, 'mg_thread_email_status', 'Out of Office' );
+				break;
 			}
 
 
@@ -86,7 +86,7 @@ function wpmg_cron_send_email() {
 								$footerText = str_replace( "{%grouptitle%}", $groupTitle, $footerText );
 								$footerText = str_replace( "{%email%}", $sendToEmail, $footerText );
 								$footerText = str_replace( "{%site_url%}", get_site_url(), $footerText );
-								$footerText = str_replace( "{%archive_url%}", get_permalink($group_id), $footerText );
+								$footerText = str_replace( "{%archive_url%}", get_permalink( $group_id ), $footerText );
 								$footerText = str_replace( "{%profile_url%}", get_admin_url( "", "profile.php" ), $footerText );
 								$footerText = str_replace( "{%unsubscribe_url%}", get_bloginfo( 'wpurl' ) . '?unsubscribe=1&userid=' . $sendtouserId . '&group=' . $group_id, $footerText );
 								$body .= $footerText;
@@ -148,12 +148,18 @@ function wpmg_cron_send_email() {
 
 								$attachments = get_children( $args );
 
+
 								if ( $attachments ) {
 									foreach ( $attachments as $attachment ) {
-										if ( get_post_meta( $attachment->ID, '_wp_attachment_image_alt', true ) === 'ATTACHMENT' ) {
+										if ( get_post_meta( $attachment->ID, '_wp_attachment_image_alt', true ) == 'ATTACHMENT' ) {
 											$fullsize_path = get_attached_file( $attachment->ID );
 											$filename_only = basename( $fullsize_path );
-											$mail->addAttachment( $fullsize_path, $filename_only );
+
+											if ( $attachment->post_mime_type == 'message/rfc822' ) {
+												$mail->addAttachment( $fullsize_path, $filename_only, '8bit' );
+											} else {
+												$mail->addAttachment( $fullsize_path, $filename_only );
+											}
 										}
 									}
 								}
