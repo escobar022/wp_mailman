@@ -49,7 +49,7 @@ class receiveMail {
 	protected function initImapStream() {
 		$imapStream = @imap_open( $this->server, $this->username, $this->password/*, 0, 0, array( 'DISABLE_AUTHENTICATOR' => 'GSSAPI' ) */ );
 		if ( ! $imapStream ) {
-//			throw new ImapMailboxException( 'Connection error: ' . imap_last_error() );
+			throw new ImapMailboxException( 'Connection error: ' . imap_last_error() );
 		}
 
 		return $imapStream;
@@ -70,7 +70,7 @@ class receiveMail {
 
 		$imapresult = imap_mail_move( $this->getImapStream(), $mailId, 'INBOX.Archive' ) && $this->expungeDeletedMails();
 		if ( $imapresult == false ) {
-			error_log(imap_last_error());
+			error_log( imap_last_error() );
 		}
 
 		return $imapresult;
@@ -135,7 +135,7 @@ class receiveMail {
 		$mail->id          = $mailId;
 		$mail->UID         = $head->message_id;
 		$mail->references  = $head->references;
-		$mail->date        = date( 'Y-m-d H:i:s', isset( $head->date ) ? strtotime( $head->date ) : time() );
+		$mail->date        = date( 'Y-m-d H:i:s', isset( $head->date ) ? strtotime( preg_replace( '/\(.*?\)/', '', $head->date ) ) : time() );
 		$mail->subject     = isset( $head->subject ) ? $this->decodeMimeStr( $head->subject, $this->serverEncoding ) : null;
 		$mail->fromName    = isset( $head->from[0]->personal ) ? $this->decodeMimeStr( $head->from[0]->personal, $this->serverEncoding ) : null;
 		$mail->fromAddress = strtolower( $head->from[0]->mailbox . '@' . $head->from[0]->host );
@@ -173,7 +173,6 @@ class receiveMail {
 		} else {
 			foreach ( $mailStructure->parts as $partNum => $partStructure ) {
 				$this->initMailPart( $mail, $partStructure, $partNum + 1 );
-
 			}
 		}
 
@@ -182,8 +181,6 @@ class receiveMail {
 
 	protected function initMailPart( IncomingMail $mail, $partStructure, $partNum ) {
 
-		$serverEncoding = 'utf-8';
-
 		$data = $partNum ? imap_fetchbody( $this->getImapStream(), $mail->id, $partNum, FT_UID ) : imap_body( $this->getImapStream(), $mail->id, FT_UID );
 
 		if ( $partStructure->encoding == 1 ) {
@@ -191,13 +188,29 @@ class receiveMail {
 		} elseif ( $partStructure->encoding == 2 ) {
 			$data = imap_binary( $data );
 		} elseif ( $partStructure->encoding == 3 ) {
+			$data = preg_replace( '~[^a-zA-Z0-9+=/]+~s', '', $data );
 			$data = imap_base64( $data );
 		} elseif ( $partStructure->encoding == 4 ) {
-			$data = imap_qprint( $data );
+			$data = quoted_printable_decode( $data );
+		}
+
+		$params = array();
+
+		if ( $partStructure->type == 2 AND $partStructure->encoding == 0 AND $partStructure->disposition == 'ATTACHMENT' ) {
+
+			$mail_attachment_head = imap_rfc822_parse_headers( $data );
+
+			if ( ! empty( $mail_attachment_head ) ) {
+				$file_name          = preg_replace( '/[^A-Za-z0-9\-]/', ' ', $mail_attachment_head->subject );
+
+				$params['filename'] = $file_name . '.eml';
+				$params['name']     = $file_name . '.eml';
+			}
+
+			$data = imap_utf8( $data );
 		}
 
 
-		$params = array();
 		if ( ! empty( $partStructure->parameters ) ) {
 			foreach ( $partStructure->parameters as $param ) {
 				$params[ strtolower( $param->attribute ) ] = $param->value;
@@ -213,22 +226,19 @@ class receiveMail {
 				}
 			}
 		}
-		if ( ! empty( $params['charset'] ) ) {
-			$data = $this->convertStringEncoding( $data, $params['charset'], $this->serverEncoding );
-		}
 
-		$attachmentId = $partStructure->ifid
-			? trim( $partStructure->id, " <>" )
+		$attachmentId = $partStructure->ifid ? trim( $partStructure->id, " <>" )
 			: ( isset( $params['filename'] ) || isset( $params['name'] ) ? mt_rand() . mt_rand() : null );
 
 
 		if ( $attachmentId ) {
+
 			if ( empty( $params['filename'] ) && empty( $params['name'] ) ) {
 				$fileName = $attachmentId . '.' . strtolower( $partStructure->subtype );
 			} else {
 				$fileName = ! empty( $params['filename'] ) ? $params['filename'] : $params['name'];
-				$fileName = $this->decodeMimeStr( $fileName, $serverEncoding );
-				$fileName = $this->decodeRFC2231( $fileName, $serverEncoding );
+				$fileName = $this->decodeMimeStr( $fileName, $this->serverEncoding );
+				$fileName = $this->decodeRFC2231( $fileName, $this->serverEncoding );
 			}
 
 			$attachment = new IncomingMailAttachment();
@@ -236,23 +246,32 @@ class receiveMail {
 			$attachment->id          = $attachmentId;
 			$attachment->name        = $fileName;
 			$attachment->disposition = $partStructure->disposition;
+
 			$attachment->wordpresdir = wp_upload_bits( $fileName, null, $data );
+
 			$mail->addAttachment( $attachment );
 
-		} elseif ( $partStructure->type == 0 && $data ) {
-			if ( strtolower( $partStructure->subtype ) == 'plain' ) {
-				$mail->textPlain .= $data;
-			} else {
-				$mail->textHtml .= $data;
+		} else {
+			if ( ! empty( $params['charset'] ) ) {
+				$data = $this->convertStringEncoding( $data, $params['charset'], $this->serverEncoding );
 			}
-		} elseif ( $partStructure->type == 2 && $data ) {
-			$mail->textPlain .= trim( $data );
+			if ( $partStructure->type == 0 && $data ) {
+				if ( strtolower( $partStructure->subtype ) == 'plain' ) {
+					$mail->textPlain .= $data;
+				} else {
+					$mail->textHtml .= $data;
+				}
+			} elseif ( $partStructure->type == 2 && $data ) {
+				$mail->textPlain .= trim( $data );
+			}
 		}
 		if ( ! empty( $partStructure->parts ) ) {
 			foreach ( $partStructure->parts as $subPartNum => $subPartStructure ) {
 				if ( $partStructure->type == 2 && $partStructure->subtype == 'RFC822' ) {
-					$this->initMailPart( $mail, $subPartStructure, $partNum );
+					//Processing this .msg attachment above.
+					//$this->initMailPart( $mail, $subPartStructure, $partNum );
 				} else {
+					//Process anything else
 					$this->initMailPart( $mail, $subPartStructure, $partNum . '.' . ( $subPartNum + 1 ) );
 				}
 			}

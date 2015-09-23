@@ -47,7 +47,7 @@ function wpmg_cron_parse_email() {
 
 			if ( $tot > 0 ) {
 				for ( $i = $tot; $i > 0; $i -- ) {
-					$head         = $obj->getHeaders( $i );  /*  Get Header Info Return Array Of Headers **Array Keys are (subject,to,toOth,toNameOth,from,fromName) */
+					$head         = $obj->getHeaders( $i );
 					$mail         = $obj->getMail( $i );
 					$emailContent = $mail->fetch_html_body();
 					if ( empty( $emailContent ) ) {
@@ -64,11 +64,6 @@ function wpmg_cron_parse_email() {
 					}
 
 					$hashed_title = hash('crc32b',$subject_head);
-
-					//use group as parent ( not working)
-//					if ( empty( $parent_ID ) ) {
-//						$parent_ID = $group_id;
-//					}
 
 					/* get bounced email if any */
 					$bounced_email = "";
@@ -134,7 +129,6 @@ function wpmg_cron_parse_email() {
 					}
 					//debug
 					$obj->deleteMail( $i );
-
 
 				}
 			} else {
