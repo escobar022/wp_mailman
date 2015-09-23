@@ -21,7 +21,7 @@
 
 		$args  = array(
 			'post_type'   => 'mg_groups',
-			'post_status' => 'publish',
+			'post_status' => array('publish','private'),
 			'perm'        => 'readable',
 		);
 		$query = new WP_Query( $args );
@@ -44,8 +44,7 @@
 					<td><?php echo ( $email != '' ? $email : 'Please Enter Email' ); ?></td>
 					<td><?php echo( $status == '1' ? 'Inactive' : 'Active' ); ?></td>
 					<td class="last">
-						<a class="add_subscriber" title="<?php _e( "Add Subscriber", 'mailing-group-module' ); ?>" href="admin.php?page=wpmg_mailinggroup_requestmanageradd&gid=<?php echo $id; ?>"></a>
-						<a class="view_users" title="<?php _e( "View Members", 'mailing-group-module' ); ?>" href="admin.php?page=wpmg_mailinggroup_memberlist&gid=<?php echo $id; ?>"></a>
+						<a class="add_subscriber" title="<?php _e( "View/Add Subscriber", 'mailing-group-module' ); ?>" href="admin.php?page=wpmg_mailinggroup_memberlist&gid=<?php echo $id; ?>"></a>
 						<a class="archive_messages" href="<?php echo get_the_permalink($id); ?>" title="<?php _e( "View Archived Messages", 'mailing-group-module' ); ?>"></a>
 						<a class="edit_record" title="<?php _e( "Edit", 'mailing-group-module' ); ?>" name="<?php echo $id; ?>" href="/wp-admin/post.php?post=<?php echo $id; ?>&action=edit"></a>
 					</td>

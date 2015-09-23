@@ -36,15 +36,15 @@ $totcount      = count( $result_groups );
 						$user_id   = get_post_meta( $id, 'mg_request_user_id', true );
 						$user_info = get_userdata( $user_id );
 						$username  = $user_info->user_login;
+						$user_email  = $user_info->user_email;
 
 						$current_groups     = get_user_meta( $user_id, 'mg_user_group_subscribed', true );
 						$requested_groups   = get_user_meta( $user_id, 'mg_user_requested_groups', true );
 						$group_requested_id = get_post_meta( $id, 'mg_request_group_id', true );
 //						$denied_request     = get_post_meta( $id, 'mg_requested_denied', true );
-
 						?>
 						<tr>
-							<td ><?php echo $username; ?></td>
+							<td ><?php echo $username; ?><br><?php echo $user_email ; ?></td>
 							<td>
 								<?php
 								if ( ! empty( $current_groups ) ) {

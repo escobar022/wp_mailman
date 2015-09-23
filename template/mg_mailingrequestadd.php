@@ -15,8 +15,6 @@ $email_format = "";
 $add          = 1;
 $hidval       = 1;
 
-print_r( $_POST['group_name'] );
-
 
 if ( $addme == 1 ) {
 
@@ -60,6 +58,7 @@ if ( $addme == 1 ) {
 
 				update_user_meta( $user_id, 'mg_user_group_subscribed', $groups_subscribed );
 				update_user_meta( $user_id, 'mg_user_group_sub_arr', $groups_array );
+				update_user_meta( $user_id, 'mg_user_status', $status );
 
 				if ( $confirmation_email ) {
 					wpmg_sendConfirmationtoMember( $user_id, $groups_array );
@@ -87,7 +86,7 @@ $email_format = "";
 
 $args = array(
 	'post_type'   => 'mg_groups',
-	'post_status' => 'publish',
+	'post_status' => array('publish','private'),
 	'order_by'    => 'title',
 	'order'       => 'DESC'
 );

@@ -18,7 +18,7 @@ $group_name = array();
 
 $args = array(
 	'post_type'   => 'mg_groups',
-	'post_status' => 'publish',
+	'post_status' => array('publish','private'),
 	'meta_key'    => 'mg_group_status',
 	'meta_value'  => '2'
 );
