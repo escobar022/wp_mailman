@@ -641,7 +641,9 @@ function wpmg_add_mailing_group_plugin() {
 		"MG_SUPPORT_PHONE"                    => "1800-123-1234"
 	);
 
-	update_option( "WPMG_SETTINGS", $wpmg_setting );
+	if(!get_option('WPMG_SETTINGS')){
+		add_option( 'WPMG_SETTINGS', $wpmg_setting );
+	}
 
 	if(!get_option('wp_mailman_admin_emails')){
 		add_option( 'wp_mailman_admin_emails', $objMem->admin_emails );
