@@ -60,10 +60,9 @@ function wpmg_cron_send_email() {
 					);
 
 					$user_query = new WP_User_Query( $args );
-					$totcount   = $user_query->total_users;
 
-					if ( count( $totcount ) > 0 ) {
-						foreach ( $user_query->results as $memberstoSent ) {
+					if ( $user_query->get_total()  > 0 ) {
+						foreach ( $user_query->get_results() as $memberstoSent ) {
 
 							$footerText               = nl2br( stripslashes( get_post_meta( $group_id, 'mg_group_footer_text', true ) ) );
 							$groupTitle               = get_the_title( $group_id );
@@ -101,8 +100,6 @@ function wpmg_cron_send_email() {
 								}
 								$mail = new PHPMailer();
 								$mail->IsSMTP();
-
-
 								$mail->SMTPDebug = 0;
 								$mail->addCustomHeader( 'references', '[' . $thread_id . ']' );
 
@@ -111,12 +108,12 @@ function wpmg_cron_send_email() {
 									$mail->Password   = get_post_meta( $group_id, 'mg_group_smtp_password', true );
 									$mail->SMTPAuth   = true;
 									$mail->SMTPSecure = "ssl";
-
 								} else {
 									$mail->Username = $groupEmail;
 									$mail->Password = get_post_meta( $group_id, 'mg_group_password', true );
 									$mail->SMTPAuth = false;
 								}
+
 								$mail->Host   = get_post_meta( $group_id, 'mg_group_smtp_server', true );
 								$mail->Port   = get_post_meta( $group_id, 'mg_group_smtp_port', true );
 								$mail->Sender = $groupEmail;
@@ -199,7 +196,6 @@ function wpmg_cron_send_email() {
 									update_post_meta( $thread_id, 'mg_thread_email_status', 'Sent' );
 								} else {
 									update_post_meta( $thread_id, 'mg_thread_email_status', 'Error' );
-									update_post_meta( $thread_id, 'mg_thread_email_status_error', $mail->ErrorInfo );
 								}
 							}
 							if ( $mail_type == 'wp' ) {
@@ -220,7 +216,6 @@ function wpmg_cron_send_email() {
 								} else {
 									$headers[] = 'Content-type: text/plain' . "\r\n";
 								}
-
 
 								$args = array(
 									'numberposts' => - 1,
@@ -246,7 +241,6 @@ function wpmg_cron_send_email() {
 									update_post_meta( $thread_id, 'mg_thread_email_status', 'Sent' );
 								} else {
 									update_post_meta( $thread_id, 'mg_thread_email_status', 'Error' );
-									update_post_meta( $thread_id, 'mg_thread_email_status_error', $mail->ErrorInfo );
 								}
 							}
 						}

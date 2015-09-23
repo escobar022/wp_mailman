@@ -65,7 +65,6 @@ function wpmg_cron_parse_email() {
 
 					$hashed_title = hash('crc32b',$subject_head);
 
-
 					/* get bounced email if any */
 					$bounced_email = "";
 					if ( $head['type'] == 'bounced' ) {
@@ -130,7 +129,6 @@ function wpmg_cron_parse_email() {
 					}
 					//debug
 					$obj->deleteMail( $i );
-
 
 				}
 			} else {

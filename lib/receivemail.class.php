@@ -197,28 +197,17 @@ class receiveMail {
 		$params = array();
 
 		if ( $partStructure->type == 2 AND $partStructure->encoding == 0 AND $partStructure->disposition == 'ATTACHMENT' ) {
-			if ( extension_loaded( 'mailparse' ) ) {
-				$mail_attachment = mailparse_msg_create();
-				mailparse_msg_parse( $mail_attachment, $data );
-				$struct = mailparse_msg_get_structure( $mail_attachment );
 
-				$info = array();
-				foreach ( $struct as $st ) {
-					$section = mailparse_msg_get_part( $mail_attachment, $st );
-					$info    = mailparse_msg_get_part_data( $section );
-				}
+			$mail_attachment_head = imap_rfc822_parse_headers( $data );
 
-				if ( ! empty( $info['headers'] ) ) {
-					$file_name          = preg_replace( '/[^A-Za-z0-9\-]/', '', $info['headers']['subject'] );
-					$params['filename'] = $file_name . '.eml';
-					$params['name']     = $file_name . '.eml';
-				}
-				mailparse_msg_free( $mail_attachment );
+			if ( ! empty( $mail_attachment_head ) ) {
+				$file_name          = preg_replace( '/[^A-Za-z0-9\-]/', ' ', $mail_attachment_head->subject );
 
-				$data = imap_utf8( $data );
-			}else{
-				error_log('mailparse not installed');
+				$params['filename'] = $file_name . '.eml';
+				$params['name']     = $file_name . '.eml';
 			}
+
+			$data = imap_utf8( $data );
 		}
 
 
@@ -280,7 +269,7 @@ class receiveMail {
 			foreach ( $partStructure->parts as $subPartNum => $subPartStructure ) {
 				if ( $partStructure->type == 2 && $partStructure->subtype == 'RFC822' ) {
 					//Processing this .msg attachment above.
-					//	$this->initMailPart( $mail, $subPartStructure, $partNum );
+					//$this->initMailPart( $mail, $subPartStructure, $partNum );
 				} else {
 					//Process anything else
 					$this->initMailPart( $mail, $subPartStructure, $partNum . '.' . ( $subPartNum + 1 ) );
