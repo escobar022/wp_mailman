@@ -576,6 +576,43 @@ function do_output_buffer() {
 	ob_start();
 }
 
+add_filter( 'cron_schedules', 'cron_add_weekly' );
+function cron_add_weekly( $schedules ) {
+	// Adds once weekly to the existing schedules.
+	/*$schedules['wpmg_two_minute']     = array(
+		'interval' => 120,
+		'display'  => __( 'Every Two Minutes', 'mailing-group-module' )
+	);
+	$schedules['wpmg_five_minute']    = array(
+		'interval' => 300,
+		'display'  => __( 'Every Five Minutes', 'mailing-group-module' )
+	);
+	$schedules['wpmg_fifteen_minute'] = array(
+		'interval' => 900,
+		'display'  => __( 'Every Fifteen Minutes', 'mailing-group-module' )
+	);*/
+
+	//Testing purposes
+	$schedules['wpmg_two_minute']     = array(
+		'interval' => 120,
+		'display'  => __( 'Every Two Minutes' )
+	);
+	$schedules['wpmg_three_minute']    = array(
+		'interval' => 180,
+		'display'  => __( 'Every Three Minutes' )
+	);
+	$schedules['wpmg_five_minute']    = array(
+		'interval' => 300,
+		'display'  => __( 'Every Five Minutes' )
+	);
+	$schedules['wpmg_fifteen_minute'] = array(
+		'interval' => 900,
+		'display'  => __( 'Every Fifteen Minutes' )
+	);
+
+	return $schedules;
+}
+
 /* Install Plugin */
 register_activation_hook( __FILE__, 'wpmg_add_mailing_group_plugin' );
 function wpmg_add_mailing_group_plugin() {
@@ -594,7 +631,7 @@ function wpmg_add_mailing_group_plugin() {
 
 	wp_schedule_event( time(), 'wpmg_two_minute', 'wpmg_cron_task_send_email' );
 
-	wp_schedule_event( time(), 'wpmg_five_minute', 'wpmg_cron_task_parse_email' );
+	wp_schedule_event( time(), 'wpmg_three_minute', 'wpmg_cron_task_parse_email' );
 
 	/*if ( ! wp_next_scheduled( 'wpmg_cron_task_bounced_email' ) ) {
 		wp_schedule_event( time(), 'wpmg_fifteen_minute', 'wpmg_cron_task_bounced_email' );
@@ -627,38 +664,6 @@ function wpmg_add_mailing_group_plugin() {
 	}
 }
 
-add_filter( 'cron_schedules', 'cron_add_weekly' );
-function cron_add_weekly( $schedules ) {
-	// Adds once weekly to the existing schedules.
-	/*$schedules['wpmg_two_minute']     = array(
-		'interval' => 120,
-		'display'  => __( 'Every Two Minutes', 'mailing-group-module' )
-	);
-	$schedules['wpmg_five_minute']    = array(
-		'interval' => 300,
-		'display'  => __( 'Every Five Minutes', 'mailing-group-module' )
-	);
-	$schedules['wpmg_fifteen_minute'] = array(
-		'interval' => 900,
-		'display'  => __( 'Every Fifteen Minutes', 'mailing-group-module' )
-	);*/
-
-	//Testing purposes
-	$schedules['wpmg_two_minute']     = array(
-		'interval' => 120,
-		'display'  => __( 'Every Two Minutes' )
-	);
-	$schedules['wpmg_five_minute']    = array(
-		'interval' => 300,
-		'display'  => __( 'Every Five Minutes' )
-	);
-	$schedules['wpmg_fifteen_minute'] = array(
-		'interval' => 900,
-		'display'  => __( 'Every Fifteen Minutes' )
-	);
-
-	return $schedules;
-}
 
 /* Uninstall Plugin */
 //register_uninstall_hook( __FILE__, "wpmg_mailing_group_uninstall" );
