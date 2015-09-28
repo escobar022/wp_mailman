@@ -569,6 +569,64 @@ function save_custom_meta( $post_id, $post ) {
 	} // end foreach
 }
 
+
+
+add_action( 'init', 'do_output_buffer' );
+function do_output_buffer() {
+	ob_start();
+}
+
+/* Install Plugin */
+register_activation_hook( __FILE__, 'wpmg_add_mailing_group_plugin' );
+function wpmg_add_mailing_group_plugin() {
+	/* Class to be used in complete plugin for all db requests */
+	require_once( "lib/mailinggroupclass.php" );
+	$objMem = new mailinggroupClass();
+
+	/* ADD CONFIG OPTION TO OPTION TABLE*/
+
+//	if ( ! wp_next_scheduled( 'wpmg_cron_task_send_email' ) ) {
+//		wp_schedule_event( time(), 'wpmg_two_minute', 'wpmg_cron_task_send_email' );
+//	}
+//	if ( ! wp_next_scheduled( 'wpmg_cron_task_parse_email' ) ) {
+//		wp_schedule_event( time(), 'wpmg_five_minute', 'wpmg_cron_task_parse_email' );
+//	}
+
+	wp_schedule_event( time(), 'wpmg_two_minute', 'wpmg_cron_task_send_email' );
+
+	wp_schedule_event( time(), 'wpmg_five_minute', 'wpmg_cron_task_parse_email' );
+
+	/*if ( ! wp_next_scheduled( 'wpmg_cron_task_bounced_email' ) ) {
+		wp_schedule_event( time(), 'wpmg_fifteen_minute', 'wpmg_cron_task_bounced_email' );
+	}*/
+
+	$wpmg_setting = array(
+		"MG_WEBSITE_URL"                      => "andres.codes",
+		"MG_VERSION_NO"                       => "1.0",
+		"MG_SUBSCRIPTION_REQUEST_CHECK"       => "1",
+		"MG_SUBSCRIPTION_REQUEST_ALERT_EMAIL" => "e.g. your-mail@example.com",
+		"MG_BOUNCE_CHECK"                     => "0",
+		"MG_BOUNCE_CHECK_ALERT_TIMES"         => "2",
+		"MG_BOUNCE_CHECK_ALERT_EMAIL"         => "e.g. your-mail@example.com",
+		"MG_CUSTOM_STYLESHEET"                => "",
+		"MG_CONTACT_ADDRESS"                  => "",
+		"MG_SUPPORT_EMAIL"                    => "",
+		"MG_SUPPORT_PHONE"                    => "1800-123-1234"
+	);
+
+	if(!get_option('WPMG_SETTINGS')){
+		add_option( 'WPMG_SETTINGS', $wpmg_setting );
+	}
+
+	if(!get_option('wp_mailman_admin_emails')){
+		add_option( 'wp_mailman_admin_emails', $objMem->admin_emails );
+	}
+
+	if(!get_option('wp_mailman_custom_emails')){
+		add_option( 'wp_mailman_custom_emails', $objMem->custom_default_emails );
+	}
+}
+
 add_filter( 'cron_schedules', 'cron_add_weekly' );
 function cron_add_weekly( $schedules ) {
 	// Adds once weekly to the existing schedules.
@@ -602,63 +660,19 @@ function cron_add_weekly( $schedules ) {
 	return $schedules;
 }
 
-
-add_action( 'init', 'do_output_buffer' );
-function do_output_buffer() {
-	ob_start();
-}
-
-/* Install Plugin */
-register_activation_hook( __FILE__, 'wpmg_add_mailing_group_plugin' );
-function wpmg_add_mailing_group_plugin() {
-	/* Class to be used in complete plugin for all db requests */
-	require_once( "lib/mailinggroupclass.php" );
-	$objMem = new mailinggroupClass();
-
-	/* ADD CONFIG OPTION TO OPTION TABLE*/
-
-	if ( ! wp_next_scheduled( 'wpmg_cron_task_send_email' ) ) {
-		wp_schedule_event( time(), 'wpmg_two_minute', 'wpmg_cron_task_send_email' );
-	}
-	if ( ! wp_next_scheduled( 'wpmg_cron_task_parse_email' ) ) {
-		wp_schedule_event( time(), 'wpmg_five_minute', 'wpmg_cron_task_parse_email' );
-	}
-	/*if ( ! wp_next_scheduled( 'wpmg_cron_task_bounced_email' ) ) {
-		wp_schedule_event( time(), 'wpmg_fifteen_minute', 'wpmg_cron_task_bounced_email' );
-	}*/
-
-	$wpmg_setting = array(
-		"MG_WEBSITE_URL"                      => "andres.codes",
-		"MG_VERSION_NO"                       => "1.0",
-		"MG_SUBSCRIPTION_REQUEST_CHECK"       => "1",
-		"MG_SUBSCRIPTION_REQUEST_ALERT_EMAIL" => "e.g. your-mail@example.com",
-		"MG_BOUNCE_CHECK"                     => "0",
-		"MG_BOUNCE_CHECK_ALERT_TIMES"         => "2",
-		"MG_BOUNCE_CHECK_ALERT_EMAIL"         => "e.g. your-mail@example.com",
-		"MG_CUSTOM_STYLESHEET"                => "",
-		"MG_CONTACT_ADDRESS"                  => "",
-		"MG_SUPPORT_EMAIL"                    => "",
-		"MG_SUPPORT_PHONE"                    => "1800-123-1234"
-	);
-
-	if(!get_option('WPMG_SETTINGS')){
-		add_option( 'WPMG_SETTINGS', $wpmg_setting );
-	}
-
-	if(!get_option('wp_mailman_admin_emails')){
-		add_option( 'wp_mailman_admin_emails', $objMem->admin_emails );
-	}
-
-	if(!get_option('wp_mailman_custom_emails')){
-		add_option( 'wp_mailman_custom_emails', $objMem->custom_default_emails );
-	}
-}
-
-
 /* Uninstall Plugin */
-register_uninstall_hook( __FILE__, "wpmg_mailing_group_uninstall" );
+//register_uninstall_hook( __FILE__, "wpmg_mailing_group_uninstall" );
+//function wpmg_mailing_group_uninstall() {
+//
+//	return true;
+//}
+
+register_deactivation_hook(__FILE__, 'wpmg_mailing_group_uninstall');
+
 function wpmg_mailing_group_uninstall() {
-	return true;
+	wp_clear_scheduled_hook(  'wpmg_cron_task_send_email' );
+	wp_clear_scheduled_hook( 'wpmg_cron_task_parse_email' );
+	wp_clear_scheduled_hook( 'wpmg_cron_task_bounced_email' );
 }
 
 /* Initialize menu */
