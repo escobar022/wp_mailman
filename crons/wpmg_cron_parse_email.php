@@ -82,7 +82,7 @@ function wpmg_cron_parse_email() {
 						$thread = array(
 							'post_title'  => $subject_head,
 							'post_type'   => 'mg_threads',
-							'post_status' => 'publish',
+							'post_status' => 'draft',
 							'tags_input'  => get_the_title( $group_id ),
 							'post_parent' => $parent_ID,
 							'post_name'   => $hashed_title
