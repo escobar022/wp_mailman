@@ -25,11 +25,17 @@ function wpmg_cron_send_email() {
 			$senderEmail     = get_post_meta( $thread_id, 'mg_thread_email_from', true );
 			$is_active_group = get_post_meta( $group_id, 'mg_group_status', true );
 
-			$thread_subject = get_post_meta( $thread_id, 'mg_thread_email_subject', true );
-			$test_for       = "/out of the office/i";
+			$thread_subject  = get_post_meta( $thread_id, 'mg_thread_email_subject', true );
+			$test_out_office = "/out of the office/i";
 
-			if ( preg_match( $test_for, $thread_subject ) ) {
+			if ( preg_match( $test_out_office, $thread_subject ) ) {
 				update_post_meta( $thread_id, 'mg_thread_email_status', 'Out of Office' );
+				break;
+			}
+			$test_auto = "/automatic reply/i";
+
+			if ( preg_match( $test_auto, $thread_subject ) ) {
+				update_post_meta( $thread_id, 'mg_thread_email_status', 'Automatic Reply' );
 				break;
 			}
 
@@ -62,7 +68,20 @@ function wpmg_cron_send_email() {
 
 					$user_query = new WP_User_Query( $args );
 
-					if ( $user_query->get_total() > 0 ) {
+					$in_group = false;
+
+					foreach ( $user_query->get_results() as $memberstoSent ) {
+
+						if ($senderUserId == $memberstoSent->ID){
+							$in_group = true;
+							break;
+						}else{
+							$in_group = false;
+						}
+
+					}
+
+					if ( $user_query->get_total() > 0 && $in_group == true) {
 
 						$footerText = nl2br( stripslashes( get_post_meta( $group_id, 'mg_group_footer_text', true ) ) );
 						$groupTitle = get_the_title( $group_id );
@@ -168,10 +187,10 @@ function wpmg_cron_send_email() {
 								update_post_meta( $thread_id, 'mg_thread_email_status', 'Sent' );
 
 								$thread_update = array(
-									'ID'           => $thread_id,
-									'post_status'   => 'publish',
+									'ID'          => $thread_id,
+									'post_status' => 'publish',
 								);
-								wp_update_post($thread_update );
+								wp_update_post( $thread_update );
 							}
 						}
 
@@ -204,10 +223,10 @@ function wpmg_cron_send_email() {
 							if ( $php_sent ) {
 								update_post_meta( $thread_id, 'mg_thread_email_status', 'Sent' );
 								$thread_update = array(
-									'ID'           => $thread_id,
-									'post_status'   => 'publish',
+									'ID'          => $thread_id,
+									'post_status' => 'publish',
 								);
-								wp_update_post($thread_update );
+								wp_update_post( $thread_update );
 							} else {
 								update_post_meta( $thread_id, 'mg_thread_email_status', 'Error' );
 							}
@@ -260,10 +279,10 @@ function wpmg_cron_send_email() {
 							if ( $wp_sent ) {
 								update_post_meta( $thread_id, 'mg_thread_email_status', 'Sent' );
 								$thread_update = array(
-									'ID'           => $thread_id,
-									'post_status'   => 'publish',
+									'ID'          => $thread_id,
+									'post_status' => 'publish',
 								);
-								wp_update_post($thread_update );
+								wp_update_post( $thread_update );
 							} else {
 								update_post_meta( $thread_id, 'mg_thread_email_status', 'Error' );
 							}
