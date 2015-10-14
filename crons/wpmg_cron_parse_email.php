@@ -7,7 +7,7 @@ function wpmg_cron_parse_email() {
 
 	$args  = array(
 		'post_type'   => 'mg_groups',
-		'post_status' => array('publish','private'),
+		'post_status' => array( 'publish', 'private' ),
 		'meta_key'    => 'mg_group_status',
 		'meta_value'  => '2'
 	);
@@ -47,89 +47,96 @@ function wpmg_cron_parse_email() {
 
 			if ( $tot > 0 ) {
 				for ( $i = $tot; $i > 0; $i -- ) {
-					$head         = $obj->getHeaders( $i );
-					$mail         = $obj->getMail( $i );
-					$emailContent = $mail->fetch_html_body();
-					if ( empty( $emailContent ) ) {
-						$emailContent = nl2br( $mail->textPlain );
-					}
+					$head = $obj->getHeaders( $i );
 
-					preg_match( '#\[(.*)\]#', $mail->references, $match );
-					$parent_ID = $match[1];
+					if ( $head['sender'] == $email ) {
 
-					if ( empty( $parent_ID ) ) {
-						$subject_head = "[" . get_the_title( $group_id ) . "] " . $head['subject'];
+						$obj->deleteMail( $i );
+
 					} else {
-						$subject_head = $head['subject'];
-					}
 
-					$hashed_title = hash('crc32b',$subject_head);
+						$mail         = $obj->getMail( $i );
+						$emailContent = $mail->fetch_html_body();
+						if ( empty( $emailContent ) ) {
+							$emailContent = nl2br( $mail->textPlain );
+						}
 
-					/* get bounced email if any */
-					$bounced_email = "";
-					if ( $head['type'] == 'bounced' ) {
-						$bounced_email = $obj->get_bounced_email_address( $emailContent );
-					}
+						preg_match( '#\[(.*)\]#', $mail->references, $match );
+						$parent_ID = $match[1];
 
-					// Create post object
-					$thread = array(
-						'post_title'  => $subject_head,
-						'post_type'   => 'mg_threads',
-						'post_status' => 'publish',
-						'tags_input'  => get_the_title( $group_id ),
-						'post_parent' => $parent_ID,
-						'post_name'      => $hashed_title
-					);
+						if ( empty( $parent_ID ) ) {
+							$subject_head = "[" . get_the_title( $group_id ) . "] " . $head['subject'];
+						} else {
+							$subject_head = $head['subject'];
+						}
 
-					// Insert the post into the database
-					$pid = wp_insert_post( $thread );
+						$hashed_title = hash( 'crc32b', $subject_head );
 
-					//ADD OUR CUSTOM FIELDS
-					add_post_meta( $pid, 'mg_thread_type', $head['type'], true );
-					add_post_meta( $pid, 'mg_thread_UID', $mail->UID, true );
-					add_post_meta( $pid, 'mg_thread_references', $mail->references, true );
-					add_post_meta( $pid, 'mg_thread_parent_id', $parent_ID, true );
-					if ( $bounced_email != '' ) {
-						add_post_meta( $pid, 'mg_thread_email_bounced', $bounced_email, true );
-					}
-					add_post_meta( $pid, 'mg_thread_email_from', $head['from'], true );
-					add_post_meta( $pid, 'mg_thread_email_from_name', $head['fromName'], true );
-					add_post_meta( $pid, 'mg_thread_email_to', $head['to'], true );
-					add_post_meta( $pid, 'mg_thread_email_to_name', $head['toName'], true );
-					add_post_meta( $pid, 'mg_thread_email_subject', $subject_head, true );
-					add_post_meta( $pid, 'mg_thread_email_content', addslashes( $emailContent ), true );
-					add_post_meta( $pid, 'mg_thread_email_group_id', $group_id, true );
-					add_post_meta( $pid, 'mg_thread_email_status', 'Pending', true );
-					add_post_meta( $pid, 'mg_thread_date', $mail->date, true );
+						/* get bounced email if any */
+						$bounced_email = "";
+						if ( $head['type'] == 'bounced' ) {
+							$bounced_email = $obj->get_bounced_email_address( $emailContent );
+						}
 
-					$attachments = $mail->getAttachments();
+						// Create post object
+						$thread = array(
+							'post_title'  => $subject_head,
+							'post_type'   => 'mg_threads',
+							'post_status' => 'publish',
+							'tags_input'  => get_the_title( $group_id ),
+							'post_parent' => $parent_ID,
+							'post_name'   => $hashed_title
+						);
 
-					foreach ( $attachments as $attachment ) {
+						// Insert the post into the database
+						$pid = wp_insert_post( $thread );
 
-						$wp_res = $attachment->wordpresdir;
+						//ADD OUR CUSTOM FIELDS
+						add_post_meta( $pid, 'mg_thread_type', $head['type'], true );
+						add_post_meta( $pid, 'mg_thread_UID', $mail->UID, true );
+						add_post_meta( $pid, 'mg_thread_references', $mail->references, true );
+						add_post_meta( $pid, 'mg_thread_parent_id', $parent_ID, true );
+						if ( $bounced_email != '' ) {
+							add_post_meta( $pid, 'mg_thread_email_bounced', $bounced_email, true );
+						}
+						add_post_meta( $pid, 'mg_thread_email_from', $head['from'], true );
+						add_post_meta( $pid, 'mg_thread_email_from_name', $head['fromName'], true );
+						add_post_meta( $pid, 'mg_thread_email_to', $head['to'], true );
+						add_post_meta( $pid, 'mg_thread_email_to_name', $head['toName'], true );
+						add_post_meta( $pid, 'mg_thread_email_subject', $subject_head, true );
+						add_post_meta( $pid, 'mg_thread_email_content', addslashes( $emailContent ), true );
+						add_post_meta( $pid, 'mg_thread_email_group_id', $group_id, true );
+						add_post_meta( $pid, 'mg_thread_email_status', 'Pending', true );
+						add_post_meta( $pid, 'mg_thread_date', $mail->date, true );
 
-						if ( ! $wp_res['error'] ) {
-							$wp_filetype     = wp_check_filetype( $attachment->name, null );
-							$attached_insert = array(
-								'post_mime_type' => $wp_filetype['type'],
-								'post_parent'    => $pid,
-								'post_title'     => preg_replace( '/\.[^.]+$/', '', $attachment->name ),
-								'post_content'   => '',
-								'post_status'    => 'inherit'
-							);
-							$attachment_id   = wp_insert_attachment( $attached_insert, $wp_res['file'], $pid );
+						$attachments = $mail->getAttachments();
 
-							if ( ! is_wp_error( $attachment_id ) ) {
-								add_post_meta( $attachment_id, '_wp_attachment_image_alt', $attachment->disposition, true );
-								require_once( ABSPATH . "wp-admin" . '/includes/image.php' );
-								$attachment_data = wp_generate_attachment_metadata( $attachment_id, $wp_res['file'] );
-								wp_update_attachment_metadata( $attachment_id, $attachment_data );
+						foreach ( $attachments as $attachment ) {
+
+							$wp_res = $attachment->wordpresdir;
+
+							if ( ! $wp_res['error'] ) {
+								$wp_filetype     = wp_check_filetype( $attachment->name, null );
+								$attached_insert = array(
+									'post_mime_type' => $wp_filetype['type'],
+									'post_parent'    => $pid,
+									'post_title'     => preg_replace( '/\.[^.]+$/', '', $attachment->name ),
+									'post_content'   => '',
+									'post_status'    => 'inherit'
+								);
+								$attachment_id   = wp_insert_attachment( $attached_insert, $wp_res['file'], $pid );
+
+								if ( ! is_wp_error( $attachment_id ) ) {
+									add_post_meta( $attachment_id, '_wp_attachment_image_alt', $attachment->disposition, true );
+									require_once( ABSPATH . "wp-admin" . '/includes/image.php' );
+									$attachment_data = wp_generate_attachment_metadata( $attachment_id, $wp_res['file'] );
+									wp_update_attachment_metadata( $attachment_id, $attachment_data );
+								}
 							}
 						}
+						//debug
+						$obj->deleteMail( $i );
 					}
-					//debug
-					$obj->deleteMail( $i );
-
 				}
 			} else {
 				echo "No Email Found.";

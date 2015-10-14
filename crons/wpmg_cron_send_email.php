@@ -9,6 +9,7 @@ function wpmg_cron_send_email() {
 		'perm'        => 'readable',
 		'meta_key'    => 'mg_thread_email_status',
 		'meta_value'  => 'Pending'
+//		'meta_value'  => 'Sent'
 	);
 
 	$query = new WP_Query( $args );
@@ -61,187 +62,194 @@ function wpmg_cron_send_email() {
 
 					$user_query = new WP_User_Query( $args );
 
-					if ( $user_query->get_total()  > 0 ) {
-						foreach ( $user_query->get_results() as $memberstoSent ) {
+					if ( $user_query->get_total() > 0 ) {
 
-							$footerText               = nl2br( stripslashes( get_post_meta( $group_id, 'mg_group_footer_text', true ) ) );
-							$groupTitle               = get_the_title( $group_id );
-							$groupEmail               = get_post_meta( $group_id, 'mg_group_email', true );
-							$mail_type                = get_post_meta( $group_id, 'mg_group_mail_type', true );
-							$sendtouserId             = $memberstoSent->ID;
-							$user_group_subscriptions = get_user_meta( $sendtouserId, "mg_user_group_subscribed", true );
+						$footerText = nl2br( stripslashes( get_post_meta( $group_id, 'mg_group_footer_text', true ) ) );
+						$groupTitle = get_the_title( $group_id );
+						$groupEmail = get_post_meta( $group_id, 'mg_group_email', true );
+						$mail_type  = get_post_meta( $group_id, 'mg_group_mail_type', true );
 
-							$sendtouserEmailFormat = $user_group_subscriptions[ $group_id ];
+						$body       = get_post_meta( $thread_id, 'mg_thread_email_content', true );
+						$has_parent = get_post_meta( $thread_id, 'mg_thread_parent_id', true );
 
-							$Userrow     = get_user_by( "id", $sendtouserId );
-							$sendToName  = $Userrow->display_name;
-							$sendToEmail = $Userrow->user_email;
+						if ( empty( $has_parent ) ) {
+//							$footerText = str_replace( "{%name%}", $sendToName, $footerText );
+//							$footerText = str_replace( "{%email%}", $sendToEmail, $footerText );
+							$footerText = str_replace( "{%grouptitle%}", $groupTitle, $footerText );
+							$footerText = str_replace( "{%site_url%}", get_site_url(), $footerText );
+							$footerText = str_replace( "{%archive_url%}", get_permalink( $group_id ), $footerText );
+							$footerText = str_replace( "{%profile_url%}", get_admin_url( "", "profile.php" ), $footerText );
+//								$footerText = str_replace( "{%unsubscribe_url%}", get_bloginfo( 'wpurl' ) . '?unsubscribe=1&userid=' . $sendtouserId . '&group=' . $group_id, $footerText );
+							$body .= $footerText;
+						}
 
-							$body       = get_post_meta( $thread_id, 'mg_thread_email_content', true );
-							$has_parent = get_post_meta( $thread_id, 'mg_thread_parent_id', true );
+						if ( $mail_type == 'smtp' ) {
+							global $phpmailer;
+							if ( ! is_object( $phpmailer ) || ! is_a( $phpmailer, 'PHPMailer' ) ) {
+								require_once ABSPATH . WPINC . '/class-phpmailer.php';
+								require_once ABSPATH . WPINC . '/class-smtp.php';
+								$phpmailer = new PHPMailer();
+							}
+							$mail = new PHPMailer();
+							$mail->IsSMTP();
+							$mail->SMTPDebug = 0;
+							$mail->addCustomHeader( 'references', '[' . $thread_id . ']' );
+							$mail->addCustomHeader( 'sender', $groupEmail );
 
-							if ( empty( $has_parent ) ) {
-								$footerText = str_replace( "{%name%}", $sendToName, $footerText );
-								$footerText = str_replace( "{%email%}", $sendToEmail, $footerText );
-								$footerText = str_replace( "{%grouptitle%}", $groupTitle, $footerText );
-								$footerText = str_replace( "{%site_url%}", get_site_url(), $footerText );
-								$footerText = str_replace( "{%archive_url%}", get_permalink( $group_id ), $footerText );
-								$footerText = str_replace( "{%profile_url%}", get_admin_url( "", "profile.php" ), $footerText );
-								$footerText = str_replace( "{%unsubscribe_url%}", get_bloginfo( 'wpurl' ) . '?unsubscribe=1&userid=' . $sendtouserId . '&group=' . $group_id, $footerText );
-								$body .= $footerText;
+							if ( get_post_meta( $group_id, 'mg_group_smtp_username', true ) != '' && get_post_meta( $group_id, 'mg_group_smtp_password', true ) != '' ) {
+								$mail->Username   = get_post_meta( $group_id, 'mg_group_smtp_username', true );
+								$mail->Password   = get_post_meta( $group_id, 'mg_group_smtp_password', true );
+								$mail->SMTPAuth   = true;
+								$mail->SMTPSecure = "ssl";
+							} else {
+								$mail->Username = $groupEmail;
+								$mail->Password = get_post_meta( $group_id, 'mg_group_password', true );
+								$mail->SMTPAuth = false;
 							}
 
-							if ( $mail_type == 'smtp' ) {
-								global $phpmailer;
-								if ( ! is_object( $phpmailer ) || ! is_a( $phpmailer, 'PHPMailer' ) ) {
-									require_once ABSPATH . WPINC . '/class-phpmailer.php';
-									require_once ABSPATH . WPINC . '/class-smtp.php';
-									$phpmailer = new PHPMailer();
-								}
-								$mail = new PHPMailer();
-								$mail->IsSMTP();
-								$mail->SMTPDebug = 0;
-								$mail->addCustomHeader( 'references', '[' . $thread_id . ']' );
+							$mail->Host = get_post_meta( $group_id, 'mg_group_smtp_server', true );
+							$mail->Port = get_post_meta( $group_id, 'mg_group_smtp_port', true );
+							/*$mail->Sender = $groupEmail;*/
 
-								if ( get_post_meta( $group_id, 'mg_group_smtp_username', true ) != '' && get_post_meta( $group_id, 'mg_group_smtp_password', true ) != '' ) {
-									$mail->Username   = get_post_meta( $group_id, 'mg_group_smtp_username', true );
-									$mail->Password   = get_post_meta( $group_id, 'mg_group_smtp_password', true );
-									$mail->SMTPAuth   = true;
-									$mail->SMTPSecure = "ssl";
-								} else {
-									$mail->Username = $groupEmail;
-									$mail->Password = get_post_meta( $group_id, 'mg_group_password', true );
-									$mail->SMTPAuth = false;
-								}
+							$mail->SetFrom( $senderEmail, $senderName );
 
-								$mail->Host   = get_post_meta( $group_id, 'mg_group_smtp_server', true );
-								$mail->Port   = get_post_meta( $group_id, 'mg_group_smtp_port', true );
-								$mail->Sender = $groupEmail;
-								$mail->SetFrom( $senderEmail, $senderName );
-								/* reply to */
-								$mail->AddReplyTo( $groupEmail, $groupTitle );
-
-								$mail->Subject = get_post_meta( $thread_id, 'mg_thread_email_subject', true );
-
-								$alt_body = nl2br( $mail->html2text( $body ) );
-
-								if ( $sendtouserEmailFormat == '1' ) {
-									$mail->IsHTML( true );
-									$mail->MsgHTML( $body );
-								} else {
-									$mail->IsHTML( false );
-									$mail->Body = $alt_body;
-								}
-
-								$mail->AltBody = $alt_body;
-								$mail->AddAddress( $sendToEmail, $sendToName );
-
-								$args = array(
-									'numberposts' => - 1,
-									'post_parent' => $thread_id,
-									'post_status' => null,
-									'post_type'   => 'attachment',
-								);
-
-								$attachments = get_children( $args );
+							/* reply to */
+							$mail->AddReplyTo( $groupEmail, $groupTitle );
+							$mail->AddAddress( $groupEmail, $groupTitle );
 
 
-								if ( $attachments ) {
-									foreach ( $attachments as $attachment ) {
-										if ( get_post_meta( $attachment->ID, '_wp_attachment_image_alt', true ) == 'ATTACHMENT' ) {
-											$fullsize_path = get_attached_file( $attachment->ID );
-											$filename_only = basename( $fullsize_path );
+							foreach ( $user_query->get_results() as $memberstoSent ) {
 
-											if ( $attachment->post_mime_type == 'message/rfc822' ) {
-												$mail->addAttachment( $fullsize_path, $filename_only, '8bit' );
-											} else {
-												$mail->addAttachment( $fullsize_path, $filename_only );
-											}
+
+								$sendtouserId = $memberstoSent->ID;
+								$Userrow      = get_user_by( "id", $sendtouserId );
+								$sendToName   = $Userrow->display_name;
+								$sendToEmail  = $Userrow->user_email;
+
+								$mail->addBCC( $sendToEmail, $sendToName );
+							}
+
+							$mail->Subject = get_post_meta( $thread_id, 'mg_thread_email_subject', true );
+
+							$mail->IsHTML( true );
+							$mail->MsgHTML( $body );
+
+							$alt_body      = nl2br( $mail->html2text( $body ) );
+							$mail->AltBody = $alt_body;
+
+							$args = array(
+								'numberposts' => - 1,
+								'post_parent' => $thread_id,
+								'post_status' => null,
+								'post_type'   => 'attachment',
+							);
+
+							$attachments = get_children( $args );
+
+							if ( $attachments ) {
+								foreach ( $attachments as $attachment ) {
+									if ( get_post_meta( $attachment->ID, '_wp_attachment_image_alt', true ) == 'ATTACHMENT' ) {
+										$fullsize_path = get_attached_file( $attachment->ID );
+										$filename_only = basename( $fullsize_path );
+
+										if ( $attachment->post_mime_type == 'message/rfc822' ) {
+											$mail->addAttachment( $fullsize_path, $filename_only, '8bit' );
+										} else {
+											$mail->addAttachment( $fullsize_path, $filename_only );
 										}
 									}
 								}
-
-								if ( ! $mail->Send() ) {
-									update_post_meta( $thread_id, 'mg_thread_email_status', 'Error' );
-									update_post_meta( $thread_id, 'mg_thread_email_status_error', $mail->ErrorInfo );
-								} else {
-									update_post_meta( $thread_id, 'mg_thread_email_status', 'Sent' );
-								}
-
 							}
 
-							if ( $mail_type == 'php' ) {
+							if ( ! $mail->Send() ) {
+								update_post_meta( $thread_id, 'mg_thread_email_status', 'Error' );
+								update_post_meta( $thread_id, 'mg_thread_email_status_error', $mail->ErrorInfo );
+							} else {
+								update_post_meta( $thread_id, 'mg_thread_email_status', 'Sent' );
+							}
+						}
 
-								$mail_Subject = get_post_meta( $thread_id, 'mg_thread_email_subject', true );
+						if ( $mail_type == 'php' ) {
 
-								$to      = $sendToEmail;
-								$subject = $mail_Subject;
+							$mail_Subject = get_post_meta( $thread_id, 'mg_thread_email_subject', true );
 
-								$headers = 'From: ' . $groupTitle . '<' . $groupEmail . '>' . "\r\n";
-								$headers .= 'Reply-To: ' . $senderName . '<' . $senderEmail . '>' . "\r\n";
-								$headers .= 'X-Mailer: PHP' . phpversion() . "\r\n";
-								$headers .= 'MIME-Version: 1.0' . "\r\n";
-								$headers .= 'Content-Type: ' . get_bloginfo( 'html_type' ) . '; charset=\"' . get_bloginfo( 'charset' ) . '\"' . "\r\n";
-								$headers .= 'references: [' . $thread_id . ']' . "\r\n";
+							$to = array();
 
-								if ( $sendtouserEmailFormat == '1' ) {
-									$headers .= 'Content-type: text/html' . "\r\n";
-								} else {
-									$headers .= 'Content-type: text/plain' . "\r\n";
-								}
+							foreach ( $user_query->get_results() as $memberstoSent ) {
+								$sendtouserId = $memberstoSent->ID;
+								$Userrow      = get_user_by( "id", $sendtouserId );
+								$sendToEmail  = $Userrow->user_email;
+								$to[]         = $sendToEmail;
+							}
 
-								$php_sent = mail( $to, $subject, $body, $headers );
+							$subject = $mail_Subject;
 
-								if ( $php_sent ) {
-									update_post_meta( $thread_id, 'mg_thread_email_status', 'Sent' );
-								} else {
-									update_post_meta( $thread_id, 'mg_thread_email_status', 'Error' );
+							$headers = 'From: ' . $groupTitle . '<' . $groupEmail . '>' . "\r\n";
+							$headers .= 'Reply-To: ' . $senderName . '<' . $senderEmail . '>' . "\r\n";
+							$headers .= 'X-Mailer: PHP' . phpversion() . "\r\n";
+							$headers .= 'MIME-Version: 1.0' . "\r\n";
+							$headers .= 'Content-Type: ' . get_bloginfo( 'html_type' ) . '; charset=\"' . get_bloginfo( 'charset' ) . '\"' . "\r\n";
+							$headers .= 'references: [' . $thread_id . ']' . "\r\n";
+
+							$headers .= 'Content-type: text/html' . "\r\n";
+
+							$php_sent = mail( $to, $subject, $body, $headers );
+
+							if ( $php_sent ) {
+								update_post_meta( $thread_id, 'mg_thread_email_status', 'Sent' );
+							} else {
+								update_post_meta( $thread_id, 'mg_thread_email_status', 'Error' );
+							}
+						}
+
+						if ( $mail_type == 'wp' ) {
+
+							$mail_Subject = get_post_meta( $thread_id, 'mg_thread_email_subject', true );
+
+							$to = array();
+
+							foreach ( $user_query->get_results() as $memberstoSent ) {
+								$sendtouserId = $memberstoSent->ID;
+								$Userrow      = get_user_by( "id", $sendtouserId );
+								$sendToEmail  = $Userrow->user_email;
+								$to[]         = $sendToEmail;
+							}
+
+							$subject = $mail_Subject;
+
+							$headers[] = 'From: ' . $groupTitle . '<' . $groupEmail . '>' . "\r\n";
+							$headers[] = 'Reply-To: ' . $senderName . '<' . $senderEmail . '>' . "\r\n";
+							/* $headers[] = 'Cc: '. $sendToName .'<'.$sendToEmail.'>'."\r\n"; */
+							$headers[] = 'X-Mailer: PHP' . phpversion() . "\r\n";
+							$headers[] = 'MIME-Version: 1.0' . "\r\n";
+							$headers[] = 'Content-Type: ' . get_bloginfo( 'html_type' ) . '; charset=\"' . get_bloginfo( 'charset' ) . '\"' . "\r\n";
+
+							$headers[] = 'Content-type: text/html' . "\r\n";
+
+							$args = array(
+								'numberposts' => - 1,
+								'post_parent' => $thread_id,
+								'post_status' => null,
+								'post_type'   => 'attachment',
+							);
+
+							$attachments = get_children( $args );
+
+							$attachment_send = array();
+
+							foreach ( $attachments as $attachment ) {
+								if ( get_post_meta( $attachment->ID, '_wp_attachment_image_alt', true ) === 'ATTACHMENT' ) {
+									$fullsize_path     = get_attached_file( $attachment->ID );
+									$attachment_send[] = $fullsize_path;
 								}
 							}
-							if ( $mail_type == 'wp' ) {
 
-								$mail_Subject = get_post_meta( $thread_id, 'mg_thread_email_subject', true );
+							$wp_sent = wp_mail( $to, $subject, $body, $headers, $attachment_send );
 
-								$to      = $sendToEmail;
-								$subject = $mail_Subject;
-
-								$headers[] = 'From: ' . $groupTitle . '<' . $groupEmail . '>' . "\r\n";
-								$headers[] = 'Reply-To: ' . $senderName . '<' . $senderEmail . '>' . "\r\n";
-								/* $headers[] = 'Cc: '. $sendToName .'<'.$sendToEmail.'>'."\r\n"; */
-								$headers[] = 'X-Mailer: PHP' . phpversion() . "\r\n";
-								$headers[] = 'MIME-Version: 1.0' . "\r\n";
-								$headers[] = 'Content-Type: ' . get_bloginfo( 'html_type' ) . '; charset=\"' . get_bloginfo( 'charset' ) . '\"' . "\r\n";
-								if ( $sendtouserEmailFormat == '1' ) {
-									$headers[] = 'Content-type: text/html' . "\r\n";
-								} else {
-									$headers[] = 'Content-type: text/plain' . "\r\n";
-								}
-
-								$args = array(
-									'numberposts' => - 1,
-									'post_parent' => $thread_id,
-									'post_status' => null,
-									'post_type'   => 'attachment',
-								);
-
-								$attachments = get_children( $args );
-
-								$attachment_send = array();
-
-								foreach ( $attachments as $attachment ) {
-									if ( get_post_meta( $attachment->ID, '_wp_attachment_image_alt', true ) === 'ATTACHMENT' ) {
-										$fullsize_path     = get_attached_file( $attachment->ID );
-										$attachment_send[] = $fullsize_path;
-									}
-								}
-
-								$wp_sent = wp_mail( $to, $subject, $body, $headers, $attachment_send );
-
-								if ( $wp_sent ) {
-									update_post_meta( $thread_id, 'mg_thread_email_status', 'Sent' );
-								} else {
-									update_post_meta( $thread_id, 'mg_thread_email_status', 'Error' );
-								}
+							if ( $wp_sent ) {
+								update_post_meta( $thread_id, 'mg_thread_email_status', 'Sent' );
+							} else {
+								update_post_meta( $thread_id, 'mg_thread_email_status', 'Error' );
 							}
 						}
 

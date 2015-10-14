@@ -95,22 +95,25 @@ class receiveMail {
 
 		$mail_details   = '';
 		$mail_header    = imap_header( $this->getImapStream(), $mid );
+
 		$receiver       = $mail_header->to[0];
-		$sender         = $mail_header->from[0];
+		$sender = $mail_header->sender[0];
+		$from         = $mail_header->from[0];
 		$sender_replyto = $mail_header->reply_to[0];
-		if ( strtolower( $sender->mailbox ) != 'postmaster' ) {
+		if ( strtolower( $from->mailbox ) != 'postmaster' ) {
 			$mail_details = array(
-				'from'      => strtolower( $sender->mailbox ) . '@' . $sender->host,
-				'fromName'  => $sender->personal,
+				'from'      => strtolower( $from->mailbox ) . '@' . $from->host,
+				'fromName'  => $from->personal,
 				'toOth'     => strtolower( $sender_replyto->mailbox ) . '@' . $sender_replyto->host,
 				'toNameOth' => $sender_replyto->personal,
 				'subject'   => $mail_header->subject,
 				'to'        => $this->email,
 				'toName'    => $receiver->personal,
 				'date'      => date( "d/m/Y H:i", strtotime( $mail_header->Date ) ),
-				'type'      => "email"
+				'type'      => "email",
+				'sender' => strtolower( $sender->mailbox ) . '@' . $sender->host
 			);
-			if ( strtolower( $sender->mailbox ) == 'mailer-daemon' ) {
+			if ( strtolower( $from->mailbox ) == 'mailer-daemon' ) {
 				$mail_details['type'] = 'bounced';
 			}
 		}
