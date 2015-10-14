@@ -166,7 +166,12 @@ function wpmg_cron_send_email() {
 								update_post_meta( $thread_id, 'mg_thread_email_status_error', $mail->ErrorInfo );
 							} else {
 								update_post_meta( $thread_id, 'mg_thread_email_status', 'Sent' );
-								wp_transition_post_status( 'publish', 'draft', $thread_id );
+
+								$thread_update = array(
+									'ID'           => $thread_id,
+									'post_status'   => 'publish',
+								);
+								wp_update_post($thread_update );
 							}
 						}
 
@@ -198,7 +203,11 @@ function wpmg_cron_send_email() {
 
 							if ( $php_sent ) {
 								update_post_meta( $thread_id, 'mg_thread_email_status', 'Sent' );
-								wp_transition_post_status( 'publish', 'draft', $thread_id );
+								$thread_update = array(
+									'ID'           => $thread_id,
+									'post_status'   => 'publish',
+								);
+								wp_update_post($thread_update );
 							} else {
 								update_post_meta( $thread_id, 'mg_thread_email_status', 'Error' );
 							}
@@ -250,7 +259,11 @@ function wpmg_cron_send_email() {
 
 							if ( $wp_sent ) {
 								update_post_meta( $thread_id, 'mg_thread_email_status', 'Sent' );
-								wp_transition_post_status( 'publish', 'draft', $thread_id );
+								$thread_update = array(
+									'ID'           => $thread_id,
+									'post_status'   => 'publish',
+								);
+								wp_update_post($thread_update );
 							} else {
 								update_post_meta( $thread_id, 'mg_thread_email_status', 'Error' );
 							}
