@@ -85,7 +85,6 @@ function wpmg_cron_send_email() {
 
 						if ( $senderUserId == $memberstoSent->ID ) {
 							$in_group = true;
-							error_log(print_r($in_group,true));
 							break;
 						} else {
 							$in_group = false;
