@@ -108,7 +108,7 @@ function Mailing_Groups() {
 		'description'         => __( 'Group Threads', 'text_domain' ),
 		'labels'              => $labels,
 		'supports'            => array( 'title', 'page-attributes' ),
-		'taxonomies'          => array('post_tag' ),
+		'taxonomies'          => array( 'post_tag' ),
 		'hierarchical'        => true,
 		'public'              => true,
 		'show_ui'             => true,
@@ -287,20 +287,16 @@ function mg_group_custom_meta_fields() {
 			'id'      => $prefix . 'footer_text',
 			'type'    => 'textarea',
 			'default' => '-- -- -- --
-This message was sent to <b>{%name%}</b> at <b>{%email%}</b> by the <a href="{%site_url%}">{%site_url%}</a> website using WP Mailman.
-{%archive_url%}
-<b><a href="{%unsubscribe_url%}">Unsubscribe</a></b> | <a href="{%profile_url%}">Update Profile</a>'
+This message was sent to  <a href="{%archive_url%}">{%grouptitle%}</a> by <a href="{%site_url%}">Site</a>'
 		),
 		array(
 			'label'   => 'Available Variables',
 			'type'    => 'description_block',
 			'example' => '<code>
-			{%name%} = Name of the receiving member<br>
-			{%email%} = Email of the receiving member<br>
+			{%grouptitle%} = Group Title<br>
 			{%site_url%} = Sites URL<br>
 			{%archive_url%} = Message Archive page URL<br>
-			{%profile_url%} = User profile URL<br>
-			{%unsubscribe_url%} = Unsubscribe URL</code>'
+			{%profile_url%} = User profile URL<br></code>'
 		),
 		array(
 			'label'      => 'Settings for Subscription Request messages',
@@ -569,7 +565,6 @@ function save_custom_meta( $post_id, $post ) {
 }
 
 
-
 add_action( 'init', 'do_output_buffer' );
 function do_output_buffer() {
 	ob_start();
@@ -596,7 +591,7 @@ function cron_add_weekly( $schedules ) {
 		'interval' => 120,
 		'display'  => __( 'Every Two Minutes' )
 	);
-	$schedules['wpmg_three_minute']    = array(
+	$schedules['wpmg_three_minute']   = array(
 		'interval' => 180,
 		'display'  => __( 'Every Three Minutes' )
 	);
@@ -619,7 +614,7 @@ function wpmg_add_mailing_group_plugin() {
 	require_once( "lib/mailinggroupclass.php" );
 	$objMem = new mailinggroupClass();
 
-	/* ADD CONFIG OPTION TO OPTION TABLE*/
+	/* Commented out to test if caching was an issue, resolved. Can remove*/
 
 //	if ( ! wp_next_scheduled( 'wpmg_cron_task_send_email' ) ) {
 //		wp_schedule_event( time(), 'wpmg_two_minute', 'wpmg_cron_task_send_email' );
@@ -650,15 +645,15 @@ function wpmg_add_mailing_group_plugin() {
 		"MG_SUPPORT_PHONE"                    => "1800-123-1234"
 	);
 
-	if(!get_option('WPMG_SETTINGS')){
+	if ( ! get_option( 'WPMG_SETTINGS' ) ) {
 		add_option( 'WPMG_SETTINGS', $wpmg_setting );
 	}
 
-	if(!get_option('wp_mailman_admin_emails')){
+	if ( ! get_option( 'wp_mailman_admin_emails' ) ) {
 		add_option( 'wp_mailman_admin_emails', $objMem->admin_emails );
 	}
 
-	if(!get_option('wp_mailman_custom_emails')){
+	if ( ! get_option( 'wp_mailman_custom_emails' ) ) {
 		add_option( 'wp_mailman_custom_emails', $objMem->custom_default_emails );
 	}
 }
@@ -671,10 +666,13 @@ function wpmg_add_mailing_group_plugin() {
 //	return true;
 //}
 
-register_deactivation_hook(__FILE__, 'wpmg_mailing_group_uninstall');
+register_deactivation_hook( __FILE__, 'wpmg_mailing_group_uninstall' );
 
 function wpmg_mailing_group_uninstall() {
-	wp_clear_scheduled_hook(  'wpmg_cron_task_send_email' );
+
+	/*Clears if any crons are scheduled with same name, removes them from cache*/
+
+	wp_clear_scheduled_hook( 'wpmg_cron_task_send_email' );
 	wp_clear_scheduled_hook( 'wpmg_cron_task_parse_email' );
 	wp_clear_scheduled_hook( 'wpmg_cron_task_bounced_email' );
 }
@@ -802,7 +800,6 @@ function wpmg_mailinggroup_membergroups() {
 	global $wpdb, $objMem, $table_name_requestmanager_taxonomy, $table_name_user_taxonomy, $table_name_group;
 	include "template/mg_membergroups.php";
 }
-
 
 
 function wpmg_mailinggroup_adminmessagelist() {

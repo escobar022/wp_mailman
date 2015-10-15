@@ -93,12 +93,12 @@ class receiveMail {
 			return false;
 		}
 
-		$mail_details   = '';
-		$mail_header    = imap_header( $this->getImapStream(), $mid );
+		$mail_details = '';
+		$mail_header  = imap_header( $this->getImapStream(), $mid );
 
 		$receiver       = $mail_header->to[0];
-		$sender = $mail_header->sender[0];
-		$from         = $mail_header->from[0];
+		$sender         = $mail_header->sender[0];
+		$from           = $mail_header->from[0];
 		$sender_replyto = $mail_header->reply_to[0];
 		if ( strtolower( $from->mailbox ) != 'postmaster' ) {
 			$mail_details = array(
@@ -111,7 +111,7 @@ class receiveMail {
 				'toName'    => $receiver->personal,
 				'date'      => date( "d/m/Y H:i", strtotime( $mail_header->Date ) ),
 				'type'      => "email",
-				'sender' => strtolower( $sender->mailbox ) . '@' . $sender->host
+				'sender'    => strtolower( $sender->mailbox ) . '@' . $sender->host
 			);
 			if ( strtolower( $from->mailbox ) == 'mailer-daemon' ) {
 				$mail_details['type'] = 'bounced';
@@ -133,6 +133,9 @@ class receiveMail {
 	}
 
 	public function getMail( $mailId ) {
+		//Update timezone in Wordpress General Settings
+		date_default_timezone_set( get_option( 'timezone_string' ) );
+
 		$head              = imap_rfc822_parse_headers( imap_fetchheader( $this->getImapStream(), $mailId, FT_UID ) );
 		$mail              = new IncomingMail();
 		$mail->id          = $mailId;
@@ -204,7 +207,7 @@ class receiveMail {
 			$mail_attachment_head = imap_rfc822_parse_headers( $data );
 
 			if ( ! empty( $mail_attachment_head ) ) {
-				$file_name          = preg_replace( '/[^A-Za-z0-9\-]/', ' ', $mail_attachment_head->subject );
+				$file_name = preg_replace( '/[^A-Za-z0-9\-]/', ' ', $mail_attachment_head->subject );
 
 				$params['filename'] = $file_name . '.eml';
 				$params['name']     = $file_name . '.eml';
