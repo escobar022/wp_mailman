@@ -131,10 +131,10 @@ jQuery(function ($) {
 		var visibility = $(this).data('visibility');
 
 		var data = {
-			action   : 'wpmg_custom_msg_visibility',
-			email_id : email_id,
-			visibility : visibility,
-			nextNonce: PT_Ajax.nextNonce
+			action    : 'wpmg_custom_msg_visibility',
+			email_id  : email_id,
+			visibility: visibility,
+			nextNonce : PT_Ajax.nextNonce
 		};
 
 		$.post(PT_Ajax.ajaxurl, data, function () {
@@ -168,7 +168,7 @@ jQuery(function ($) {
 //Custom Style Page
 jQuery(function ($) {
 	$("#styleform").submit(function () {
-		if (trim($('textarea'+this).val()) == "") {
+		if (trim($('textarea' + this).val()) == "") {
 			alert("Please enter css styles to submit.");
 			$("#user_style").focus();
 			return false;
@@ -413,15 +413,38 @@ jQuery(function ($) {
 
 	});
 
-	$('#available_members').dataTable({
+	$.fn.dataTableExt.oApi.fnFilterAll = function (oSettings, sInput, iColumn, bRegex, bSmart) {
+		var settings = $.fn.dataTableSettings;
+
+		for (var i = 0; i < settings.length; i++) {
+			settings[i].oInstance.fnFilter(sInput, iColumn, bRegex, bSmart);
+		}
+	};
+
+
+	var table = $('.memberlist').dataTable({
 		"aoColumnDefs"  : [
 			{"bSortable": true, "aTargets": [0, 1]}
 		],
 		"oLanguage"     : {
-			"sZeroRecords": "There are no more members available to import."
+			"sZeroRecords": "There are no more members available."
 		},
 		"fnDrawCallback": function () {
-			document.getElementById('available_members_paginate').style.display = "block";
+			$('.dataTables_filter').hide();
+		}
+	});
+
+	$("#search_all").keyup(function () {
+		// Filter on the column (the index) of this element
+		table.fnFilterAll(this.value);
+	});
+
+	$('.mailinggrouplist').DataTable({
+		"aoColumnDefs": [
+			{"bSortable": true, "aTargets": [0, 1]}
+		],
+		"oLanguage"   : {
+			"sZeroRecords": "There are no mailing groups available."
 		}
 	});
 

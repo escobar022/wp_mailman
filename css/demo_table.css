@@ -45,7 +45,7 @@
 	position: relative;
 	clear:    both;
 	zoom:     1; /* Feeling sorry for IE */
-
+	margin-bottom: 25px;
 }
 
 .dataTables_processing {
@@ -80,7 +80,6 @@
 .dataTables_info {
 	width:          60%;
 	float:          left;
-	padding-bottom: 5px;
 }
 
 .dataTables_paginate {
@@ -685,7 +684,6 @@ div.box {
 	float: none !important;
 }
 
-
 .form-field input#auto_delete_limit {
 	float: none !important;
 	width: 125px !important;
@@ -1219,4 +1217,8 @@ div.box {
 
 #memberaddedit td {
 	vertical-align: top;
+}
+/*Search for Memberlist*/
+.search_all{
+	float: right;
 }

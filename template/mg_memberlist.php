@@ -50,9 +50,17 @@ $totcount            = $user_in_group_query->get_total();
 	</h2>
 
 	<div id="message"></div>
-	<table class="wp-list-table widefat fixed" id="memberlist">
+
+	<div class="search_all">
+		<label for="search_all">Search:</label>
+		<input type="text" id="search_all">
+		<br>
+	</div>
+
+
+	<table class="wp-list-table widefat memberlist">
 		<thead>
-		<tr role="row" class="topRow" id="memberlistdata">
+		<tr role="row" class="topRow">
 			<th class="sort topRow_messagelist"><a href="#"><?php _e( "Name", 'mailing-group-module' ); ?></a></th>
 			<th><a href="#"><?php _e( "Email Address", 'mailing-group-module' ); ?></a></th>
 			<th><?php _e( "Bounced Emails", 'mailing-group-module' ); ?></th>
@@ -75,7 +83,7 @@ $totcount            = $user_in_group_query->get_total();
 							$user_login   = $Userrow->user_login;
 							$user_email   = $Userrow->user_email;
 							$display_name = $Userrow->user_firstname;
-							$lastname = $Userrow->user_lastname;
+							$lastname     = $Userrow->user_lastname;
 							$status       = get_user_meta( $userId, "mg_user_status", true );
 
 							/*TODO: add email bounce table*/
@@ -92,7 +100,7 @@ $totcount            = $user_in_group_query->get_total();
 								$labledetail = __( "click to Activate", 'mailing-group-module' );
 							} ?>
 							<tr>
-								<td><?php echo $display_name.' '.$lastname; ?></td>
+								<td><?php echo $display_name . ' ' . $lastname; ?></td>
 								<td><?php echo $user_email; ?></td>
 								<td><?php echo $noofemailb; ?></td>
 								<td><?php echo $lablestatus; ?> (<a href="admin.php?page=wpmg_mailinggroup_memberlist&act=<?php echo $act; ?>&id=<?php echo $userId; ?>&gid=<?php echo $gid; ?>"><?php echo $labledetail; ?></a>)
@@ -145,7 +153,7 @@ $tot_available = $available_user_query->get_total();
 
 <div class="wrap">
 	<h2>Available Users to add</h2>
-	<table class="wp-list-table widefat fixed" id="available_members">
+	<table class="wp-list-table widefat fixed memberlist">
 		<thead>
 		<tr role="row" class="topRow">
 			<th class="sort topRow_messagelist"><a href="#"><?php _e( "Name", 'mailing-group-module' ); ?></a></th>
@@ -165,7 +173,7 @@ $tot_available = $available_user_query->get_total();
 				$user_login   = $Userrow->user_login;
 				$user_email   = $Userrow->user_email;
 				$display_name = $Userrow->user_firstname;
-				$lastname = $Userrow->user_lastname;
+				$lastname     = $Userrow->user_lastname;
 				$status       = get_user_meta( $userId, 'mg_user_status', true );
 
 				/*TODO: add email bounce table*/
@@ -182,7 +190,7 @@ $tot_available = $available_user_query->get_total();
 					$labledetail = __( "click to Activate", 'mailing-group-module' );
 				} ?>
 				<tr>
-					<td><?php echo $display_name.' '.$lastname; ?></td>
+					<td><?php echo $display_name . ' ' . $lastname; ?></td>
 					<td><?php echo $user_email; ?></td>
 					<td><?php echo $noofemailb; ?></td>
 					<td><?php echo $lablestatus; ?> (<a href="admin.php?page=wpmg_mailinggroup_memberlist&act=<?php echo $act; ?>&id=<?php echo $userId; ?>&gid=<?php echo $gid; ?>"><?php echo $labledetail; ?></a>)
@@ -195,7 +203,7 @@ $tot_available = $available_user_query->get_total();
 			}
 
 		} else { ?>
-			<?php } ?>
+		<?php } ?>
 		</tbody>
 	</table>
 </div>
