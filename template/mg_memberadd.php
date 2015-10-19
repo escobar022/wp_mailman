@@ -20,7 +20,8 @@ $args = array(
 	'post_type'   => 'mg_groups',
 	'post_status' => array('publish','private'),
 	'meta_key'    => 'mg_group_status',
-	'meta_value'  => '2'
+	'meta_value'  => '2',
+
 );
 
 $result_groups = get_posts( $args );
