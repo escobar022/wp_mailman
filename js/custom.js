@@ -422,22 +422,22 @@ jQuery(function ($) {
 	};
 
 
-	var table = $('table.memberlist').dataTable({
+	var table = $('.memberlist').dataTable({
 		"aoColumnDefs"  : [
 			{"bSortable": true, "aTargets": [0, 1]}
 		],
 		"oLanguage"     : {
 			"sZeroRecords": "There are no more members available."
-		}/*,
+		},
 		"fnDrawCallback": function () {
 			$('.dataTables_filter').hide();
-		}*/
+		}
 	});
-	
-	/*$("#search_all").keyup(function () {
+
+	$("#search_all").keyup(function () {
 		// Filter on the column (the index) of this element
 		table.fnFilterAll(this.value);
-	});*/
+	});
 
 	$('.mailinggrouplist').DataTable({
 		"aoColumnDefs": [
