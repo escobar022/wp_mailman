@@ -89,7 +89,7 @@ $args = array(
 	'post_status' => array('publish','private'),
 	'order_by'    => 'title',
 	'order'       => 'DESC',
-	'posts_per_page' => - 1s
+	'posts_per_page' => - 1
 );
 
 $query         = new WP_Query( $args );
