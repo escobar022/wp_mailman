@@ -428,9 +428,6 @@ jQuery(function ($) {
 		],
 		"oLanguage"     : {
 			"sZeroRecords": "There are no more members available."
-		},
-		"fnDrawCallback": function () {
-			$('.dataTables_filter').hide();
 		}
 	});
 
