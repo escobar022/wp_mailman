@@ -20,7 +20,7 @@ $args = array(
 	'post_type'   => 'mg_groups',
 	'post_status' => array('publish','private'),
 	'order_by'    => 'title',
-	'order'       => 'DESC',
+	'order'       => 'ASC',
 	'posts_per_page' => - 1
 
 );
