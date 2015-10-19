@@ -21,6 +21,7 @@ $args = array(
 	'post_status' => array('publish','private'),
 	'meta_key'    => 'mg_group_status',
 	'meta_value'  => '2',
+	'posts_per_page' => - 1
 
 );
 
