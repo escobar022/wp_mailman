@@ -684,9 +684,9 @@ function wpmg_mailinggroup_Menu() {
 	$user_level  = 0;
 	/* Adding menus */
 	if ( current_user_can( 'manage_options' ) ) {
-		add_menu_page( __( 'Mailing Group Manager', 'mailing-group-module' ), __( 'Mailing Group Manager', 'mailing-group-module' ), $admin_level, 'wpmg_mailinggroup_intro', 'wpmg_mailinggroup_intro' );
+		add_menu_page( __( 'WP Mailman Options', 'mailing-group-module' ), __( 'WP Mailman Options', 'mailing-group-module' ), $admin_level, 'wpmg_mailinggroup_intro', 'wpmg_mailinggroup_intro' );
 		add_submenu_page( 'wpmg_mailinggroup_intro', __( 'General Settings', 'mailing-group-module' ), __( 'General Settings', 'mailing-group-module' ), $admin_level, 'wpmg_mailinggroup_intro', 'wpmg_mailinggroup_intro' );
-		add_submenu_page( 'wpmg_mailinggroup_intro', __( 'Mailing Groups', 'mailing-group-module' ), __( 'Mailing Groups', 'mailing-group-module' ), $admin_level, 'wpmg_mailinggroup_list', 'wpmg_mailinggroup_list' );
+		add_submenu_page( 'wpmg_mailinggroup_intro', __( 'Mailing Groups', 'mailing-group-module' ), __( 'Mailing Groups Manager', 'mailing-group-module' ), $admin_level, 'wpmg_mailinggroup_list', 'wpmg_mailinggroup_list' );
 
 		add_submenu_page( 'null', __( 'Member Manager', 'mailing-group-module' ), __( 'Member Manager', 'mailing-group-module' ), $admin_level, 'wpmg_mailinggroup_memberlist', 'wpmg_mailinggroup_memberlist' );
 		add_submenu_page( 'null', __( 'Add Member', 'mailing-group-module' ), __( 'Add Member', 'mailing-group-module' ), $admin_level, 'wpmg_mailinggroup_memberadd', 'wpmg_mailinggroup_memberadd' );
@@ -755,7 +755,6 @@ function wpmg_mailinggroup_contact() {
 }
 
 function wpmg_mailinggroup_list() {
-	global $wpdb, $objMem, $table_name_group, $table_name_requestmanager, $table_name_requestmanager_taxonomy;
 	include "template/mg_mailinggrouplist.php";
 }
 

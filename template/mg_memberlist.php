@@ -114,11 +114,7 @@ $totcount            = $user_in_group_query->get_total();
 				}
 			}
 
-		} else { ?>
-		<tr>
-			<td colspan="5" align="center"><?php _e( "No members found.", 'mailing-group-module' ); ?></td>
-		<tr>
-			<?php } ?>
+		} ?>
 		</tbody>
 	</table>
 
@@ -202,8 +198,7 @@ $tot_available = $available_user_query->get_total();
 				<?php
 			}
 
-		} else { ?>
-		<?php } ?>
+		} ?>
 		</tbody>
 	</table>
 </div>

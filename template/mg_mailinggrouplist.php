@@ -9,7 +9,8 @@
 	<table class="wp-list-table widefat fixed mailinggrouplist">
 		<thead>
 		<tr role="row" class="topRow">
-			<th class="sort topRow_messagelist"><a href="#"><?php _e( "Group Name", 'mailing-group-module' ); ?></a></th>
+			<th class="sort topRow_messagelist"><a href="#"><?php _e( "Group Name", 'mailing-group-module' ); ?></a>
+			</th>
 			<th><a href="#"><?php _e( "Email Address", 'mailing-group-module' ); ?></a></th>
 			<th><?php _e( "Status", 'mailing-group-module' ); ?></th>
 			<th width="22%"><?php _e( "Actions", 'mailing-group-module' ); ?></th>
@@ -22,6 +23,8 @@
 			'post_type'      => 'mg_groups',
 			'post_status'    => array( 'publish', 'private' ),
 			'perm'           => 'readable',
+			'orderby'    => 'title',
+			'order'       => 'ASC',
 			'posts_per_page' => - 1
 		);
 		$query = new WP_Query( $args );
@@ -51,11 +54,7 @@
 				</tr>
 			<?php }
 
-		} else { ?>
-		<tr>
-			<td colspan="3" align="center"><?php _e( "Click 'Add New Mailing Group' to get started", 'mailing-group-module' ); ?></td>
-		<tr>
-			<?php } ?>
+		} ?>
 		</tbody>
 	</table>
 </div>

@@ -7,7 +7,7 @@ if ( is_user_logged_in() ) {
 	$args = array(
 		'post_type'   => 'mg_groups',
 		'post_status' => 'publish',
-		'order_by'    => 'title',
+		'orderby'    => 'title',
 		'order'       => 'DESC',
 		'meta_query'  => array(
 			'relation' => 'AND',
