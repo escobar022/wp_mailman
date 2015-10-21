@@ -9,6 +9,7 @@ if ( is_user_logged_in() ) {
 		'post_status' => 'publish',
 		'orderby'    => 'title',
 		'order'       => 'DESC',
+		'posts_per_page' => - 1,
 		'meta_query'  => array(
 			'relation' => 'AND',
 			array(
