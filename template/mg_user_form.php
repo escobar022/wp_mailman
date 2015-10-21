@@ -8,7 +8,7 @@ if ( is_user_logged_in() ) {
 		'post_type'   => 'mg_groups',
 		'post_status' => 'publish',
 		'orderby'    => 'title',
-		'order'       => 'DESC',
+		'order'       => 'ASC',
 		'posts_per_page' => - 1,
 		'meta_query'  => array(
 			'relation' => 'AND',
