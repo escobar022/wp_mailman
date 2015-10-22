@@ -653,13 +653,18 @@ div.box {
 	text-align: center !important;
 }
 
-.form-table th, .form-wrap label {
+.form-table th {
 	color:        #222222;
 	float:        left;
 	margin-right: 25px;
 	text-shadow:  0 1px 0 #FFFFFF;
 	width:        152px;
 }
+
+.form-wrap label {
+	color:        #222222;
+}
+
 
 #addemailsetting .form-field input, .form-field textarea {
 	border-style:  solid;
@@ -703,7 +708,11 @@ div.box {
 }
 
 .form-wrap {
-	margin-top: 20px;
+	margin: 10px;
+}
+
+.form-field{
+	margin: 10px auto;
 }
 
 .form-field label {
