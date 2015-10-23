@@ -93,7 +93,11 @@ if ( is_user_logged_in() ) {
 										?>
 										<tr>
 											<td width="30%">
-												<?php echo $group->post_title; ?>
+												<p><?php echo $group->post_title;
+													 $nice_title = get_post_meta($group->ID,'mg_group_sender_name',true);
+													if ($nice_title != ''){
+														echo ':<br> '.$nice_title;
+													}?></p>
 											</td>
 											<td width="40%">
 												<?php if ( $subscribed ) {
